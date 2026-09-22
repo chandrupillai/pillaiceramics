@@ -115,7 +115,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{route('users.index')}}" class="nav-link">
                     <i class="bi bi-people-fill"></i>
                     <span>Users Module</span>
                 </a>

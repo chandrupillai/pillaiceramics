@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::match(['get', 'post'], '/', [PageController::class, 'index'])->name('home');
 Route::get('/about', [PageController::class, 'about'])->name('about');
@@ -33,4 +34,15 @@ Route::prefix('admin')->middleware(['auth', 'role:super_admin,admin,staff'])->gr
     Route::middleware('role:super_admin,admin')->group(function () {
         // Route::resource('users', UserController::class);
     });
+
+Route::middleware('role:super_admin,admin')->group(function () {
+        // User Routes -> Names automatically resolve with 'admin.' prefix
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/fetch', [UserController::class, 'fetch'])->name('admin.users.fetch'); // Resolves to: admin.users.fetch
+        Route::post('users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('users/{user}', [UserController::class, 'show'])->name('admin.users.show');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    });
+    
 });
