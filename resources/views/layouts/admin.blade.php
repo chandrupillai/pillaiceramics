@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +50,8 @@
             transition: all 0.2s ease;
         }
 
-        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+        #sidebar .nav-link:hover,
+        #sidebar .nav-link.active {
             color: #ffffff;
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -82,9 +84,11 @@
             #sidebar {
                 margin-left: calc(-1 * var(--sidebar-width));
             }
+
             #sidebar.active {
                 margin-left: 0;
             }
+
             #main-content {
                 margin-left: 0;
             }
@@ -92,6 +96,7 @@
     </style>
     @stack('styles')
 </head>
+
 <body>
 
     <!-- Sidebar Navigation -->
@@ -127,7 +132,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{route('admin.godowns.index')}}" class="nav-link">
                     <i class="bi bi-building-fill"></i>
                     <span>Godowns</span>
                 </a>
@@ -137,7 +142,7 @@
 
     <!-- Main Content Wrapper -->
     <div id="main-content">
-        
+
         <!-- Header -->
         <header class="admin-header d-flex align-items-center justify-content-between px-4 sticky-top">
             <div class="d-flex align-items-center gap-3">
@@ -191,13 +196,14 @@
         const toggleBtn = document.getElementById('sidebarToggle');
         const closeBtn = document.getElementById('sidebarClose');
 
-        if(toggleBtn) {
+        if (toggleBtn) {
             toggleBtn.addEventListener('click', () => sidebar.classList.add('active'));
         }
-        if(closeBtn) {
+        if (closeBtn) {
             closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
         }
     </script>
     @stack('scripts')
 </body>
+
 </html>
