@@ -7,7 +7,17 @@ use App\Models\Godown;
 
 class Location extends Model
 {
-    protected $fillable = ['name', 'slug', 'code', 'address', 'phone', 'is_active'];
+   protected $fillable = [
+        'name',
+        'slug',
+        'address',
+        'city',
+        'state',
+        'postal_code',
+        'phone',
+        'email',
+        'is_active',
+    ];
 
     public function godowns()
     {
@@ -18,4 +28,8 @@ class Location extends Model
     {
         return $this->hasMany(UserProfile::class);
     }
+    public function users()
+{
+    return $this->hasMany(User::class);
+}
 }

@@ -20,13 +20,13 @@
 <div class="card card-custom bg-white mb-4">
     <div class="card-body p-3">
         <form id="filterForm" class="row g-2">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-4">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
                     <input type="text" id="filterSearch" class="form-control border-start-0" placeholder="Search by name, email, phone...">
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <select id="filterRole" class="form-select">
                     <option value="">All Roles</option>
                     <option value="super_admin">Super Admin</option>
@@ -36,7 +36,16 @@
                     <option value="customer">Customer</option>
                 </select>
             </div>
-            <div class="col-12 col-md-3 d-flex gap-2">
+            <!-- Location Filter Dropdown -->
+            <div class="col-12 col-md-3">
+                <select id="filterLocation" class="form-select">
+                    <option value="">All Locations</option>
+                    @foreach($locations as $loc)
+                    <option value="{{ $loc->id }}">{{ $loc->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-dark w-100 fw-semibold">Filter</button>
                 <button type="button" id="resetFilter" class="btn btn-light border w-100">Reset</button>
             </div>
@@ -52,13 +61,16 @@
                 <tr>
                     <th class="ps-3 py-3">User</th>
                     <th>Role</th>
+                    <th>Location</th>
                     <th>Phone</th>
                     <th>Status</th>
                     <th class="text-end pe-3">Actions</th>
                 </tr>
             </thead>
             <tbody id="userTableBody">
-                <tr><td colspan="5" class="text-center py-4">Loading data...</td></tr>
+                <tr>
+                    <td colspan="6" class="text-center py-4">Loading data...</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -105,6 +117,16 @@
                         </select>
                     </div>
 
+                    <!-- Location Dropdown Select -->
+                    <select id="userLocation" name="location_id" class="form-select">
+                        <option value="">-- No Location Assigned --</option>
+                        @if(isset($locations) && $locations->count() > 0)
+                        @foreach($locations as $loc)
+                        <option value="{{ $loc->id }}">{{ $loc->name }} @if(!empty($loc->city)) ({{ $loc->city }}) @endif</option>
+                        @endforeach
+                        @endif
+                    </select>
+
                     <div class="mb-3">
                         <label class="form-label fw-semibold fs-7" id="passwordLabel">Password <span class="text-danger">*</span></label>
                         <input type="password" id="userPassword" name="password" class="form-control">
@@ -142,6 +164,7 @@
         document.getElementById('resetFilter').addEventListener('click', () => {
             document.getElementById('filterSearch').value = '';
             document.getElementById('filterRole').value = '';
+            document.getElementById('filterLocation').value = '';
             currentPage = 1;
             loadUsers();
         });
@@ -154,11 +177,12 @@
         currentPage = page;
         const search = document.getElementById('filterSearch').value;
         const role = document.getElementById('filterRole').value;
+        const locationId = document.getElementById('filterLocation').value;
 
-        fetch(`{{ route('admin.users.fetch') }}?page=${page}&search=${encodeURIComponent(search)}&role=${encodeURIComponent(role)}`)
+        fetch(`{{ route('admin.users.fetch') }}?page=${page}&search=${encodeURIComponent(search)}&role=${encodeURIComponent(role)}&location_id=${encodeURIComponent(locationId)}`)
             .then(res => res.json())
             .then(res => {
-                if(res.status) {
+                if (res.status) {
                     renderTable(res.data.data);
                     renderPagination(res.data);
                 }
@@ -168,7 +192,7 @@
     function renderTable(users) {
         const tbody = document.getElementById('userTableBody');
         if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No users found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No users found.</td></tr>';
             return;
         }
 
@@ -186,6 +210,12 @@
                     </div>
                 </td>
                 <td><span class="badge bg-primary">${user.role.toUpperCase()}</span></td>
+                <td>
+                    ${user.location 
+                        ? `<span class="badge bg-info-subtle text-info border border-info-subtle"><i class="bi bi-geo-alt me-1"></i>${user.location.name}</span>` 
+                        : '<span class="badge bg-light text-muted border">Unassigned</span>'
+                    }
+                </td>
                 <td>${user.phone || 'N/A'}</td>
                 <td>
                     <span class="badge ${user.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} rounded-pill">
@@ -208,11 +238,11 @@
         }
 
         let buttons = '';
-        if(data.prev_page_url) {
+        if (data.prev_page_url) {
             buttons += `<button onclick="loadUsers(${data.current_page - 1})" class="btn btn-sm btn-light border">Previous</button>`;
         }
         buttons += `<span class="mx-2 fs-7 text-muted">Page ${data.current_page} of ${data.last_page}</span>`;
-        if(data.next_page_url) {
+        if (data.next_page_url) {
             buttons += `<button onclick="loadUsers(${data.current_page + 1})" class="btn btn-sm btn-light border">Next</button>`;
         }
 
@@ -222,6 +252,7 @@
     function openCreateModal() {
         document.getElementById('userForm').reset();
         document.getElementById('userId').value = '';
+        document.getElementById('userLocation').value = '';
         document.getElementById('userModalTitle').innerText = 'Add New User';
         document.getElementById('passwordLabel').innerHTML = 'Password <span class="text-danger">*</span>';
         document.getElementById('userPassword').required = true;
@@ -233,13 +264,14 @@
         fetch(`{{ url('admin/users') }}/${id}`)
             .then(res => res.json())
             .then(res => {
-                if(res.status) {
+                if (res.status) {
                     const u = res.data;
                     document.getElementById('userId').value = u.id;
                     document.getElementById('userName').value = u.name;
                     document.getElementById('userEmail').value = u.email;
                     document.getElementById('userPhone').value = u.phone || '';
                     document.getElementById('userRole').value = u.role;
+                    document.getElementById('userLocation').value = u.location_id || '';
                     document.getElementById('userActive').checked = !!u.is_active;
                     document.getElementById('userModalTitle').innerText = 'Edit User';
                     document.getElementById('passwordLabel').innerHTML = 'New Password <small class="text-muted fw-normal">(Leave blank to keep current)</small>';
@@ -261,50 +293,50 @@
         data.is_active = document.getElementById('userActive').checked ? 1 : 0;
 
         fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(async res => {
-            const body = await res.json();
-            if (!res.ok) throw body;
-            return body;
-        })
-        .then(res => {
-            userModal.hide();
-            showAlert(res.message, 'success');
-            loadUsers();
-        })
-        .catch(err => {
-            const errorDiv = document.getElementById('modalError');
-            errorDiv.classList.remove('d-none');
-            if (err.errors) {
-                errorDiv.innerHTML = Object.values(err.errors).flat().join('<br>');
-            } else {
-                errorDiv.innerText = err.message || 'Something went wrong.';
-            }
-        });
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async res => {
+                const body = await res.json();
+                if (!res.ok) throw body;
+                return body;
+            })
+            .then(res => {
+                userModal.hide();
+                showAlert(res.message, 'success');
+                loadUsers();
+            })
+            .catch(err => {
+                const errorDiv = document.getElementById('modalError');
+                errorDiv.classList.remove('d-none');
+                if (err.errors) {
+                    errorDiv.innerHTML = Object.values(err.errors).flat().join('<br>');
+                } else {
+                    errorDiv.innerText = err.message || 'Something went wrong.';
+                }
+            });
     }
 
     function deleteUser(id) {
-        if(!confirm('Are you sure you want to delete this user?')) return;
+        if (!confirm('Are you sure you want to delete this user?')) return;
 
         fetch(`{{ url('admin/users') }}/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(res => {
-            showAlert(res.message, res.status ? 'success' : 'danger');
-            if(res.status) loadUsers();
-        });
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(res => {
+                showAlert(res.message, res.status ? 'success' : 'danger');
+                if (res.status) loadUsers();
+            });
     }
 
     function showAlert(msg, type) {

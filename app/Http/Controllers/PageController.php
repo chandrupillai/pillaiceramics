@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
+    public function index()
+    {
+        return view('pages.home', [
+            'title' => 'Top Retail & Service Chain in Trichy & Karaikal | Home',
+            'meta_description' => 'Discover high-quality products and professional services across our 5 major shop locations in Tamil Nadu and Puducherry.'
+        ]);
+    }
     public function home()
     {
         return view('pages.home', [

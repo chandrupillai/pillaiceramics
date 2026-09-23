@@ -11,7 +11,7 @@ class UserRepository implements UserRepositoryInterface
 {
     public function getFilteredUsers(Request $request): LengthAwarePaginator
     {
-        $query = User::latest();
+        $query = User::with(['location:id,name,city']);
 
         if ($request->filled('search')) {
             $search = $request->search;

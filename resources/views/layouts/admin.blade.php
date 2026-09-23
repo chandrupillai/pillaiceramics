@@ -115,13 +115,13 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{route('users.index')}}" class="nav-link">
+                <a href="{{route('admin.users.index')}}" class="nav-link">
                     <i class="bi bi-people-fill"></i>
                     <span>Users Module</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{route('admin.locations.index')}}" class="nav-link">
                     <i class="bi bi-geo-alt-fill"></i>
                     <span>Locations</span>
                 </a>

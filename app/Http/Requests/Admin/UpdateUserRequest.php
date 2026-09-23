@@ -31,6 +31,7 @@ class UpdateUserRequest extends FormRequest
             'password' => ['nullable', 'string', 'min:8'], 
             'phone' => ['nullable', 'string', 'max:20'],
         'is_active'    => ['nullable', 'boolean'],
+        'location_id' => ['nullable', 'exists:locations,id'],
             'role'     => ['required', 'string', 'in:super_admin,admin,staff'],
         ];
     }

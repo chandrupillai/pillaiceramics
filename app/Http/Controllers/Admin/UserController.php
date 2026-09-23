@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use App\Models\Location;
 class UserController extends Controller
 {
     protected UserRepositoryInterface $userRepository;
@@ -21,7 +21,8 @@ class UserController extends Controller
     // Load Single Page View
     public function index()
     {
-        return view('admin.users.index');
+        $locations = Location::where('is_active', true)->orderBy('name')->get();
+        return view('admin.users.index', compact('locations'));
     }
 
     // Fetch Paginated JSON Data (AJAX)
