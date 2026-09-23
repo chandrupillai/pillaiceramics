@@ -137,6 +137,24 @@
                     <span>Godowns</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-categories.index') }}" class="nav-link {{ request()->routeIs('admin.tile-categories.*') ? 'active' : '' }}">
+                    <i class="bi bi-tags-fill"></i>
+                    <span>Tile Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-types.index') }}" class="nav-link {{ request()->routeIs('admin.tile-types.*') ? 'active' : '' }}">
+                    <i class="bi bi-layers-fill"></i>
+                    <span>Tile Types</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-sizes.index') }}" class="nav-link {{ request()->routeIs('admin.tile-sizes.*') ? 'active' : '' }}">
+                    <i class="bi bi-aspect-ratio-fill"></i>
+                    <span>Tile Sizes</span>
+                </a>
+            </li>
         </ul>
     </aside>
 

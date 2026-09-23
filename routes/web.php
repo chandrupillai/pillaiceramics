@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\Admin\{AdminAuthController,GodownController,DashboardController};
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\{AdminAuthController, GodownController, DashboardController, TileCategoryController, TileTypeController};
+use App\Http\Controllers\Admin\{UserController,TileSizeController};
 use App\Http\Controllers\Admin\LocationController;
 
 /*
@@ -43,7 +43,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     // Auth & Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-    
+
 
     // Locations Management (Accessible by Super Admin, Admin, Staff)
     Route::get('locations/fetch', [LocationController::class, 'fetch'])->name('locations.fetch');
@@ -61,4 +61,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     // RESTful CRUD routes (index, store, show, update, destroy)
     Route::resource('godowns', GodownController::class);
+
+    Route::resource('tile-categories', TileCategoryController::class)->except(['create', 'show']);
+    Route::resource('tile-types', TileTypeController::class)->except(['create', 'show']);
+
+    Route::resource('tile-sizes', TileSizeController::class)->except(['create', 'show']);
 });
