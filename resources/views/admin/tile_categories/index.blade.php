@@ -60,8 +60,31 @@
                         <th class="text-end pe-3">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="productTableBody">
-                    <!-- Populated dynamically via JS -->
+                <tbody id="categoryTableBody">
+                    @forelse($categories as $category)
+                        <tr id="category-row-{{ $category->id }}">     
+                            <td class="ps-3 fw-semibold text-dark">{{ $category->name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ $category->slug }}</span></td>
+                            <td>{{ $category->description ?? 'N/A' }}</td>
+                            <td>
+                                <span class="badge {{ $category->is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle' }} rounded-pill">
+                                    {{ $category->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="editCategory({{ $category->id }})">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory({{ $category->id }})">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr id="emptyCategoryRow">
+                            <td colspan="5" class="text-center py-4 text-muted">No categories found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
