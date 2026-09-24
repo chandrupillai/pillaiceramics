@@ -16,6 +16,8 @@ Route::get('/godowns', [DataController::class, 'godowns']);
 Route::get('/categories', [DataController::class, 'categories']);
 Route::get('/types', [DataController::class, 'types']);
 Route::get('/sizes', [DataController::class, 'sizes']);
+Route::get('/products', [DataController::class, 'products']);
+
 // Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -9,8 +9,10 @@ use App\Models\TileCategory;
 use App\Models\TileSize;
 use App\Models\TileType;
 use App\Models\User;
+use App\Models\TileProduct;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
@@ -149,6 +151,61 @@ class DataController extends Controller
                 'success' => false,
                 'message' => 'Failed to fetch sizes.',
                 'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function products(Request $request)
+    {
+        try {
+            $query = TileProduct::with([
+                'category:id,name',
+                'type:id,name',
+                'size:id,name,width_mm,height_mm,unit',
+                'location:id,name',
+                'godown:id,name'
+            ])->where('is_active', true);
+
+            // Optional filtering by category, type, or size
+            if ($request->has('category_id')) {
+                $query->where('tile_category_id', $request->category_id);
+            }
+            if ($request->has('type_id')) {
+                $query->where('tile_type_id', $request->type_id);
+            }
+            if ($request->has('size_id')) {
+                $query->where('tile_size_id', $request->size_id);
+            }
+
+            $products = $query->latest()->get()->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'product_name' => $product->product_name,
+                    'sku' => $product->sku,
+                    'price' => $product->price,
+                    'stock_quantity' => $product->stock_quantity,
+                    'box_coverage_sqft' => $product->box_coverage_sqft,
+                    'pieces_per_box' => $product->pieces_per_box,
+                    'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+                    'category' => $product->category ? $product->category->name : null,
+                    'type' => $product->type ? $product->type->name : null,
+                    'size' => $product->size ? $product->size->name : null,
+                    'location' => $product->location ? $product->location->name : null,
+                    'godown' => $product->godown ? $product->godown->name : null,
+                    'description' => $product->description,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $products,
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('DataController@products Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch products.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

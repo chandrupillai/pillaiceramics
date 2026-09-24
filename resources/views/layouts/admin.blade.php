@@ -35,6 +35,7 @@
             background-color: var(--sidebar-bg);
             transition: all 0.3s ease-in-out;
             z-index: 1040;
+            overflow-y: auto;
         }
 
         #sidebar .nav-link {
@@ -58,6 +59,12 @@
 
         #sidebar .nav-link.active {
             background-color: var(--brand-primary);
+        }
+
+        /* Styling for Submenus / Collapsible items */
+        #sidebar .collapse .nav-link {
+            padding-left: 2.5rem;
+            font-size: 0.85rem;
         }
 
         #main-content {
@@ -119,20 +126,49 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+
+            <!-- Products Submenu -->
+            <!-- Products Submenu -->
+<li class="nav-item">
+    <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.tile-products.*') ? 'true' : 'false' }}">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-box-seam-fill"></i>
+            <span>Products</span>
+        </div>
+        <i class="bi bi-chevron-down fs-8"></i>
+    </a>
+    <div class="collapse {{ request()->routeIs('admin.tile-products.*') ? 'show' : '' }}" id="productsSubmenu">
+        <ul class="nav flex-column ps-2">
             <li class="nav-item">
-                <a href="{{route('admin.users.index')}}" class="nav-link">
+                <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.index') ? 'active' : '' }}">
+                    <i class="bi bi-list-ul"></i>
+                    <span>All Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-products.create') }}" class="nav-link {{ request()->routeIs('admin.tile-products.create') ? 'active' : '' }}">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <span>Add Product</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+
+            <li class="nav-item">
+                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i>
                     <span>Users Module</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{route('admin.locations.index')}}" class="nav-link">
+                <a href="{{ route('admin.locations.index') }}" class="nav-link {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
                     <i class="bi bi-geo-alt-fill"></i>
                     <span>Locations</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{route('admin.godowns.index')}}" class="nav-link">
+                <a href="{{ route('admin.godowns.index') }}" class="nav-link {{ request()->routeIs('admin.godowns.*') ? 'active' : '' }}">
                     <i class="bi bi-building-fill"></i>
                     <span>Godowns</span>
                 </a>

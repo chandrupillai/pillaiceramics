@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\{AdminAuthController, GodownController, DashboardController, TileCategoryController, TileTypeController};
-use App\Http\Controllers\Admin\{UserController,TileSizeController};
+use App\Http\Controllers\Admin\{UserController, TileSizeController, TileProductController};
 use App\Http\Controllers\Admin\LocationController;
 
 /*
@@ -66,4 +66,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::resource('tile-types', TileTypeController::class)->except(['create', 'show']);
 
     Route::resource('tile-sizes', TileSizeController::class)->except(['create', 'show']);
+    Route::resource('tile-products', TileProductController::class);
 });
