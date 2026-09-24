@@ -15,7 +15,7 @@
         </button>
     </div>
 
-    <!-- Filters Section -->
+    <!-- Filters Section
     <div class="card border-0 shadow-sm p-3 mb-4 rounded-3">
         <div class="row g-2">
             <div class="col-md-4">
@@ -41,7 +41,7 @@
                 <button class="btn btn-secondary btn-sm w-100" onclick="resetFilters()">Reset Filters</button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Table Card -->
     <div class="card border-0 shadow-sm rounded-3">
