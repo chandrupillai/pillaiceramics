@@ -30,7 +30,7 @@
                 </thead>
                 <tbody id="categoryTableBody">
                     @forelse($categories as $category)
-                        <tr id="category-row-{{ $category->id }}">
+                        <tr id="category-row-{{ $category->id }}">     
                             <td class="ps-3 fw-semibold text-dark">{{ $category->name }}</td>
                             <td><span class="badge bg-light text-dark border">{{ $category->slug }}</span></td>
                             <td>{{ $category->description ?? 'N/A' }}</td>

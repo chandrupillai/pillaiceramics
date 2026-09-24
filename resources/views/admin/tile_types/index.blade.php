@@ -98,6 +98,12 @@
 <script>
     const typeModal = new bootstrap.Modal(document.getElementById('typeModal'));
 
+    // Pre-rendered base route definitions
+    const storeTypeUrl = "{{ route('admin.tile-types.store') }}";
+    const editTypeUrlTemplate = "{{ route('admin.tile-types.edit', ':id') }}";
+    const updateTypeUrlTemplate = "{{ route('admin.tile-types.update', ':id') }}";
+    const destroyTypeUrlTemplate = "{{ route('admin.tile-types.destroy', ':id') }}";
+
     function resetTypeForm() {
         document.getElementById('typeForm').reset();
         document.getElementById('typeId').value = '';
@@ -106,24 +112,30 @@
     }
 
     function editType(id) {
-        fetch(`/admin/tile-types/${id}/edit`)
-            .then(res => res.json())
-            .then(res => {
-                if(res.success) {
-                    document.getElementById('typeId').value = res.data.id;
-                    document.getElementById('type_name').value = res.data.name;
-                    document.getElementById('type_description').value = res.data.description || '';
-                    document.getElementById('type_is_active').checked = res.data.is_active;
-                    document.getElementById('typeModalTitle').innerText = 'Edit Tile Type';
-                    typeModal.show();
-                }
-            });
+        const url = editTypeUrlTemplate.replace(':id', id);
+
+        fetch(url, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success || res.status) {
+                const data = res.data || res;
+                document.getElementById('typeId').value = data.id;
+                document.getElementById('type_name').value = data.name;
+                document.getElementById('type_description').value = data.description || '';
+                document.getElementById('type_is_active').checked = !!data.is_active;
+                document.getElementById('typeModalTitle').innerText = 'Edit Tile Type';
+                typeModal.show();
+            }
+        })
+        .catch(err => console.error('Error fetching type details:', err));
     }
 
     function saveType(e) {
         e.preventDefault();
         const id = document.getElementById('typeId').value;
-        const url = id ? `/admin/tile-types/${id}` : '/admin/tile-types';
+        const url = id ? updateTypeUrlTemplate.replace(':id', id) : storeTypeUrl;
         const formData = new FormData(e.target);
         
         if (id) {
@@ -140,19 +152,22 @@
         })
         .then(res => res.json())
         .then(res => {
-            if(res.success) {
+            if(res.success || res.status) {
                 typeModal.hide();
                 location.reload();
             } else {
                 alert(res.message || 'Validation error');
             }
-        });
+        })
+        .catch(err => console.error('Error saving type:', err));
     }
 
     function deleteType(id) {
         if(!confirm('Are you sure you want to delete this type?')) return;
 
-        fetch(`/admin/tile-types/${id}`, {
+        const url = destroyTypeUrlTemplate.replace(':id', id);
+
+        fetch(url, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -161,10 +176,14 @@
         })
         .then(res => res.json())
         .then(res => {
-            if(res.success) {
-                document.getElementById(`type-row-${id}`).remove();
+            if(res.success || res.status) {
+                const row = document.getElementById(`type-row-${id}`);
+                if (row) row.remove();
+            } else {
+                alert(res.message || 'Failed to delete record.');
             }
-        });
+        })
+        .catch(err => console.error('Error deleting type:', err));
     }
 </script>
 @endpush
