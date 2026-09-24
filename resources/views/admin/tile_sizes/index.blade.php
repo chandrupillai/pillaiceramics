@@ -35,8 +35,8 @@
                             <td class="ps-3 fw-semibold text-dark">{{ $size->name }}</td>
                             <td><span class="badge bg-light text-dark border">{{ $size->slug }}</span></td>
                             <td>
-                                @if($size->width_mm && $size->height_mm)
-                                    {{ $size->width_mm }} × {{ $size->height_mm }} {{$size->unit }}
+                                @if($size->width_mm &&$size->height_mm)
+                                    {{ $size->width_mm }} * {{ $size->height_mm }} {{$size->unit }}
                                 @else
                                     <span class="text-muted">N/A</span>
                                 @endif
@@ -60,6 +60,7 @@
                         <tr id="emptySizeRow">
                             <td colspan="6" class="text-center py-4 text-muted">No tile sizes found.</td>
                         </tr>
+
                     @endforelse
                 </tbody>
             </table>
@@ -125,6 +126,12 @@
 <script>
     const sizeModal = new bootstrap.Modal(document.getElementById('sizeModal'));
 
+    // Pre-rendered base route definitions
+    const storeUrl = "{{ route('admin.tile-sizes.store') }}";
+    const editUrlTemplate = "{{ route('admin.tile-sizes.edit', ':id') }}";
+    const updateUrlTemplate = "{{ route('admin.tile-sizes.update', ':id') }}";
+    const destroyUrlTemplate = "{{ route('admin.tile-sizes.destroy', ':id') }}";
+
     function resetSizeForm() {
         document.getElementById('sizeForm').reset();
         document.getElementById('sizeId').value = '';
@@ -134,7 +141,9 @@
     }
 
     function editSize(id) {
-        fetch(`/admin/tile-sizes/${id}/edit`)
+        const url = editUrlTemplate.replace(':id', id);
+
+        fetch(url)
             .then(res => res.json())
             .then(res => {
                 if(res.success) {
@@ -154,7 +163,7 @@
     function saveSize(e) {
         e.preventDefault();
         const id = document.getElementById('sizeId').value;
-        const url = id ? `/admin/tile-sizes/${id}` : '/admin/tile-sizes';
+        const url = id ? updateUrlTemplate.replace(':id', id) : storeUrl;
         const formData = new FormData(e.target);
         
         if (id) {
@@ -183,7 +192,9 @@
     function deleteSize(id) {
         if(!confirm('Are you sure you want to delete this size?')) return;
 
-        fetch(`/admin/tile-sizes/${id}`, {
+        const url = destroyUrlTemplate.replace(':id', id);
+
+        fetch(url, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
