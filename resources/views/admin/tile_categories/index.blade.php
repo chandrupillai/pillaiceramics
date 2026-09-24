@@ -29,8 +29,8 @@
                     </tr>
                 </thead>
                 <tbody id="categoryTableBody">
-                    @forelse($categories as $category)
-                        <tr id="category-row-{{ $category->id }}">     
+                    @forelse($categories as$category)
+                        <tr id="category-row-{{ $category->id }}">
                             <td class="ps-3 fw-semibold text-dark">{{ $category->name }}</td>
                             <td><span class="badge bg-light text-dark border">{{ $category->slug }}</span></td>
                             <td>{{ $category->description ?? 'N/A' }}</td>
@@ -98,6 +98,12 @@
 <script>
     const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
 
+    // Pre-rendered base route definitions using Laravel Route Helper
+    const storeCategoryUrl = "{{ route('admin.tile-categories.store') }}";
+    const editCategoryUrlTemplate = "{{ route('admin.tile-categories.edit', ':id') }}";
+    const updateCategoryUrlTemplate = "{{ route('admin.tile-categories.update', ':id') }}";
+    const destroyCategoryUrlTemplate = "{{ route('admin.tile-categories.destroy', ':id') }}";
+
     function resetCategoryForm() {
         document.getElementById('categoryForm').reset();
         document.getElementById('categoryId').value = '';
@@ -106,24 +112,30 @@
     }
 
     function editCategory(id) {
-        fetch(`/admin/tile-categories/${id}/edit`)
-            .then(res => res.json())
-            .then(res => {
-                if(res.success) {
-                    document.getElementById('categoryId').value = res.data.id;
-                    document.getElementById('category_name').value = res.data.name;
-                    document.getElementById('category_description').value = res.data.description || '';
-                    document.getElementById('category_is_active').checked = res.data.is_active;
-                    document.getElementById('categoryModalTitle').innerText = 'Edit Tile Category';
-                    categoryModal.show();
-                }
-            });
+        const url = editCategoryUrlTemplate.replace(':id', id);
+
+        fetch(url, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success || res.status) {
+                const data = res.data || res;
+                document.getElementById('categoryId').value = data.id;
+                document.getElementById('category_name').value = data.name;
+                document.getElementById('category_description').value = data.description || '';
+                document.getElementById('category_is_active').checked = !!data.is_active;
+                document.getElementById('categoryModalTitle').innerText = 'Edit Tile Category';
+                categoryModal.show();
+            }
+        })
+        .catch(err => console.error('Error fetching category details:', err));
     }
 
     function saveCategory(e) {
         e.preventDefault();
         const id = document.getElementById('categoryId').value;
-        const url = id ? `/admin/tile-categories/${id}` : '/admin/tile-categories';
+        const url = id ? updateCategoryUrlTemplate.replace(':id', id) : storeCategoryUrl;
         const formData = new FormData(e.target);
         
         if (id) {
@@ -140,19 +152,22 @@
         })
         .then(res => res.json())
         .then(res => {
-            if(res.success) {
+            if(res.success || res.status) {
                 categoryModal.hide();
                 location.reload();
             } else {
                 alert(res.message || 'Validation error');
             }
-        });
+        })
+        .catch(err => console.error('Error saving category:', err));
     }
 
     function deleteCategory(id) {
         if(!confirm('Are you sure you want to delete this category?')) return;
 
-        fetch(`/admin/tile-categories/${id}`, {
+        const url = destroyCategoryUrlTemplate.replace(':id', id);
+
+        fetch(url, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -161,10 +176,14 @@
         })
         .then(res => res.json())
         .then(res => {
-            if(res.success) {
-                document.getElementById(`category-row-${id}`).remove();
+            if(res.success || res.status) {
+                const row = document.getElementById(`category-row-${id}`);
+                if (row) row.remove();
+            } else {
+                alert(res.message || 'Failed to delete record.');
             }
-        });
+        })
+        .catch(err => console.error('Error deleting category:', err));
     }
 </script>
 @endpush
