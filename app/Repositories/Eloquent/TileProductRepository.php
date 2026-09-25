@@ -3,8 +3,6 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\TileProduct;
-<?php
-
 namespace App\Repositories\Eloquent;
 
 use App\Models\TileProduct;
