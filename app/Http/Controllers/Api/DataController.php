@@ -166,7 +166,7 @@ class DataController extends Controller
             ], 500);
         }
     }
-    public function products(Request $request)
+    public function products(Request $request, $id = null)
     {
         try {
             $query = TileProduct::with([
@@ -177,10 +177,11 @@ class DataController extends Controller
                 'godown:id,name'
             ])->where('is_active', true);
 
-            // Filter by ID or comma-separated IDs (e.g., ?id=1 or ?id=1,2,3)
-            if ($request->filled('id') || $request->filled('product_id')) {
-                $idInput = $request->input('id') ?? $request->input('product_id');
-                $ids = is_array($idInput) ? $idInput : explode(',', $idInput);
+            // Capture ID from route param (/products/{id}) OR query string (/products?id=1)
+            $targetId = $id ?? $request->input('id') ?? $request->input('product_id');
+
+            if ($targetId) {
+                $ids = is_array($targetId) ? $targetId : explode(',', $targetId);
                 $query->whereIn('id', array_map('trim', $ids));
             }
 
@@ -196,7 +197,6 @@ class DataController extends Controller
             }
 
             $products = $query->latest()->get()->map(function ($product) {
-                // Updated to fetch directly from public/images/ asset path
                 $imageUrl = $product->image
                     ? asset($product->image)
                     : asset('images/default-product.png');
@@ -219,8 +219,8 @@ class DataController extends Controller
                 ];
             });
 
-            // Return 404 if specific ID was searched but not found
-            if ($products->isEmpty() && ($request->filled('id') || $request->filled('product_id'))) {
+            // If a specific ID was requested but not found
+            if ($products->isEmpty() && $targetId) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No products found matching the requested ID.',
