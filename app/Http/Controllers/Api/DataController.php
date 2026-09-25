@@ -23,7 +23,7 @@ class DataController extends Controller
     protected CompanyRepositoryInterface $companyRepository;
     protected TileProductRepositoryInterface $productRepository;
 
-    public function __construct(CompanyRepositoryInterface $companyRepository,TileProductRepositoryInterface $productRepository)
+    public function __construct(CompanyRepositoryInterface $companyRepository, TileProductRepositoryInterface $productRepository)
     {
         $this->companyRepository = $companyRepository;
         $this->productRepository = $productRepository;
@@ -177,39 +177,60 @@ class DataController extends Controller
                 'godown:id,name'
             ])->where('is_active', true);
 
+            // Filter by ID or comma-separated IDs (e.g., ?id=1 or ?id=1,2,3)
+            if ($request->filled('id') || $request->filled('product_id')) {
+                $idInput = $request->input('id') ?? $request->input('product_id');
+                $ids = is_array($idInput) ? $idInput : explode(',', $idInput);
+                $query->whereIn('id', array_map('trim', $ids));
+            }
+
             // Optional filtering by category, type, or size
-            if ($request->has('category_id')) {
+            if ($request->filled('category_id')) {
                 $query->where('tile_category_id', $request->category_id);
             }
-            if ($request->has('type_id')) {
+            if ($request->filled('type_id')) {
                 $query->where('tile_type_id', $request->type_id);
             }
-            if ($request->has('size_id')) {
+            if ($request->filled('size_id')) {
                 $query->where('tile_size_id', $request->size_id);
             }
 
             $products = $query->latest()->get()->map(function ($product) {
+                // Updated to fetch directly from public/images/ asset path
+                $imageUrl = $product->image
+                    ? asset($product->image)
+                    : asset('images/default-product.png');
+
                 return [
-                    'id' => $product->id,
-                    'product_name' => $product->product_name,
-                    'sku' => $product->sku,
-                    'price' => $product->price,
-                    'stock_quantity' => $product->stock_quantity,
+                    'id'                => $product->id,
+                    'product_name'      => $product->product_name,
+                    'sku'               => $product->sku,
+                    'price'             => $product->price,
+                    'stock_quantity'    => $product->stock_quantity,
                     'box_coverage_sqft' => $product->box_coverage_sqft,
-                    'pieces_per_box' => $product->pieces_per_box,
-                    'image_url' => $product->image ? asset('storage/' . $product->image) : null,
-                    'category' => $product->category ? $product->category->name : null,
-                    'type' => $product->type ? $product->type->name : null,
-                    'size' => $product->size ? $product->size->name : null,
-                    'location' => $product->location ? $product->location->name : null,
-                    'godown' => $product->godown ? $product->godown->name : null,
-                    'description' => $product->description,
+                    'pieces_per_box'    => $product->pieces_per_box,
+                    'image_url'         => $imageUrl,
+                    'category'          => $product->category ? $product->category->name : null,
+                    'type'              => $product->type ? $product->type->name : null,
+                    'size'              => $product->size ? $product->size->name : null,
+                    'location'          => $product->location ? $product->location->name : null,
+                    'godown'            => $product->godown ? $product->godown->name : null,
+                    'description'       => $product->description,
                 ];
             });
 
+            // Return 404 if specific ID was searched but not found
+            if ($products->isEmpty() && ($request->filled('id') || $request->filled('product_id'))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No products found matching the requested ID.',
+                ], 404);
+            }
+
             return response()->json([
                 'success' => true,
-                'data' => $products,
+                'count'   => $products->count(),
+                'data'    => $products,
             ], 200);
         } catch (Exception $e) {
             Log::error('DataController@products Error: ' . $e->getMessage());
@@ -217,13 +238,13 @@ class DataController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch products.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
 
     // List Active Godowns with Location details
-   public function company()
+    public function company()
     {
         try {
             // Fetch dynamic company details from DB via Repository
@@ -238,8 +259,8 @@ class DataController extends Controller
 
             // Resolve logo path to full URL
             // If stored in public/images/ (e.g. 'images/logo_123.png')
-            $logoUrl = $company->logo 
-                ? asset($company->logo) 
+            $logoUrl = $company->logo
+                ? asset($company->logo)
                 : asset('images/logo.png');
 
             return response()->json([
@@ -253,7 +274,6 @@ class DataController extends Controller
                     'logo'    => $logoUrl,
                 ]
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -306,8 +326,8 @@ class DataController extends Controller
                 });
 
                 // Image URL resolution
-                $imageUrl = $product->primary_image 
-                    ? asset($product->primary_image) 
+                $imageUrl = $product->primary_image
+                    ? asset($product->primary_image)
                     : asset('images/default-product.png');
 
                 return [
@@ -325,7 +345,6 @@ class DataController extends Controller
                 'count'   => $formattedProducts->count(),
                 'data'    => $formattedProducts,
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -362,8 +381,8 @@ class DataController extends Controller
             });
 
             // Resolve full image URL or fallback image
-            $imageUrl = $product->primary_image 
-                ? asset($product->primary_image) 
+            $imageUrl = $product->primary_image
+                ? asset($product->primary_image)
                 : asset('images/default-product.png');
 
             return response()->json([
@@ -377,7 +396,6 @@ class DataController extends Controller
                     'locations'      => $locationsStock,
                 ]
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
