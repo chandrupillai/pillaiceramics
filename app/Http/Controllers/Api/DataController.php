@@ -15,15 +15,18 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
+use App\Repositories\Contracts\TileProductRepositoryInterface;
 
 class DataController extends Controller
 {
 
     protected CompanyRepositoryInterface $companyRepository;
+    protected TileProductRepositoryInterface $productRepository;
 
-    public function __construct(CompanyRepositoryInterface $companyRepository)
+    public function __construct(CompanyRepositoryInterface $companyRepository,TileProductRepositoryInterface $productRepository)
     {
         $this->companyRepository = $companyRepository;
+        $this->productRepository = $productRepository;
     }
     // List Users
     public function users()
@@ -283,5 +286,103 @@ class DataController extends Controller
             'message' => 'Profile updated successfully',
             'data'    => $user->only(['id', 'name', 'email', 'phone', 'bio']),
         ], 200);
+    }
+
+    public function getAllProductsStock()
+    {
+        try {
+            $products = $this->productRepository->getAllWithStockLocations();
+
+            $formattedProducts = $products->map(function ($product) {
+                // Map godowns & location details
+                $locationsStock = $product->godowns->map(function ($godown) {
+                    return [
+                        'godown_id'    => $godown->id,
+                        'godown_name'  => $godown->name,
+                        'location'     => $godown->location->name ?? 'N/A',
+                        'quantity'     => $godown->pivot->quantity ?? 0,
+                        'boxes'        => $godown->pivot->boxes ?? 0,
+                    ];
+                });
+
+                // Image URL resolution
+                $imageUrl = $product->primary_image 
+                    ? asset($product->primary_image) 
+                    : asset('images/default-product.png');
+
+                return [
+                    'product_id'     => $product->id,
+                    'product_name'   => $product->name,
+                    'product_code'   => $product->code ?? null,
+                    'image'          => $imageUrl,
+                    'total_quantity' => $locationsStock->sum('quantity'),
+                    'locations'      => $locationsStock,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'count'   => $formattedProducts->count(),
+                'data'    => $formattedProducts,
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch products stock list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    /**
+     * Get single product stock details by ID API
+     * 
+     * GET /api/products/{id}
+     */
+    public function getProductById(int $id)
+    {
+        try {
+            $product = $this->productRepository->getProductStockLocations($id);
+
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found with ID: ' . $id,
+                ], 404);
+            }
+
+            // Map location and godown stock breakdown
+            $locationsStock = $product->godowns->map(function ($godown) {
+                return [
+                    'godown_id'    => $godown->id,
+                    'godown_name'  => $godown->name,
+                    'location'     => $godown->location->name ?? 'N/A',
+                    'quantity'     => $godown->pivot->quantity ?? 0,
+                    'boxes'        => $godown->pivot->boxes ?? 0,
+                ];
+            });
+
+            // Resolve full image URL or fallback image
+            $imageUrl = $product->primary_image 
+                ? asset($product->primary_image) 
+                : asset('images/default-product.png');
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'product_id'     => $product->id,
+                    'product_name'   => $product->name,
+                    'product_code'   => $product->code ?? null,
+                    'image'          => $imageUrl,
+                    'total_quantity' => $locationsStock->sum('quantity'),
+                    'locations'      => $locationsStock,
+                ]
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve product details: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
