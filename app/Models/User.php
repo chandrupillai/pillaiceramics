@@ -19,7 +19,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'is_active','location_id',];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'is_active', 'created_by','location_id'];
 
     public function profile()
     {
@@ -52,4 +52,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the user who created this account.
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by')->select(['id', 'name', 'mobile_number', 'role']);
+    }
+
+    /**
+     * Get all users created by this user.
+     */
+    public function createdUsers()
+    {
+        return $this->hasMany(User::class, 'created_by');
+    }
+
 }

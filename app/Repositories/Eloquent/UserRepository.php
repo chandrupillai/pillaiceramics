@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Repositories\Eloquent;
 
 use App\Models\User;
@@ -15,10 +16,10 @@ class UserRepository implements UserRepositoryInterface
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -33,6 +34,7 @@ class UserRepository implements UserRepositoryInterface
     {
         $data['password'] = Hash::make($data['password']);
         $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : false;
+        $data['created_by'] = auth()->id();
 
         return User::create($data);
     }
