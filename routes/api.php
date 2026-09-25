@@ -13,7 +13,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/locations', [DataController::class, 'locations']);
 Route::get('/godowns', [DataController::class, 'godowns']);
 Route::get('/products/stocks', [DataController::class, 'getAllProductsStock']);
-Route::get('/products/{id}', [DataController::class, 'getProductById']);
+Route::get('/products/{id}', [DataController::class, 'getAllProductsStock']);
 // New Catalog endpoints
 Route::get('/categories', [DataController::class, 'categories']);
 Route::get('/types', [DataController::class, 'types']);
