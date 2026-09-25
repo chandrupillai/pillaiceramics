@@ -18,7 +18,7 @@ Route::get('/products/{id}', [DataController::class, 'getAllProductsStock']);
 Route::get('/categories', [DataController::class, 'categories']);
 Route::get('/types', [DataController::class, 'types']);
 Route::get('/sizes', [DataController::class, 'sizes']);
-Route::get('/products', [DataController::class, 'products']);
+
 Route::get('/company', [DataController::class, 'company']);
 // Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {
