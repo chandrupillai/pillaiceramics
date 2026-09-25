@@ -14,9 +14,17 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use App\Repositories\Contracts\CompanyRepositoryInterface;
 
 class DataController extends Controller
 {
+
+    protected CompanyRepositoryInterface $companyRepository;
+
+    public function __construct(CompanyRepositoryInterface $companyRepository)
+    {
+        $this->companyRepository = $companyRepository;
+    }
     // List Users
     public function users()
     {
@@ -212,17 +220,43 @@ class DataController extends Controller
     }
 
     // List Active Godowns with Location details
-    public function company()
+   public function company()
     {
-        $companyDetails = [
-            'name' => 'Pillai Ceramics',
-            'logo' => asset('images/logo.png'), // Resolves to http://your-domain.com/images/logo.png
-        ];
+        try {
+            // Fetch dynamic company details from DB via Repository
+            $company = $this->companyRepository->getFirstCompany();
 
-        return response()->json([
-            'success' => true,
-            'data'    => $companyDetails,
-        ], 200);
+            if (!$company) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company details not found',
+                ], 404);
+            }
+
+            // Resolve logo path to full URL
+            // If stored in public/images/ (e.g. 'images/logo_123.png')
+            $logoUrl = $company->logo 
+                ? asset($company->logo) 
+                : asset('images/logo.png');
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'id'      => $company->id,
+                    'name'    => $company->name,
+                    'email'   => $company->email,
+                    'phone'   => $company->phone,
+                    'address' => $company->address,
+                    'logo'    => $logoUrl,
+                ]
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch company details: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function updateProfile(Request $request)

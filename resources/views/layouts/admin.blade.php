@@ -115,7 +115,7 @@
             <button class="btn btn-sm text-white d-lg-none" id="sidebarClose"><i class="bi bi-x-lg"></i></button>
         </div>
 
-        <div class="px-3 py-3">
+        <div class="px-3 pt-3 pb-2">
             <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">Main Menu</span>
         </div>
 
@@ -128,32 +128,31 @@
             </li>
 
             <!-- Products Submenu -->
-            <!-- Products Submenu -->
-<li class="nav-item">
-    <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.tile-products.*') ? 'true' : 'false' }}">
-        <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-box-seam-fill"></i>
-            <span>Products</span>
-        </div>
-        <i class="bi bi-chevron-down fs-8"></i>
-    </a>
-    <div class="collapse {{ request()->routeIs('admin.tile-products.*') ? 'show' : '' }}" id="productsSubmenu">
-        <ul class="nav flex-column ps-2">
             <li class="nav-item">
-                <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.index') ? 'active' : '' }}">
-                    <i class="bi bi-list-ul"></i>
-                    <span>All Products</span>
+                <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.tile-products.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span>Products</span>
+                    </div>
+                    <i class="bi bi-chevron-down fs-8"></i>
                 </a>
+                <div class="collapse {{ request()->routeIs('admin.tile-products.*') ? 'show' : '' }}" id="productsSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-ul"></i>
+                                <span>All Products</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.tile-products.create') }}" class="nav-link {{ request()->routeIs('admin.tile-products.create') ? 'active' : '' }}">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                <span>Add Product</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.tile-products.create') }}" class="nav-link {{ request()->routeIs('admin.tile-products.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-circle-fill"></i>
-                    <span>Add Product</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</li>
 
             <li class="nav-item">
                 <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -189,6 +188,20 @@
                 <a href="{{ route('admin.tile-sizes.index') }}" class="nav-link {{ request()->routeIs('admin.tile-sizes.*') ? 'active' : '' }}">
                     <i class="bi bi-aspect-ratio-fill"></i>
                     <span>Tile Sizes</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Settings Section -->
+        <div class="px-3 pt-3 pb-2">
+            <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">Settings</span>
+        </div>
+
+        <ul class="nav flex-column mb-4">
+            <li class="nav-item">
+                <a href="{{ route('admin.company.index') }}" class="nav-link {{ request()->routeIs('admin.company.*') ? 'active' : '' }}">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>Company Details</span>
                 </a>
             </li>
         </ul>
