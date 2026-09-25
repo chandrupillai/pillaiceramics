@@ -59,4 +59,10 @@ class TileProduct extends Model
     {
         return $this->belongsTo(Godown::class);
     }
+    public function godowns()
+    {
+        return $this->belongsToMany(Godown::class)
+                    ->withPivot(['quantity', 'boxes'])
+                    ->withTimestamps();
+    }
 }
