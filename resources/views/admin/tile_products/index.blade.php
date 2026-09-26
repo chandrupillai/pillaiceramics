@@ -132,6 +132,8 @@
                             <td class="text-end pe-3">
                                 <a href="{{ route('admin.tile-products.edit', $product->id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
                                     <i class="bi bi-pencil-fill"></i>
+                                    <a href="{{ route('admin.tile-products.show', $product->id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Edit">
+                                    <i class="bi bi-pencil-fill"></i>
                                 </a>
                                 <form action="{{ route('admin.tile-products.destroy', $product->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
                                     @csrf

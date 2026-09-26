@@ -16,6 +16,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
 use App\Repositories\Contracts\TileProductRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 class DataController extends Controller
 {
@@ -400,6 +401,61 @@ class DataController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve product details: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    /**
+     * Get paginated/filtered list of dealers created by the authenticated user.
+     */
+    public function dealersList(Request $request)
+    {
+        try {
+            $userId = Auth::id(); // Get currently authenticated staff/user ID
+            $search = $request->input('search');
+            $perPage = (int) $request->input('per_page', 10);
+
+            $dealers = User::select([
+                    'id',
+                    'name',
+                    'shop_name',
+                    'gst_number',
+                    'phone',
+                    'email',
+                    'address',
+                    'created_by',
+                    'created_at'
+                ])
+                ->where('role', 'dealer')
+                ->where('created_by', $userId) // Filter by logged-in user
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                          ->orWhere('shop_name', 'like', "%{$search}%")
+                          ->orWhere('mobile_number', 'like', "%{$search}%")
+                          ->orWhere('gst_number', 'like', "%{$search}%");
+                    });
+                })
+                ->latest()
+                ->paginate($perPage);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Dealers list retrieved successfully.',
+                'data'    => $dealers->items(),
+                'pagination' => [
+                    'current_page' => $dealers->currentPage(),
+                    'last_page'    => $dealers->lastPage(),
+                    'per_page'     => $dealers->perPage(),
+                    'total'        => $dealers->total(),
+                    'has_more'     => $dealers->hasMorePages(),
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to fetch dealers list.',
+                'error'   => $e->getMessage()
             ], 500);
         }
     }

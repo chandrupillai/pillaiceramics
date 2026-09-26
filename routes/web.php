@@ -90,5 +90,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
         Route::get('/users/{user}/edit', [StaffCustomerController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [StaffCustomerController::class, 'update'])->name('users.update');
+        Route::get('/products/{id}', [TileProductController::class, 'show'])->name('admin.products.show');
     });
 });

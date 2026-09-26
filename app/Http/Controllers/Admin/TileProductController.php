@@ -35,7 +35,7 @@ class TileProductController extends Controller
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('product_name', 'like', "%{$search}%")
-                      ->orWhere('sku', 'like', "%{$search}%");
+                        ->orWhere('sku', 'like', "%{$search}%");
                 });
             }
 
@@ -56,7 +56,6 @@ class TileProductController extends Controller
             $godowns = Godown::where('is_active', true)->get();
 
             return view('admin.tile_products.index', compact('products', 'categories', 'types', 'sizes', 'locations', 'godowns'));
-
         } catch (Exception $e) {
             Log::error('TileProductController@index Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to retrieve products.');
@@ -77,8 +76,8 @@ class TileProductController extends Controller
             }
 
             return redirect()->route('admin.tile-products.index', ['action' => 'create']);
-
-        } catch (Exception $e) {  dd( $e->getMessage());
+        } catch (Exception $e) {
+            dd($e->getMessage());
             Log::error('TileProductController@create Error: ' . $e->getMessage());
             return redirect()->route('admin.tile-products.index')->with('error', 'Failed to load create form.');
         }
@@ -136,7 +135,6 @@ class TileProductController extends Controller
             }
 
             return redirect()->route('admin.tile-products.index')->with('success', 'Product created successfully!');
-
         } catch (Exception $e) {
             Log::error('TileProductController@store Error: ' . $e->getMessage());
             if ($request->ajax()) {
@@ -173,7 +171,6 @@ class TileProductController extends Controller
             }
 
             return redirect()->route('admin.tile-products.index');
-
         } catch (Exception $e) {
             Log::error('TileProductController@edit Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to load product details.');
@@ -235,7 +232,6 @@ class TileProductController extends Controller
             }
 
             return redirect()->route('admin.tile-products.index')->with('success', 'Product updated successfully!');
-
         } catch (Exception $e) {
             Log::error('TileProductController@update Error: ' . $e->getMessage());
             if ($request->ajax()) {
@@ -266,7 +262,6 @@ class TileProductController extends Controller
             }
 
             return redirect()->route('admin.tile-products.index')->with('success', 'Product deleted successfully!');
-
         } catch (Exception $e) {
             Log::error('TileProductController@destroy Error: ' . $e->getMessage());
             if (request()->ajax()) {
@@ -277,6 +272,45 @@ class TileProductController extends Controller
                 ], 500);
             }
             return redirect()->back()->with('error', 'Failed to delete product.');
+        }
+    }
+
+    /**
+     * Display the specified tile product details.
+     */
+    public function show(TileProduct $tileProduct)
+    {
+        try {
+            // Load all associated relationships
+            $tileProduct->load(['category', 'type', 'size', 'location', 'godown']);
+
+            // Return JSON if requested via AJAX/Modal
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $tileProduct,
+                    'image_url' => $tileProduct->image ? asset('storage/' . $tileProduct->image) : null,
+                ], 200);
+            }
+
+            // Return Blade view if dedicated show page exists
+            if (view()->exists('admin.tile_products.show')) {
+                return view('admin.tile_products.show', compact('tileProduct'));
+            }
+
+            return redirect()->route('admin.tile-products.index');
+        } catch (Exception $e) {
+            Log::error('TileProductController@show Error: ' . $e->getMessage());
+
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to load product details.',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to load product details.');
         }
     }
 }

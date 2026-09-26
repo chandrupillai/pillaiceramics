@@ -56,6 +56,7 @@ Route::prefix('v1')->group(function () {
         // User Profile & Management
         Route::get('/users', [DataController::class, 'users'])->name('api.v1.users.index');
         Route::put('/profile', [DataController::class, 'updateProfile'])->name('api.v1.profile.update');
+        Route::get('/dealers/list', [DataController::class, 'dealersList'])->name('api.v1.dealers.update');
     });
 
 });
