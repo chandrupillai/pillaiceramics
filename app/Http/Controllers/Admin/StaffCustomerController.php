@@ -59,7 +59,7 @@ class StaffCustomerController extends Controller
 
         $user = User::create([
             'name'          => $request->name,
-            'phone' => $request->mobile_number,
+            'phone' => $request->phone,
             'email'         => $request->email,
             'role'          => $request->role,
             'address'       => $request->address,
