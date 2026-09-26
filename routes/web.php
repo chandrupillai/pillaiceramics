@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, GodownController, DashboardController, TileCategoryController, TileTypeController};
-use App\Http\Controllers\Admin\{UserController, TileSizeController, TileProductController, CompanyController};
+use App\Http\Controllers\Admin\{UserController, AdminEnquiryController, TileSizeController, TileProductController, CompanyController};
 use App\Http\Controllers\Admin\LocationController;
 
 /*
@@ -91,5 +91,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
         Route::get('/users/{user}/edit', [StaffCustomerController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [StaffCustomerController::class, 'update'])->name('users.update');
         Route::get('/products/{id}', [TileProductController::class, 'show'])->name('admin.products.show');
+        Route::get('/enquiries', [AdminEnquiryController::class, 'index'])->name('enquiries.index');
+        Route::patch('/enquiries/{enquiry}/status', [AdminEnquiryController::class, 'updateStatus'])->name('enquiries.update-status');
     });
 });

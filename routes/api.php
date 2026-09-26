@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\DataController;
+use App\Http\Controllers\Api\{DataController, DealerEnquiryController};
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', [DataController::class, 'users'])->name('api.v1.users.index');
         Route::put('/profile', [DataController::class, 'updateProfile'])->name('api.v1.profile.update');
         Route::get('/dealers/list', [DataController::class, 'dealersList'])->name('api.v1.dealers.update');
+        Route::post('/enquiries', [DealerEnquiryController::class, 'store']);
+        Route::get('/my-enquiries', [DealerEnquiryController::class, 'myEnquiries']);
     });
-
 });
