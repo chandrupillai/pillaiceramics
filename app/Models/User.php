@@ -19,16 +19,28 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'is_active', 'created_by','location_id'];
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'password',
+        'role',
+        'is_active',
+        'created_by',
+        'location_id',
+        'shop_name',
+        'address',
+        'gst_number'
+    ];
 
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
     }
     public function location()
-{
-    return $this->belongsTo(Location::class);
-}
+    {
+        return $this->belongsTo(Location::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -68,5 +80,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'created_by');
     }
-
 }

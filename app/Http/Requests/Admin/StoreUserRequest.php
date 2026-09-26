@@ -30,6 +30,8 @@ class StoreUserRequest extends FormRequest
             'location_id' => ['nullable', 'exists:locations,id'],
             'is_active'    => ['nullable', 'boolean'],
             'role'     => ['required', 'string', 'in:super_admin,admin,staff'],
+            'shop_name'     => 'nullable|string|max:255',
+            'gst_number'    => 'nullable|string|max:20',
         ];
     }
 }

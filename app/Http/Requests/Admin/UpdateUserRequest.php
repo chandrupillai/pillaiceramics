@@ -5,6 +5,7 @@ namespace App\Http\Requests\Admin;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+
 class UpdateUserRequest extends FormRequest
 {
     /**
@@ -28,11 +29,13 @@ class UpdateUserRequest extends FormRequest
         return [
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
-            'password' => ['nullable', 'string', 'min:8'], 
+            'password' => ['nullable', 'string', 'min:8'],
             'phone' => ['nullable', 'string', 'max:20'],
-        'is_active'    => ['nullable', 'boolean'],
-        'location_id' => ['nullable', 'exists:locations,id'],
+            'is_active'    => ['nullable', 'boolean'],
+            'location_id' => ['nullable', 'exists:locations,id'],
             'role'     => ['required', 'string', 'in:super_admin,admin,staff'],
+            'shop_name'     => 'nullable|string|max:255',
+            'gst_number'    => 'nullable|string|max:20',
         ];
     }
 }

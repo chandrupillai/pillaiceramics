@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
-use App\Http\Controllers\Admin\{AdminAuthController, GodownController, DashboardController, TileCategoryController, TileTypeController};
-use App\Http\Controllers\Admin\{UserController, TileSizeController, TileProductController,CompanyController};
+use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, GodownController, DashboardController, TileCategoryController, TileTypeController};
+use App\Http\Controllers\Admin\{UserController, TileSizeController, TileProductController, CompanyController};
 use App\Http\Controllers\Admin\LocationController;
 
 /*
@@ -71,4 +71,24 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
+
+    Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
+
+        // My Dealers Route (explicitly passes type => 'dealer')
+        Route::get('/dealers', [StaffCustomerController::class, 'index'])
+            ->name('dealers.index')
+            ->defaults('type', 'dealer');
+
+        // My Customers Route (explicitly passes type => 'customer')
+        Route::get('/customers', [StaffCustomerController::class, 'index'])
+            ->name('customers.index')
+            ->defaults('type', 'customer');
+
+        // Store Route
+        Route::post('/users', [StaffCustomerController::class, 'store'])
+            ->name('users.store');
+
+        Route::get('/users/{user}/edit', [StaffCustomerController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [StaffCustomerController::class, 'update'])->name('users.update');
+    });
 });
