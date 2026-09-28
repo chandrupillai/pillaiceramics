@@ -161,6 +161,33 @@
                 </li>
                
                 <li class="nav-item">
+            <a href="#quotationsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.quotations.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.quotations.*') ? 'true' : 'false' }}">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                    <span>Quotations</span>
+                </div>
+                <i class="bi bi-chevron-down fs-8"></i>
+            </a>
+            <div class="collapse {{ request()->routeIs('admin.quotations.*') ? 'show' : '' }}" id="quotationsSubmenu">
+                <ul class="nav flex-column ps-2">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->routeIs('admin.quotations.index') ? 'active' : '' }}">
+                            <i class="bi bi-list-stars"></i>
+                            <span>All Quotations</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.quotations.create') }}" class="nav-link {{ request()->routeIs('admin.quotations.create') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-plus-fill"></i>
+                            <span>Create Quotation</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+
+                <li class="nav-item">
                     <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <i class="bi bi-people-fill"></i>
                         <span>Users Module</span>
