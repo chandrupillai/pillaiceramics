@@ -44,12 +44,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-// Quotation Routes
-        Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
-        Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
-        Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
-        Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
-        Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
+    // Quotation Routes
+    Route::get('/quotations/quick-create-new', [QuotationController::class, 'quickCreate'])->name('quotations.quick-create');
+    Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
+    Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
+    Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
+    Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
+    Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
     // Locations Management (Accessible by Super Admin, Admin, Staff)
     Route::get('locations/fetch', [LocationController::class, 'fetch'])->name('locations.fetch');
     Route::resource('locations', LocationController::class);
@@ -76,7 +77,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
-
+    
+    Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
 
         // My Dealers Route (explicitly passes type => 'dealer')
@@ -98,7 +100,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
         Route::get('/products/{id}', [TileProductController::class, 'show'])->name('admin.products.show');
         Route::get('/enquiries', [AdminEnquiryController::class, 'index'])->name('enquiries.index');
         Route::patch('/enquiries/{enquiry}/status', [AdminEnquiryController::class, 'updateStatus'])->name('enquiries.update-status');
-
-        
     });
 });

@@ -33,16 +33,32 @@ class AuthController extends Controller
 
         $token = $user->createToken('api-token')->plainTextToken;
 
+        // Default creator details
+        $createdByName = 'anandharaj';
+        $createdByMobile = '9444365536';
+
+        // Check created_by column and fetch the creator user
+        if (!empty($user->created_by)) {
+            $creator = User::find($user->created_by);
+            if ($creator) {
+                $createdByName = $creator->name ?? 'anandharaj';
+                $createdByMobile = $creator->phone ?? $creator->mobile_number ?? '9444365536';
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
             'token'   => $token,
             'user'    => [
-                'id'            => $user->id,
-                'name'          => $user->name,
-                'mobile_number' => $user->phone,
-                'role'=> $user->role,
-                'location'=>$user->location_id 
+                'id'                => $user->id,
+                'name'              => $user->name,
+                'mobile_number'     => $user->phone,
+                'role'              => $user->role,
+                'location'          => $user->location_id,
+                'created_by'        => $user->created_by,
+                'created_by_name'   => $createdByName,
+                'created_by_mobile' => $createdByMobile,
             ],
         ]);
     }

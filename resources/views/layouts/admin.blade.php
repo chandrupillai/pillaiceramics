@@ -119,164 +119,170 @@
         </div>
 
         <ul class="nav flex-column mb-4">
-            
+
             {{-- ======================================================== --}}
             {{-- 1. SUPER ADMIN & ADMIN MENU                              --}}
             {{-- ======================================================== --}}
             @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
 
-                <li class="nav-item">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-                <!-- Products Submenu -->
-                <li class="nav-item">
-                    <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.tile-products.*') ? 'true' : 'false' }}">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-box-seam-fill"></i>
-                            <span>Products</span>
-                        </div>
-                        <i class="bi bi-chevron-down fs-8"></i>
-                    </a>
-                    <div class="collapse {{ request()->routeIs('admin.tile-products.*') ? 'show' : '' }}" id="productsSubmenu">
-                        <ul class="nav flex-column ps-2">
-                            <li class="nav-item">
-                                <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.index') ? 'active' : '' }}">
-                                    <i class="bi bi-list-ul"></i>
-                                    <span>All Products</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('admin.tile-products.create') }}" class="nav-link {{ request()->routeIs('admin.tile-products.create') ? 'active' : '' }}">
-                                    <i class="bi bi-plus-circle-fill"></i>
-                                    <span>Add Product</span>
-                                </a>
-                            </li>
-                            
-                        </ul>
+            <!-- Products Submenu -->
+            <li class="nav-item">
+                <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.tile-products.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span>Products</span>
                     </div>
-                </li>
-               
-                <li class="nav-item">
-            <a href="#quotationsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.quotations.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.quotations.*') ? 'true' : 'false' }}">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                    <span>Quotations</span>
+                    <i class="bi bi-chevron-down fs-8"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.tile-products.*') ? 'show' : '' }}" id="productsSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-ul"></i>
+                                <span>All Products</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.tile-products.create') }}" class="nav-link {{ request()->routeIs('admin.tile-products.create') ? 'active' : '' }}">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                <span>Add Product</span>
+                            </a>
+                        </li>
+
+                    </ul>
                 </div>
-                <i class="bi bi-chevron-down fs-8"></i>
-            </a>
-            <div class="collapse {{ request()->routeIs('admin.quotations.*') ? 'show' : '' }}" id="quotationsSubmenu">
-                <ul class="nav flex-column ps-2">
-                    <li class="nav-item">
-                        <a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->routeIs('admin.quotations.index') ? 'active' : '' }}">
-                            <i class="bi bi-list-stars"></i>
-                            <span>All Quotations</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.quotations.create') }}" class="nav-link {{ request()->routeIs('admin.quotations.create') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-plus-fill"></i>
-                            <span>Create Quotation</span>
-                        </a>
-                    </li>
-                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="#quotationsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.quotations.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.quotations.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        <span>Quotations</span>
+                    </div>
+                    <i class="bi bi-chevron-down fs-8"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.quotations.*') ? 'show' : '' }}" id="quotationsSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->routeIs('admin.quotations.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-stars"></i>
+                                <span>All Quotations</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.create') }}" class="nav-link {{ request()->routeIs('admin.quotations.create') ? 'active' : '' }}">
+                                <i class="bi bi-file-earmark-plus-fill"></i>
+                                <span>Create Quotation</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.quick-create') }}" class="nav-link {{ request()->routeIs('admin.quotations.quick-create') ? 'active' : '' }}">
+                                <i class="bi bi-pencil-square"></i>
+                                <span>Quick / Manual Quotation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+
+            <li class="nav-item">
+                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Users Module</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('admin.locations.index') }}" class="nav-link {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>Locations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.godowns.index') }}" class="nav-link {{ request()->routeIs('admin.godowns.*') ? 'active' : '' }}">
+                    <i class="bi bi-building-fill"></i>
+                    <span>Godowns</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-categories.index') }}" class="nav-link {{ request()->routeIs('admin.tile-categories.*') ? 'active' : '' }}">
+                    <i class="bi bi-tags-fill"></i>
+                    <span>Tile Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-types.index') }}" class="nav-link {{ request()->routeIs('admin.tile-types.*') ? 'active' : '' }}">
+                    <i class="bi bi-layers-fill"></i>
+                    <span>Tile Types</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-sizes.index') }}" class="nav-link {{ request()->routeIs('admin.tile-sizes.*') ? 'active' : '' }}">
+                    <i class="bi bi-aspect-ratio-fill"></i>
+                    <span>Tile Sizes</span>
+                </a>
+            </li>
+
+            <!-- Settings Section -->
+            <div class="px-3 pt-3 pb-2">
+                <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">Settings</span>
             </div>
-        </li>
 
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Users Module</span>
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a href="{{ route('admin.locations.index') }}" class="nav-link {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <span>Locations</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.godowns.index') }}" class="nav-link {{ request()->routeIs('admin.godowns.*') ? 'active' : '' }}">
-                        <i class="bi bi-building-fill"></i>
-                        <span>Godowns</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.tile-categories.index') }}" class="nav-link {{ request()->routeIs('admin.tile-categories.*') ? 'active' : '' }}">
-                        <i class="bi bi-tags-fill"></i>
-                        <span>Tile Categories</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.tile-types.index') }}" class="nav-link {{ request()->routeIs('admin.tile-types.*') ? 'active' : '' }}">
-                        <i class="bi bi-layers-fill"></i>
-                        <span>Tile Types</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.tile-sizes.index') }}" class="nav-link {{ request()->routeIs('admin.tile-sizes.*') ? 'active' : '' }}">
-                        <i class="bi bi-aspect-ratio-fill"></i>
-                        <span>Tile Sizes</span>
-                    </a>
-                </li>
-
-                <!-- Settings Section -->
-                <div class="px-3 pt-3 pb-2">
-                    <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">Settings</span>
-                </div>
-
-                <li class="nav-item">
-                    <a href="{{ route('admin.company.index') }}" class="nav-link {{ request()->routeIs('admin.company.*') ? 'active' : '' }}">
-                        <i class="bi bi-gear-fill"></i>
-                        <span>Company Details</span>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.company.index') }}" class="nav-link {{ request()->routeIs('admin.company.*') ? 'active' : '' }}">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>Company Details</span>
+                </a>
+            </li>
 
             {{-- ======================================================== --}}
             {{-- 2. STAFF / SALES PERSON MENU                             --}}
             {{-- ======================================================== --}}
             @elseif(in_array(auth()->user()->role, ['staff', 'sales_person']))
 
-                <!-- Staff Sales Dashboard -->
-                <li class="nav-item">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i>
-                        <span>My Dashboard</span>
-                    </a>
-                </li>
+            <!-- Staff Sales Dashboard -->
+            <li class="nav-item">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>My Dashboard</span>
+                </a>
+            </li>
 
-                <!-- Products & Stock Quantities (Read Only View) -->
-                <li class="nav-item">
-                    <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}">
-                        <i class="bi bi-boxes"></i>
-                        <span>Products & Stock</span>
-                    </a>
-                </li>
+            <!-- Products & Stock Quantities (Read Only View) -->
+            <li class="nav-item">
+                <a href="{{ route('admin.tile-products.index') }}" class="nav-link {{ request()->routeIs('admin.tile-products.*') ? 'active' : '' }}">
+                    <i class="bi bi-boxes"></i>
+                    <span>Products & Stock</span>
+                </a>
+            </li>
 
-                <div class="px-3 pt-3 pb-2">
-                    <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">My Accounts</span>
-                </div>
+            <div class="px-3 pt-3 pb-2">
+                <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">My Accounts</span>
+            </div>
 
-                <!-- My Wholesale Dealers -->
-                <li class="nav-item">
-                    <a href="{{ route('admin.staff.dealers.index') }}" class="nav-link {{ request()->routeIs('admin.staff.dealers.*') ? 'active' : '' }}">
-                        <i class="bi bi-shop-window"></i>
-                        <span>My Dealers</span>
-                    </a>
-                </li>
+            <!-- My Wholesale Dealers -->
+            <li class="nav-item">
+                <a href="{{ route('admin.staff.dealers.index') }}" class="nav-link {{ request()->routeIs('admin.staff.dealers.*') ? 'active' : '' }}">
+                    <i class="bi bi-shop-window"></i>
+                    <span>My Dealers</span>
+                </a>
+            </li>
 
-                <!-- My Direct Customers -->
-                <li class="nav-item">
-                    <a href="{{ route('admin.staff.customers.index') }}" class="nav-link {{ request()->routeIs('admin.staff.customers.*') ? 'active' : '' }}">
-                        <i class="bi bi-person-badge-fill"></i>
-                        <span>My Customers</span>
-                    </a>
-                </li>
+            <!-- My Direct Customers -->
+            <li class="nav-item">
+                <a href="{{ route('admin.staff.customers.index') }}" class="nav-link {{ request()->routeIs('admin.staff.customers.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>My Customers</span>
+                </a>
+            </li>
 
             @endif
 
@@ -294,9 +300,9 @@
                 </button>
                 <h5 class="mb-0 fw-bold d-none d-sm-block">
                     @if(auth()->user()->role === 'staff')
-                        Sales Staff Portal
+                    Sales Staff Portal
                     @else
-                        Admin Portal
+                    Admin Portal
                     @endif
                 </h5>
             </div>
