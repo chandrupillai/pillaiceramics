@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\{DataController, DealerEnquiryController};
+use App\Http\Controllers\Api\{DataController, DealerEnquiryController,DealerController};
 
 /*
 |--------------------------------------------------------------------------
@@ -59,5 +59,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/dealers/list', [DataController::class, 'dealersList'])->name('api.v1.dealers.update');
         Route::post('/enquiries', [DealerEnquiryController::class, 'store']);
         Route::get('/my-enquiries', [DealerEnquiryController::class, 'myEnquiries']);
+        Route::post('/dealers', [DealerController::class, 'store']);
     });
 });
