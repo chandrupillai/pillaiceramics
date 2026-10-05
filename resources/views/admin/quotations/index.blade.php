@@ -33,7 +33,7 @@
                         @forelse($quotations ?? [] as $quotation)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $quotation->quotation_number }}</td>
+                                <td>{{ $quotation->quotation_no }}</td>
                                 <td>{{ $quotation->customer_name }}</td>
                                 <td>₹{{ number_format($quotation->total_amount, 2) }}</td>
                                 <td>

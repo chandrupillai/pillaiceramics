@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Godown;
 use App\Models\Location;
 use App\Models\User;
+use App\Models\TileProduct;
 
 class DashboardController extends Controller
 {
+
+
     public function index()
     {
         // Dashboard Statistics
@@ -21,6 +24,19 @@ class DashboardController extends Controller
             'inactive_godowns' => Godown::where('is_active', false)->count(),
 
             'total_users'      => User::count(),
+
+            // 4x2 Tile Statistics
+            'count_4x2_products' => TileProduct::whereHas('size', function ($query) {
+                $query->where('name', 'like', '%4x2%')
+                    ->orWhere('name', 'like', '%600x1200%')
+                    ->orWhere('name', 'like', '%2x4%');
+            })->count(),
+
+            'total_4x2_stock'    => TileProduct::whereHas('size', function ($query) {
+                $query->where('name', 'like', '%4x2%')
+                    ->orWhere('name', 'like', '%600x1200%')
+                    ->orWhere('name', 'like', '%2x4%');
+            })->sum('stock_quantity'),
         ];
 
         // Godowns grouped by Location

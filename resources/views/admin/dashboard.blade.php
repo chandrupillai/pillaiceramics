@@ -70,8 +70,8 @@
         <div class="card card-custom p-3 bg-white border-0 shadow-sm rounded-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <span class="text-muted fs-7 fw-medium">Inactive Godowns</span>
-                    <h3 class="fw-bold mt-1 mb-0">{{ $stats['inactive_godowns'] }}</h3>
+                    <span class="text-muted fs-7 fw-medium">4*2 Total </span>
+                    <h3 class="fw-bold mt-1 mb-0">{{ $stats['total_4x2_stock'] }}</h3>
                     <small class="text-warning fs-8 fw-semibold"><i class="bi bi-exclamation-triangle-fill"></i> Attention Needed</small>
                 </div>
                 <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-3 fs-4">
