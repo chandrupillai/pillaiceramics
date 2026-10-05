@@ -60,8 +60,8 @@
                             <table class="table table-bordered align-middle mb-0" id="items-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width: 40%;">Product</th>
-                                        <th style="width: 20%;">Boxes</th>
+                                        <th style="width: 45%;">Product Search</th>
+                                        <th style="width: 15%;">Boxes</th>
                                         <th style="width: 25%;">Box Rate (₹)</th>
                                         <th style="width: 15%;">Action</th>
                                     </tr>
@@ -69,14 +69,16 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <select name="items[0][tile_product_id]" class="form-select product-select" required>
-                                                <option value="">Select Tile Product</option>
-                                                @foreach($products as $product)
-                                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}">
-                                                        {{ $product->product_name }} (SKU: {{ $product->sku }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <!-- Auto-suggestion Input -->
+                                            <input type="text" 
+                                                   class="form-control product-search-input" 
+                                                   list="products-list" 
+                                                   placeholder="Type product name or SKU..." 
+                                                   autocomplete="off" 
+                                                   required>
+                                            
+                                            <!-- Hidden ID field for backend form submission -->
+                                            <input type="hidden" name="items[0][tile_product_id]" class="product-id-hidden" required>
                                         </td>
                                         <td>
                                             <input type="number" name="items[0][boxes]" class="form-control boxes-input" value="1" min="1" required>
@@ -93,6 +95,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Global Datalist options pool for auto-suggestions -->
+                <datalist id="products-list">
+                    @foreach($products as $product)
+                        <option value="{{ $product->product_name }} (SKU: {{ $product->sku }})" 
+                                data-id="{{ $product->id }}" 
+                                data-price="{{ $product->price }}">
+                        </option>
+                    @endforeach
+                </datalist>
 
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
@@ -122,38 +134,55 @@
 document.addEventListener('DOMContentLoaded', function() {
     let itemIndex = 1;
 
-    // Add new product row
+    // Add new item row
     document.getElementById('add-item-btn').addEventListener('click', function() {
         const tbody = document.querySelector('#items-table tbody');
         const firstRow = tbody.querySelector('tr');
         const newRow = firstRow.cloneNode(true);
 
-        // Update inputs name indices
-        newRow.querySelectorAll('input, select').forEach(input => {
+        // Reset values & update field name indices
+        newRow.querySelectorAll('input').forEach(input => {
             let name = input.getAttribute('name');
             if (name) {
                 input.setAttribute('name', name.replace(/\[\d+\]/, '[' + itemIndex + ']'));
             }
+            if (input.classList.contains('product-search-input')) input.value = '';
+            if (input.classList.contains('product-id-hidden')) input.value = '';
             if (input.classList.contains('boxes-input')) input.value = 1;
             if (input.classList.contains('price-input')) input.value = '0.00';
-            if (input.tagName === 'SELECT') input.selectedIndex = 0;
         });
 
         tbody.appendChild(newRow);
         itemIndex++;
     });
 
-    // Auto populate default price on product selection
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('product-select')) {
-            const selectedOption = e.target.options[e.target.selectedIndex];
-            const price = selectedOption.getAttribute('data-price') || '0.00';
+    // Handle auto-suggestion selection event
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('product-search-input')) {
+            const inputValue = e.target.value;
+            const options = document.querySelectorAll('#products-list option');
             const row = e.target.closest('tr');
-            row.querySelector('.price-input').value = price;
+            const hiddenIdInput = row.querySelector('.product-id-hidden');
+            const priceInput = row.querySelector('.price-input');
+
+            let matched = false;
+
+            options.forEach(option => {
+                if (option.value === inputValue) {
+                    hiddenIdInput.value = option.getAttribute('data-id');
+                    priceInput.value = option.getAttribute('data-price') || '0.00';
+                    matched = true;
+                }
+            });
+
+            // Reset hidden ID if input doesn't match an exact suggestion item
+            if (!matched) {
+                hiddenIdInput.value = '';
+            }
         }
     });
 
-    // Remove row
+    // Remove item row
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-row-btn')) {
             const tbody = document.querySelector('#items-table tbody');
