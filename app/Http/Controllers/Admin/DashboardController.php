@@ -25,18 +25,8 @@ class DashboardController extends Controller
 
             'total_users'      => User::count(),
 
-            // 4x2 Tile Statistics
-            'count_4x2_products' => TileProduct::whereHas('size', function ($query) {
-                $query->where('name', 'like', '%4x2%')
-                    ->orWhere('name', 'like', '%600x1200%')
-                    ->orWhere('name', 'like', '%2x4%');
-            })->count(),
-
-            'total_4x2_stock'    => TileProduct::whereHas('size', function ($query) {
-                $query->where('name', 'like', '%4x2%')
-                    ->orWhere('name', 'like', '%600x1200%')
-                    ->orWhere('name', 'like', '%2x4%');
-            })->sum('stock_quantity'),
+            
+            'total_4x2_stock'  => TileProduct::where('tile_size_id', 7)->sum('stock_quantity'),
         ];
 
         // Godowns grouped by Location
