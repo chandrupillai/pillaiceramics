@@ -313,4 +313,28 @@ class TileProductController extends Controller
             return redirect()->back()->with('error', 'Failed to load product details.');
         }
     }
+
+    public function printAll(Request $request)
+    {
+        
+        $query = TileProduct::with(['godown']);
+
+        // Apply filters if any were active on the index screen
+        if ($request->filled('search')) {
+            $query->where('product_name', 'like', '%' . $request->search . '%')
+                ->orWhere('sku', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('type_id')) {
+            $query->where('type_id', $request->type_id);
+        }
+
+        $products = $query->latest()->get(); // Fetch ALL matching records without pagination
+
+        return view('admin.tile_products.print-all', compact('products'));
+    }
 }

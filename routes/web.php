@@ -72,12 +72,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::resource('tile-types', TileTypeController::class)->except(['create', 'show']);
 
     Route::resource('tile-sizes', TileSizeController::class)->except(['create', 'show']);
-    Route::resource('tile-products', TileProductController::class);
-
+    
+    Route::get('/tile-products/print-all', [TileProductController::class, 'printAll'])->name('tile-products.printAll');
+    
+Route::resource('tile-products', TileProductController::class);
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
-    
+
     Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
 

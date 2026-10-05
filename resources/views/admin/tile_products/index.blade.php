@@ -20,10 +20,12 @@
 
         <div class="d-flex gap-2">
             {{-- Print Button --}}
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm px-3">
-                <i class="bi bi-printer-fill me-1"></i>
-                Print Inventory
-            </button>
+           <a href="{{ route('admin.tile-products.printAll', request()->query()) }}" 
+   target="_blank" 
+   class="btn btn-outline-secondary btn-sm px-3">
+    <i class="bi bi-printer-fill me-1"></i>
+    Print All Products
+</a>
 
             <a href="{{ route('admin.tile-products.create') }}"
                class="btn btn-primary btn-sm px-3">
