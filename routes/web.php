@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, GodownController, DashboardController, TileCategoryController, TileTypeController};
-use App\Http\Controllers\Admin\{UserController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
+use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
 use App\Http\Controllers\Admin\LocationController;
 
 /*
@@ -72,10 +72,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::resource('tile-types', TileTypeController::class)->except(['create', 'show']);
 
     Route::resource('tile-sizes', TileSizeController::class)->except(['create', 'show']);
-    
+
     Route::get('/tile-products/print-all', [TileProductController::class, 'printAll'])->name('tile-products.printAll');
-    
-Route::resource('tile-products', TileProductController::class);
+    Route::patch('/tile-products/{product}/update-quantity', [TileProductController::class, 'updateQuantity'])->name('tile-products.update-quantity');
+    Route::patch('/tile-products/{product}/toggle-display-front', [TileProductController::class, 'toggleDisplayFront'])->name('tile-products.toggle-display-front');
+    Route::resource('tile-products', TileProductController::class);
+    Route::resource('production-companies', ProductionCompanyController::class)->except(['create', 'edit', 'show']);
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');

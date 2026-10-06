@@ -206,12 +206,28 @@
                     </div>
                 </div>
 
-                <!-- Storage Location Card -->
+                <!-- Storage & Origin Location Card -->
                 <div class="card border-0 shadow-sm rounded-3 mb-3 mb-md-4">
                     <div class="card-header bg-white py-3 border-bottom-0">
                         <h6 class="fw-bold mb-0 text-dark fs-6"><i class="bi bi-geo-alt me-2 text-primary"></i>Storage Location</h6>
                     </div>
                     <div class="card-body pt-0">
+                        <!-- Production Company (Placed First) -->
+                        <div class="mb-3">
+                            <label for="production_company_id" class="form-label fw-semibold fs-7">Production Company</label>
+                            <select class="form-select form-select-lg form-select-md-sm fs-6 fs-md-7 @error('production_company_id') is-invalid @enderror" id="production_company_id" name="production_company_id">
+                                <option value="">Select Company</option>
+                                @foreach($productionCompanies as $company)
+                                    <option value="{{ $company->id }}" {{ old('production_company_id') == $company->id ? 'selected' : '' }}>
+                                        {{ $company->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('production_company_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="mb-3">
                             <label for="godown_id" class="form-label fw-semibold fs-7">Godown / Warehouse</label>
                             <select class="form-select form-select-lg form-select-md-sm fs-6 fs-md-7 @error('godown_id') is-invalid @enderror" id="godown_id" name="godown_id">

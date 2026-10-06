@@ -9,6 +9,7 @@ use App\Models\TileCategory;
 use App\Models\TileProduct;
 use App\Models\TileSize;
 use App\Models\TileType;
+use App\Models\ProductionCompany;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -70,9 +71,13 @@ class TileProductController extends Controller
             $sizes = TileSize::where('is_active', true)->get();
             $locations = Location::where('is_active', true)->get();
             $godowns = Godown::where('is_active', true)->get();
+            // Pass production companies
+            $productionCompanies = ProductionCompany::where('is_active', true)->get();
+
+
 
             if (view()->exists('admin.tile_products.create')) {
-                return view('admin.tile_products.create', compact('categories', 'types', 'sizes', 'locations', 'godowns'));
+                return view('admin.tile_products.create', compact('categories', 'types', 'sizes', 'productionCompanies', 'locations', 'godowns'));
             }
 
             return redirect()->route('admin.tile-products.index', ['action' => 'create']);
@@ -101,6 +106,7 @@ class TileProductController extends Controller
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
                 'description' => 'nullable|string',
                 'is_active' => 'nullable|boolean',
+                'production_company_id' => 'nullable|exists:production_companies,id',
             ]);
 
             $imagePath = null;
@@ -124,6 +130,7 @@ class TileProductController extends Controller
                 'image' => $imagePath,
                 'description' => $validated['description'] ?? null,
                 'is_active' => $request->has('is_active') ? true : false,
+                'production_company_id' => $validated['production_company_id'],
             ]);
 
             if ($request->ajax()) {
@@ -316,7 +323,7 @@ class TileProductController extends Controller
 
     public function printAll(Request $request)
     {
-        
+
         $query = TileProduct::with(['godown']);
 
         // Apply filters if any were active on the index screen
@@ -336,5 +343,40 @@ class TileProductController extends Controller
         $products = $query->latest()->get(); // Fetch ALL matching records without pagination
 
         return view('admin.tile_products.print-all', compact('products'));
+    }
+    public function updateQuantity(Request $request, TileProduct $product)
+    {
+        $request->validate([
+            'stock_quantity' => 'required|integer|min:0'
+        ]);
+
+        $product->update(['stock_quantity' => $request->stock_quantity]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quantity updated successfully.'
+        ]);
+    }
+
+    public function toggleDisplayFront(Request $request, TileProduct $product)
+    {
+        $displayFront = $request->input('display_front', 0);
+
+        if ($displayFront) {
+            $activeFrontCount = TileProduct::where('display_front', 1)->count();
+            if ($activeFrontCount >= 5) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maximum of 5 products can be displayed on the front home page.'
+                ], 422);
+            }
+        }
+
+        $product->update(['display_front' => $displayFront]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Display status updated successfully.'
+        ]);
     }
 }

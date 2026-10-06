@@ -25,6 +25,7 @@ class TileProduct extends Model
         'image',
         'description',
         'is_active',
+        'production_company_id',
     ];
 
     protected $casts = [
@@ -62,7 +63,11 @@ class TileProduct extends Model
     public function godowns()
     {
         return $this->belongsToMany(Godown::class)
-                    ->withPivot(['quantity', 'boxes'])
-                    ->withTimestamps();
+            ->withPivot(['quantity', 'boxes'])
+            ->withTimestamps();
+    }
+    public function productionCompany()
+    {
+        return $this->belongsTo(ProductionCompany::class, 'production_company_id');
     }
 }

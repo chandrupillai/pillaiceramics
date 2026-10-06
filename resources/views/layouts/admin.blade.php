@@ -243,6 +243,13 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a href="{{ route('admin.production-companies.index') }}" class="nav-link {{ request()->routeIs('admin.production-companies.*') ? 'active' : '' }}">
+                    <i class="bi bi-buildings-fill"></i>
+                    <span>Production Companies</span>
+                </a>
+            </li>
+
             {{-- ======================================================== --}}
             {{-- 2. STAFF / SALES PERSON MENU                             --}}
             {{-- ======================================================== --}}
