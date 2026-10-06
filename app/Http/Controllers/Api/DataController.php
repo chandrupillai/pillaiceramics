@@ -217,6 +217,7 @@ class DataController extends Controller
                     'location'          => $product->location ? $product->location->name : null,
                     'godown'            => $product->godown ? $product->godown->name : null,
                     'description'       => $product->description,
+                    'display_front' => $product->display_front
                 ];
             });
 
@@ -415,24 +416,24 @@ class DataController extends Controller
             $perPage = (int) $request->input('per_page', 10);
 
             $dealers = User::select([
-                    'id',
-                    'name',
-                    'shop_name',
-                    'gst_number',
-                    'phone',
-                    'email',
-                    'address',
-                    'created_by',
-                    'created_at'
-                ])
+                'id',
+                'name',
+                'shop_name',
+                'gst_number',
+                'phone',
+                'email',
+                'address',
+                'created_by',
+                'created_at'
+            ])
                 ->where('role', 'dealer')
                 ->where('created_by', $userId) // Filter by logged-in user
                 ->when($search, function ($query, $search) {
                     return $query->where(function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('shop_name', 'like', "%{$search}%")
-                          ->orWhere('mobile_number', 'like', "%{$search}%")
-                          ->orWhere('gst_number', 'like', "%{$search}%");
+                            ->orWhere('shop_name', 'like', "%{$search}%")
+                            ->orWhere('mobile_number', 'like', "%{$search}%")
+                            ->orWhere('gst_number', 'like', "%{$search}%");
                     });
                 })
                 ->latest()
@@ -450,7 +451,6 @@ class DataController extends Controller
                     'has_more'     => $dealers->hasMorePages(),
                 ]
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',
