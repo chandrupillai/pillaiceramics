@@ -26,6 +26,7 @@ class TileProduct extends Model
         'description',
         'is_active',
         'production_company_id',
+        'display_front',
     ];
 
     protected $casts = [
