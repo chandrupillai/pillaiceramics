@@ -7,6 +7,7 @@ use App\Models\DealerEnquiry;
 use App\Models\TileProduct;
 use Illuminate\Http\Request;
 use Exception;
+use Auth;
 
 class DealerEnquiryController extends Controller
 {
@@ -83,5 +84,48 @@ class DealerEnquiryController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Display dealer enquiries in the Admin Panel
+     */
+    public function index()
+    {
+        // Eager load relationships to optimize query performance
+        $enquiries = DealerEnquiry::with(['dealer', 'product', 'updatedByStaff'])
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.dealer_enquiries.index', compact('enquiries'));
+    }
+
+    /**
+     * Update Enquiry Status & record staff member who made the update
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $enquiry = DealerEnquiry::findOrFail($id);
+
+        $enquiry->update([
+            'status'     => $request->status,
+            'updated_by' => Auth::id(), // Record current logged-in staff ID
+        ]);
+
+        return back()->with('success', "Enquiry #{$id} status updated to " . ucfirst($request->status));
+    }
+
+    /**
+     * Delete Dealer Enquiry
+     */
+    public function destroy($id)
+    {
+        $enquiry = DealerEnquiry::findOrFail($id);
+        $enquiry->delete();
+
+        return back()->with('success', 'Dealer enquiry deleted successfully.');
     }
 }

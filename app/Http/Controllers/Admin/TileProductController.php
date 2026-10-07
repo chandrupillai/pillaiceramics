@@ -360,7 +360,7 @@ class TileProductController extends Controller
 
     public function toggleDisplayFront(Request $request, TileProduct $product)
     {
-        $displayFront = $request->input('display_front', 0);
+        $displayFront = $request->boolean('display_front') ? 1 : 0;
 
         if ($displayFront) {
             $activeFrontCount = TileProduct::where('display_front', 1)->count();

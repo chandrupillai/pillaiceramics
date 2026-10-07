@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, GodownController, DashboardController, TileCategoryController, TileTypeController};
+use App\Http\Controllers\{PageController, SitemapController};
+use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, ShopController, GodownController, DashboardController, TileCategoryController, TileTypeController};
 use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
 use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Api\{DealerEnquiryController};
 
 /*
 |--------------------------------------------------------------------------
@@ -17,9 +18,13 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/services', [PageController::class, 'services'])->name('services');
 Route::get('/shops', [PageController::class, 'shops'])->name('shops');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 // Location-Specific SEO Sub-Pages
 Route::get('/shops/{location}', [PageController::class, 'shopDetail'])->name('shops.detail');
+Route::get('/showrooms', [ShopController::class, 'index'])->name('showrooms');
+Route::get('/showrooms/{slug}', [ShopController::class, 'show'])->name('showrooms.show');
+
+
 
 
 /*
@@ -55,12 +60,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::get('locations/fetch', [LocationController::class, 'fetch'])->name('locations.fetch');
     Route::resource('locations', LocationController::class);
 
+    Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
+    Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
+    Route::delete('/dealer-enquiries/{id}', [DealerEnquiryController::class, 'destroy'])->name('dealer-enquiries.destroy');
+
     // Restricted Access Routes (Super Admin & Admin Only)
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::get('users/fetch', [UserController::class, 'fetch'])->name('users.fetch');
         Route::resource('users', UserController::class);
     });
-
+    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
     //Godown
     // AJAX fetch route for table pagination & search filters
     Route::get('godowns/fetch', [GodownController::class, 'fetch'])->name('godowns.fetch');

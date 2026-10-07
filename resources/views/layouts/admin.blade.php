@@ -249,6 +249,13 @@
                     <span>Production Companies</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.dealer-enquiries.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.dealer-enquiries.*') ? 'active' : '' }}">
+                    <i class="bi bi-shop-window me-2"></i>
+                    <span>Dealer Enquiries</span>
+                </a>
+            </li>
 
             {{-- ======================================================== --}}
             {{-- 2. STAFF / SALES PERSON MENU                             --}}

@@ -59,8 +59,8 @@
             <!-- Coimbatore Branch -->
             <div class="border border-slate-200 rounded-xl p-6 bg-slate-50 hover:border-indigo-500 transition">
                 <span class="inline-block bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded mb-3">Branch Shop</span>
-                <h2 class="text-2xl font-bold text-slate-900 mb-2">Coimbatore Branch</h2>
-                <p class="text-slate-600 text-sm mb-4">Cross Cut Road, Gandhipuram, Coimbatore, Tamil Nadu</p>
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Ramanathapuram Branch</h2>
+                <p class="text-slate-600 text-sm mb-4">Madurai Road, Ramanathapuram</p>
                 <div class="text-xs text-slate-500 space-y-1 border-t border-slate-200 pt-3">
                     <p><strong>Hours:</strong> 9:30 AM - 9:00 PM</p>
                 </div>
