@@ -59,7 +59,7 @@
     {{-- JSON-LD Structured Data Schema for Local Business Chain across Tamil Nadu --}}
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
+      "@@context": "https://schema.org",
       "@type": "Organization",
       "name": "Pillai Ceramics",
       "url": "{{ url('/') }}",
