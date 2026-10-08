@@ -33,7 +33,7 @@ class DataController extends Controller
     public function users()
     {
         try {
-            $users = User::select('id', 'name', 'mobile_number', 'is_active', 'created_at')
+            $users = User::select('id', 'name', 'phone', 'is_active','role', 'created_at')
                 ->latest()
                 ->get();
 
