@@ -107,7 +107,7 @@
         </div>
         @if(method_exists($dealers, 'hasPages') &&$dealers->hasPages())
             <div class="card-footer bg-white border-top py-3">
-                {{ $dealers->links() }}
+                {{ $dealers->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>
