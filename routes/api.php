@@ -25,7 +25,7 @@ Route::prefix('v1')->group(function () {
 
     // Company & Organization Info
     Route::get('/company', [DataController::class, 'company'])->name('api.v1.company.show');
-
+Route::get('/daily-offer', [DataController::class, 'getActiveDailyOffer']);
     // Master Data & Catalog Routes
     Route::prefix('catalog')->group(function () {
         Route::get('/categories', [DataController::class, 'categories'])->name('api.v1.catalog.categories');

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{PageController, SitemapController};
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, ShopController, GodownController, DashboardController, TileCategoryController, TileTypeController};
 use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
-use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\{LocationController, DailyOfferController};
 use App\Http\Controllers\Api\{DealerEnquiryController};
 
 /*
@@ -62,7 +62,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
     Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
-
+    Route::get('/daily-offers', [DailyOfferController::class, 'index'])->name('daily-offers.index');
+    Route::post('/daily-offers/store', [DailyOfferController::class, 'store'])->name('daily-offers.store');
+    Route::post('/daily-offers/{id}/toggle', [DailyOfferController::class, 'toggleStatus'])->name('daily-offers.toggle');
+    Route::delete('/daily-offers/{id}', [DailyOfferController::class, 'destroy'])->name('daily-offers.destroy');
 
     Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
 

@@ -271,6 +271,13 @@
                     <span>Dealer Enquiries</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.daily-offers.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.daily-offers.*') ? 'active' : '' }}">
+                    <i class="bi bi-card-image me-2"></i>
+                    <span>Daily Offers Banner</span>
+                </a>
+            </li>
 
             {{-- ======================================================== --}}
             {{-- 2. STAFF / SALES PERSON MENU                             --}}

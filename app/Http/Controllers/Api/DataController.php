@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Repositories\Contracts\CompanyRepositoryInterface;
 use App\Repositories\Contracts\TileProductRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+use App\Models\DailyOffer;
 
 class DataController extends Controller
 {
@@ -483,6 +484,44 @@ class DataController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Failed to fetch dealers list.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+    public function getActiveDailyOffer(Request $request)
+    {
+        try {
+            // Get today's active offer (status = 1)
+            $today = now()->format('Y-m-d');
+
+            $offer = DailyOffer::where('status', 1)
+                ->whereDate('offer_date', '<=', $today)
+                ->orderBy('offer_date', 'desc')
+                ->first();
+
+            if (!$offer) {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'No active offer available today.',
+                    'data'    => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Daily offer retrieved successfully.',
+                'data'    => [
+                    'id'         => $offer->id,
+                    'title'      => $offer->title,
+                    'image'      => asset('storage/' . $offer->image),
+                    'status'     => $offer->status,
+                    'offer_date' => $offer->offer_date->format('Y-m-d'),
+                ]
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to fetch daily offer.',
                 'error'   => $e->getMessage(),
             ], 500);
         }
