@@ -424,12 +424,11 @@ class DataController extends Controller
                 ], 401);
             }
 
-            $search  = $request->input('search');
-            $perPage = (int) $request->input('per_page', 10);
+            $search   = $request->input('search');
             $userRole = strtolower($user->role ?? '');
 
             // -----------------------------------------------------------------
-            // 1. Base Query with Standard Selected Columns
+            // 1. Base Query
             // -----------------------------------------------------------------
             $query = User::select([
                 'id',
@@ -444,18 +443,14 @@ class DataController extends Controller
             ])->whereIn('role', ['dealer', 'Dealer']);
 
             // -----------------------------------------------------------------
-            // 2. Role-Based Filtering Logic
+            // 2. Role-Based Access Control
             // -----------------------------------------------------------------
-            // Case A: Super Admin / Admin -> See ALL dealers
             if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
-                // No created_by restriction applied
-            }
-            // Case B: Staff -> See ONLY dealers created by this staff member
-            elseif (in_array($userRole, ['staff', 'sales_person'])) {
+                // Admin sees all dealers
+            } elseif (in_array($userRole, ['staff', 'sales_person'])) {
+                // Staff sees only their created dealers
                 $query->where('created_by', $user->id);
-            }
-            // Case C: Dealer or Other Roles -> Restrict access
-            else {
+            } else {
                 return response()->json([
                     'status'  => 'error',
                     'message' => 'Unauthorized access.',
@@ -463,34 +458,26 @@ class DataController extends Controller
             }
 
             // -----------------------------------------------------------------
-            // 3. Search Filter Logic (Fixed mobile_number -> phone)
+            // 3. Search Filter
             // -----------------------------------------------------------------
             $query->when($search, function ($q, $search) {
                 return $q->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', "%{$search}%")
                         ->orWhere('shop_name', 'like', "%{$search}%")
-                        ->orWhere('phone', 'like', "%{$search}%") // Corrected column name
+                        ->orWhere('phone', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('gst_number', 'like', "%{$search}%");
                 });
             });
 
-            // -----------------------------------------------------------------
-            // 4. Fetch Paginated Results
-            // -----------------------------------------------------------------
-            $dealers = $query->latest()->paginate($perPage);
+            // Fetch all matching records without pagination
+            $dealers = $query->latest()->get();
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Dealers list retrieved successfully.',
-                'data'    => $dealers->items(),
-                'pagination' => [
-                    'current_page' => $dealers->currentPage(),
-                    'last_page'    => $dealers->lastPage(),
-                    'per_page'     => $dealers->perPage(),
-                    'total'        => $dealers->total(),
-                    'has_more'     => $dealers->hasMorePages(),
-                ],
+                'total'   => $dealers->count(),
+                'data'    => $dealers,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
