@@ -87,6 +87,8 @@ class DealerEnquiryController extends Controller
     /**
      * Get authenticated dealer's submitted enquiry list (GET /my-enquiries)
      */
+
+
     public function myEnquiries(Request $request)
     {
         try {
@@ -102,25 +104,23 @@ class DealerEnquiryController extends Controller
             $userRole = strtolower($user->role ?? '');
 
             // -----------------------------------------------------------------
-            // 1. Base Query with Grouping (1 Row Per Date + Dealer + Notes)
+            // 1. Grouping Query (1 Row Per Date + Dealer + Notes)
             // -----------------------------------------------------------------
             $query = DealerEnquiry::select(
                 DB::raw('DATE(created_at) as enquiry_date'),
                 'dealer_id',
-                'notes',
                 'status',
-                DB::raw('MAX(created_at) as created_at'),
                 DB::raw('GROUP_CONCAT(id) as enquiry_ids')
             );
 
             // -----------------------------------------------------------------
-            // 2. Exact Role-Based Access Control Filtering
+            // 2. Role-Based Access Control Filtering
             // -----------------------------------------------------------------
-            // Case A: Super Admin / Admin -> See ALL enquiries across all dealers
+            // Admin / Super Admin -> See ALL enquiries
             if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
-                // No dealer_id condition applied
+                // No dealer_id filter
             }
-            // Case B: Staff -> See enquiries ONLY for dealers created by this staff member
+            // Staff -> See enquiries ONLY for dealers created by this staff member
             elseif ($userRole === 'staff') {
                 $assignedDealerIds = User::where('created_by', $user->id)
                     ->pluck('id')
@@ -128,56 +128,39 @@ class DealerEnquiryController extends Controller
 
                 $query->whereIn('dealer_id', $assignedDealerIds);
             }
-            // Case C: Dealer -> See ONLY their own enquiries
+            // Dealer -> See ONLY their own enquiries
             else {
                 $query->where('dealer_id', $user->id);
             }
 
-            // Apply grouping criteria and retrieve paginated results
-            $groupedEnquiries = $query->groupBy(DB::raw('DATE(created_at)'), 'dealer_id', 'notes', 'status')
+            // Apply grouping criteria and fetch paginated results
+            $groupedEnquiries = $query->groupBy(DB::raw('DATE(created_at)'), 'dealer_id', 'status')
                 ->orderBy(DB::raw('MAX(created_at)'), 'desc')
                 ->paginate($request->input('per_page', 10));
 
             // -----------------------------------------------------------------
-            // 3. Eager-Load Full Relationships for Grouped Products & Dealer
+            // 3. Selective Format (Only required summary fields)
             // -----------------------------------------------------------------
             $formattedData = collect($groupedEnquiries->items())->map(function ($group) {
                 $enquiryIds = explode(',', $group->enquiry_ids);
 
-                // Fetch individual enquiry records & associated nested product data
+                // Select ONLY essential fields from product relations
                 $items = DealerEnquiry::with([
-                    'dealer:id,name,phone',
-                    'product:id,product_name,sku,price,image,tile_category_id,tile_type_id,tile_size_id',
-                    'product.category:id,name',
-                    'product.type:id,name',
+                    'dealer:id,name',
+                    'product:id,product_name,tile_size_id',
                     'product.size:id,name',
                 ])->whereIn('id', $enquiryIds)->get();
 
                 $firstItem = $items->first();
 
                 return [
-                    'enquiry_date' => $group->enquiry_date,
-                    'dealer_id'    => $group->dealer_id,
                     'dealer_name'  => $firstItem?->dealer?->name ?? 'N/A',
-                    'dealer_phone' => $firstItem?->dealer?->phone ?? null,
+                    'enquiry_date' => $group->enquiry_date,
                     'status'       => $group->status,
-                    'notes'        => $group->notes,
-                    'created_at'   => $group->created_at,
-                    'total_items'  => $items->count(),
                     'products'     => $items->map(function ($item) {
                         return [
-                            'enquiry_id'   => $item->id,
-                            'product_id'   => $item->tile_product_id,
-                            'quantity'     => $item->quantity,
-                            'product_name' => $item->product?->product_name,
-                            'sku'          => $item->product?->sku,
-                            'price'        => $item->product?->price,
-                            'image_url'    => $item->product?->image
-                                ? asset('storage/' . $item->product->image)
-                                : asset('images/default-product.png'),
-                            'category'     => $item->product?->category?->name,
-                            'type'         => $item->product?->type?->name,
-                            'size'         => $item->product?->size?->name,
+                            'product_name' => $item->product?->product_name ?? 'N/A',
+                            'size'         => $item->product?->size?->name ?? 'N/A',
                         ];
                     }),
                 ];
@@ -186,7 +169,6 @@ class DealerEnquiryController extends Controller
             return response()->json([
                 'success'    => true,
                 'message'    => 'Enquiries retrieved successfully.',
-                'role_type'  => $userRole ?: 'dealer',
                 'data'       => $formattedData,
                 'pagination' => [
                     'current_page' => $groupedEnquiries->currentPage(),
@@ -199,11 +181,7 @@ class DealerEnquiryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch enquiries.',
-                'error'   => [
-                    'message' => $e->getMessage(),
-                    'file'    => $e->getFile(),
-                    'line'    => $e->getLine(),
-                ],
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
