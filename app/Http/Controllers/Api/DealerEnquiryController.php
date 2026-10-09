@@ -106,23 +106,19 @@ class DealerEnquiryController extends Controller
                 'product.size:id,name'
             ]);
 
-            // Normalize user role string
             $userRole = strtolower($user->role ?? '');
 
             // -----------------------------------------------------------------
-            // Role-Based Enquiries Querying
+            // Role-Based Filtering
             // -----------------------------------------------------------------
 
-            // 1. Super Admin / Admin -> See ALL enquiries across all dealers
+            // 1. Super Admin / Admin -> See ALL enquiries
             if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
-                // No filter applied - retrieves all records
+                // No filter applied - retrieves all records across all dealers
             }
-            // 2. Staff -> See enquiries for dealers assigned to this staff member
+            // 2. Staff -> See enquiries for dealers created by this staff member (created_by)
             elseif ($userRole === 'staff') {
-                // Fetch dealer IDs linked to this staff member
-                // Adjust column name ('staff_id' or 'assigned_staff_id') according to your schema
-                $assignedDealerIds = \App\Models\User::where('staff_id', $user->id)
-                    ->orWhere('assigned_staff_id', $user->id)
+                $assignedDealerIds = \App\Models\User::where('created_by', $user->id)
                     ->pluck('id')
                     ->toArray();
 
@@ -135,7 +131,7 @@ class DealerEnquiryController extends Controller
 
             $enquiries = $query->latest()->paginate($request->input('per_page', 10));
 
-            // Format a clean, non-bloated API response
+            // Format clean API response structure
             $formattedData = collect($enquiries->items())->map(function ($enquiry) {
                 return [
                     'id'           => $enquiry->id,
