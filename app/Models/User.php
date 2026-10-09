@@ -88,9 +88,5 @@ class User extends Authenticatable
 
         return $this->role === $roles;
     }
-    public function dealers()
-{
-    // Make sure 'staff_id' matches the foreign key column name in your users/dealers table
-    return $this->hasMany(User::class, 'staff_id');
-}
+
 }
