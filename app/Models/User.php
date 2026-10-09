@@ -80,4 +80,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'created_by');
     }
+    public function hasRole($roles): bool
+    {
+        if (is_array($roles)) {
+            return in_array($this->role, $roles);
+        }
+
+        return $this->role === $roles;
+    }
 }
