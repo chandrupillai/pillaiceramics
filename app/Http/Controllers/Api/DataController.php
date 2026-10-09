@@ -33,7 +33,7 @@ class DataController extends Controller
     public function users()
     {
         try {
-            $users = User::select('id', 'name', 'phone', 'is_active','role', 'created_at')
+            $users = User::select('id', 'name', 'phone', 'is_active', 'role', 'created_at')
                 ->latest()
                 ->get();
 
@@ -176,7 +176,10 @@ class DataController extends Controller
                 'size:id,name,width_mm,height_mm,unit',
                 'location:id,name',
                 'godown:id,name'
-            ])->where('is_active', true);
+            ])
+                ->where('is_active', true)
+                ->whereNotNull('image')         // Exclude NULL images
+                ->where('image', '!=', '');     // Exclude empty string images
 
             // Capture ID from route param (/products/{id}) OR query string (/products?id=1)
             $targetId = $id ?? $request->input('id') ?? $request->input('product_id');
@@ -198,9 +201,10 @@ class DataController extends Controller
             }
 
             $products = $query->latest()->get()->map(function ($product) {
-                $imageUrl = $product->image
-                    ? asset($product->image)
-                    : asset('images/default-product.png');
+                // Build absolute image URL using storage/public path
+                $imageUrl = filter_var($product->image, FILTER_VALIDATE_URL)
+                    ? $product->image
+                    : asset('storage/' . $product->image);
 
                 return [
                     'id'                => $product->id,
@@ -217,7 +221,7 @@ class DataController extends Controller
                     'location'          => $product->location ? $product->location->name : null,
                     'godown'            => $product->godown ? $product->godown->name : null,
                     'description'       => $product->description,
-                    'display_front' => $product->display_front
+                    'display_front'     => $product->display_front
                 ];
             });
 
@@ -225,7 +229,7 @@ class DataController extends Controller
             if ($products->isEmpty() && $targetId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No products found matching the requested ID.',
+                    'message' => 'No products with images found matching the requested ID.',
                 ], 404);
             }
 
