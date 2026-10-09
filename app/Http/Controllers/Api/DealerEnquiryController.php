@@ -186,6 +186,7 @@ class DealerEnquiryController extends Controller
     public function index()
     {
         try {
+            // Group raw records by date, dealer, and notes to show in 1 row
             $groupedRaw = DealerEnquiry::select(
                 DB::raw('DATE(created_at) as enquiry_date'),
                 'dealer_id',
@@ -201,6 +202,7 @@ class DealerEnquiryController extends Controller
                 ->latest('created_at')
                 ->paginate(15);
 
+            // Dynamically assign product models and ID list array
             $groupedRaw->getCollection()->transform(function ($item) {
                 $productIds = !empty($item->product_ids) ? explode(',', $item->product_ids) : [];
                 $item->products = TileProduct::whereIn('id', array_unique($productIds))->get();
@@ -208,21 +210,12 @@ class DealerEnquiryController extends Controller
                 return $item;
             });
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Grouped enquiries fetched successfully.',
-                'data'    => $groupedRaw
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve enquiries.',
-                'error'   => [
-                    'message' => $e->getMessage(),
-                    'file'    => $e->getFile(),
-                    'line'    => $e->getLine()
-                ]
-            ], 500);
+            $enquiries = $groupedRaw;
+
+            // Render Blade View instead of returning JSON
+            return view('admin.dealer_enquiries.index', compact('enquiries'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to load enquiries: ' . $e->getMessage());
         }
     }
 
