@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\User;
 use Exception;
 
 class DealerEnquiryController extends Controller
@@ -98,60 +99,87 @@ class DealerEnquiryController extends Controller
                 ], 401);
             }
 
-            $query = DealerEnquiry::with([
-                'dealer:id,name,phone',
-                'product:id,product_name,sku,price,image,tile_category_id,tile_type_id,tile_size_id',
-                'product.category:id,name',
-                'product.type:id,name',
-                'product.size:id,name'
-            ]);
-
             $userRole = strtolower($user->role ?? '');
 
             // -----------------------------------------------------------------
-            // Role-Based Filtering
+            // 1. Base Query with Grouping (1 Row Per Date + Dealer + Notes)
             // -----------------------------------------------------------------
+            $query = DealerEnquiry::select(
+                DB::raw('DATE(created_at) as enquiry_date'),
+                'dealer_id',
+                'notes',
+                'status',
+                DB::raw('MAX(created_at) as created_at'),
+                DB::raw('GROUP_CONCAT(id) as enquiry_ids')
+            );
 
-            // 1. Super Admin / Admin -> See ALL enquiries
+            // -----------------------------------------------------------------
+            // 2. Exact Role-Based Access Control Filtering
+            // -----------------------------------------------------------------
+            // Case A: Super Admin / Admin -> See ALL enquiries across all dealers
             if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
-                // No filter applied - retrieves all records across all dealers
+                // No dealer_id condition applied
             }
-            // 2. Staff -> See enquiries for dealers created by this staff member (created_by)
+            // Case B: Staff -> See enquiries ONLY for dealers created by this staff member
             elseif ($userRole === 'staff') {
-                $assignedDealerIds = \App\Models\User::where('created_by', $user->id)
+                $assignedDealerIds = User::where('created_by', $user->id)
                     ->pluck('id')
                     ->toArray();
 
                 $query->whereIn('dealer_id', $assignedDealerIds);
             }
-            // 3. Dealer -> See ONLY their own enquiries
+            // Case C: Dealer -> See ONLY their own enquiries
             else {
                 $query->where('dealer_id', $user->id);
             }
 
-            $enquiries = $query->latest()->paginate($request->input('per_page', 10));
+            // Apply grouping criteria and retrieve paginated results
+            $groupedEnquiries = $query->groupBy(DB::raw('DATE(created_at)'), 'dealer_id', 'notes', 'status')
+                ->orderBy(DB::raw('MAX(created_at)'), 'desc')
+                ->paginate($request->input('per_page', 10));
 
-            // Format clean API response structure
-            $formattedData = collect($enquiries->items())->map(function ($enquiry) {
+            // -----------------------------------------------------------------
+            // 3. Eager-Load Full Relationships for Grouped Products & Dealer
+            // -----------------------------------------------------------------
+            $formattedData = collect($groupedEnquiries->items())->map(function ($group) {
+                $enquiryIds = explode(',', $group->enquiry_ids);
+
+                // Fetch individual enquiry records & associated nested product data
+                $items = DealerEnquiry::with([
+                    'dealer:id,name,phone',
+                    'product:id,product_name,sku,price,image,tile_category_id,tile_type_id,tile_size_id',
+                    'product.category:id,name',
+                    'product.type:id,name',
+                    'product.size:id,name',
+                ])->whereIn('id', $enquiryIds)->get();
+
+                $firstItem = $items->first();
+
                 return [
-                    'id'           => $enquiry->id,
-                    'dealer_id'    => $enquiry->dealer_id,
-                    'dealer_name'  => $enquiry->dealer?->name ?? 'N/A',
-                    'dealer_phone' => $enquiry->dealer?->phone ?? null,
-                    'status'       => $enquiry->status,
-                    'quantity'     => $enquiry->quantity,
-                    'notes'        => $enquiry->notes,
-                    'created_at'   => $enquiry->created_at->toDateTimeString(),
-                    'product_id'   => $enquiry->tile_product_id,
-                    'product_name' => $enquiry->product?->product_name,
-                    'sku'          => $enquiry->product?->sku,
-                    'price'        => $enquiry->product?->price,
-                    'image_url'    => $enquiry->product?->image
-                        ? asset('storage/' . $enquiry->product->image)
-                        : asset('images/default-product.png'),
-                    'category'     => $enquiry->product?->category?->name,
-                    'type'         => $enquiry->product?->type?->name,
-                    'size'         => $enquiry->product?->size?->name,
+                    'enquiry_date' => $group->enquiry_date,
+                    'dealer_id'    => $group->dealer_id,
+                    'dealer_name'  => $firstItem?->dealer?->name ?? 'N/A',
+                    'dealer_phone' => $firstItem?->dealer?->phone ?? null,
+                    'status'       => $group->status,
+                    'notes'        => $group->notes,
+                    'created_at'   => $group->created_at,
+                    'total_items'  => $items->count(),
+                    'products'     => $items->map(function ($item) {
+                        return [
+                            'enquiry_id'   => $item->id,
+                            'product_id'   => $item->tile_product_id,
+                            'quantity'     => $item->quantity,
+                            'product_name' => $item->product?->product_name,
+                            'sku'          => $item->product?->sku,
+                            'price'        => $item->product?->price,
+                            'image_url'    => $item->product?->image
+                                ? asset('storage/' . $item->product->image)
+                                : asset('images/default-product.png'),
+                            'category'     => $item->product?->category?->name,
+                            'type'         => $item->product?->type?->name,
+                            'size'         => $item->product?->size?->name,
+                        ];
+                    }),
                 ];
             });
 
@@ -161,11 +189,11 @@ class DealerEnquiryController extends Controller
                 'role_type'  => $userRole ?: 'dealer',
                 'data'       => $formattedData,
                 'pagination' => [
-                    'current_page' => $enquiries->currentPage(),
-                    'last_page'    => $enquiries->lastPage(),
-                    'per_page'     => $enquiries->perPage(),
-                    'total'        => $enquiries->total(),
-                ]
+                    'current_page' => $groupedEnquiries->currentPage(),
+                    'last_page'    => $groupedEnquiries->lastPage(),
+                    'per_page'     => $groupedEnquiries->perPage(),
+                    'total'        => $groupedEnquiries->total(),
+                ],
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -174,8 +202,8 @@ class DealerEnquiryController extends Controller
                 'error'   => [
                     'message' => $e->getMessage(),
                     'file'    => $e->getFile(),
-                    'line'    => $e->getLine()
-                ]
+                    'line'    => $e->getLine(),
+                ],
             ], 500);
         }
     }
