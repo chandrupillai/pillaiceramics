@@ -415,11 +415,23 @@ class DataController extends Controller
     public function dealersList(Request $request)
     {
         try {
-            $userId = Auth::id(); // Get currently authenticated staff/user ID
-            $search = $request->input('search');
-            $perPage = (int) $request->input('per_page', 10);
+            $user = $request->user() ?? Auth::user();
 
-            $dealers = User::select([
+            if (!$user) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Unauthenticated.',
+                ], 401);
+            }
+
+            $search  = $request->input('search');
+            $perPage = (int) $request->input('per_page', 10);
+            $userRole = strtolower($user->role ?? '');
+
+            // -----------------------------------------------------------------
+            // 1. Base Query with Standard Selected Columns
+            // -----------------------------------------------------------------
+            $query = User::select([
                 'id',
                 'name',
                 'shop_name',
@@ -428,20 +440,45 @@ class DataController extends Controller
                 'email',
                 'address',
                 'created_by',
-                'created_at'
-            ])
-                ->where('role', 'dealer')
-                ->where('created_by', $userId) // Filter by logged-in user
-                ->when($search, function ($query, $search) {
-                    return $query->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('shop_name', 'like', "%{$search}%")
-                            ->orWhere('mobile_number', 'like', "%{$search}%")
-                            ->orWhere('gst_number', 'like', "%{$search}%");
-                    });
-                })
-                ->latest()
-                ->paginate($perPage);
+                'created_at',
+            ])->whereIn('role', ['dealer', 'Dealer']);
+
+            // -----------------------------------------------------------------
+            // 2. Role-Based Filtering Logic
+            // -----------------------------------------------------------------
+            // Case A: Super Admin / Admin -> See ALL dealers
+            if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
+                // No created_by restriction applied
+            }
+            // Case B: Staff -> See ONLY dealers created by this staff member
+            elseif (in_array($userRole, ['staff', 'sales_person'])) {
+                $query->where('created_by', $user->id);
+            }
+            // Case C: Dealer or Other Roles -> Restrict access
+            else {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Unauthorized access.',
+                ], 403);
+            }
+
+            // -----------------------------------------------------------------
+            // 3. Search Filter Logic (Fixed mobile_number -> phone)
+            // -----------------------------------------------------------------
+            $query->when($search, function ($q, $search) {
+                return $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('shop_name', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%") // Corrected column name
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('gst_number', 'like', "%{$search}%");
+                });
+            });
+
+            // -----------------------------------------------------------------
+            // 4. Fetch Paginated Results
+            // -----------------------------------------------------------------
+            $dealers = $query->latest()->paginate($perPage);
 
             return response()->json([
                 'status'  => 'success',
@@ -453,13 +490,13 @@ class DataController extends Controller
                     'per_page'     => $dealers->perPage(),
                     'total'        => $dealers->total(),
                     'has_more'     => $dealers->hasMorePages(),
-                ]
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Failed to fetch dealers list.',
-                'error'   => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
