@@ -7,6 +7,23 @@
 @section('title', 'My ' . ucfirst($type) . 's')
 
 @section('content')
+<style>
+    /* Responsive pagination styles: preserve all page functionality. */
+    .staff-users-pagination { width: 100%; min-width: 0; }
+    .staff-users-pagination .pagination-container {
+        max-width: 100%; min-width: 0; overflow-x: auto; padding: 2px 0 6px;
+    }
+    .staff-users-pagination nav { display: flex; justify-content: flex-end; max-width: 100%; }
+    .staff-users-pagination .pagination {
+        flex-wrap: wrap; justify-content: center; gap: 2px; margin-bottom: 0;
+    }
+    .staff-users-pagination .page-link { min-width: 36px; text-align: center; border-radius: 6px; }
+    @media (max-width: 575.98px) {
+        .staff-users-pagination nav { justify-content: center; }
+        .staff-users-pagination .pagination { flex-wrap: nowrap; justify-content: flex-start; }
+        .staff-users-pagination .page-link { padding: .375rem .55rem; }
+    }
+</style>
 <div class="container-fluid">
     
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
@@ -77,8 +94,15 @@
                 </table>
             </div>
 
-            <div class="d-flex justify-content-end mt-3">
-                {{ $users->links() }}
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3 staff-users-pagination">
+                <div class="small text-muted text-center text-md-start">
+                    @if(method_exists($users, 'firstItem') && $users->total() > 0)
+                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} results
+                    @endif
+                </div>
+                <div class="pagination-container">
+                    {{ $users->onEachSide(1)->links('pagination::bootstrap-5') }}
+                </div>
             </div>
 
         </div>

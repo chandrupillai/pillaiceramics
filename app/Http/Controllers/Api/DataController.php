@@ -488,21 +488,22 @@ class DataController extends Controller
             ], 500);
         }
     }
+    // =========================================================================
+    // API ENDPOINT (For Mobile App)
+    // =========================================================================
     public function getActiveDailyOffer(Request $request)
     {
         try {
-            // Get today's active offer (status = 1)
-            $today = now()->format('Y-m-d');
-
+            // Fetch the latest active offer strictly where status = 1 (ignoring date)
             $offer = DailyOffer::where('status', 1)
-                ->whereDate('offer_date', '<=', $today)
-                ->orderBy('offer_date', 'desc')
+                ->latest('id') // or ->latest('offer_date')
                 ->first();
 
+            // If status is 0 (or no active offer exists), return null
             if (!$offer) {
                 return response()->json([
                     'status'  => 'success',
-                    'message' => 'No active offer available today.',
+                    'message' => 'No active offer available.',
                     'data'    => null,
                 ], 200);
             }
@@ -514,8 +515,8 @@ class DataController extends Controller
                     'id'         => $offer->id,
                     'title'      => $offer->title,
                     'image'      => asset('storage/' . $offer->image),
-                    'status'     => $offer->status,
-                    'offer_date' => $offer->offer_date->format('Y-m-d'),
+                    'status'     => (int) $offer->status,
+                    'offer_date' => $offer->offer_date ? $offer->offer_date->format('Y-m-d') : null,
                 ]
             ], 200);
         } catch (Exception $e) {
