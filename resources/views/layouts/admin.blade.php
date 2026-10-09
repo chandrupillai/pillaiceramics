@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FontAwesome 6 CDN (Fallback support for legacy icon classes) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -155,11 +157,11 @@
                                 <span>Add Product</span>
                             </a>
                         </li>
-
                     </ul>
                 </div>
             </li>
 
+            <!-- Quotations Submenu -->
             <li class="nav-item">
                 <a href="#quotationsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.quotations.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.quotations.*') ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2">
@@ -192,11 +194,24 @@
                 </div>
             </li>
 
-
             <li class="nav-item">
                 <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i>
                     <span>Users Module</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.staff.*') ? 'active' : '' }}" href="{{ route('admin.staff.index') }}">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Staff Members</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.dealers.*') ? 'active' : '' }}" href="{{ route('admin.dealers.index') }}">
+                    <i class="bi bi-shop"></i>
+                    <span>Dealers</span>
                 </a>
             </li>
 
@@ -252,7 +267,7 @@
             <li class="nav-item">
                 <a href="{{ route('admin.dealer-enquiries.index') }}"
                     class="nav-link {{ request()->routeIs('admin.dealer-enquiries.*') ? 'active' : '' }}">
-                    <i class="bi bi-shop-window me-2"></i>
+                    <i class="bi bi-shop-window"></i>
                     <span>Dealer Enquiries</span>
                 </a>
             </li>

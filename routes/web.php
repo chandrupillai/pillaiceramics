@@ -64,7 +64,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
 
 
+    Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
 
+    // Dealer Management Routes (Admin + Staff)
+    Route::get('/dealers', [UserController::class, 'indexDealers'])->name('dealers.index');
     Route::patch('/dealer-enquiries/group-status', [DealerEnquiryController::class, 'updateStatusGroup'])->name('dealer-enquiries.updateStatusGroup');
     Route::post('/dealer-enquiries/group-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.destroyGroup');
     Route::post('/dealer-enquiries/bulk-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.bulkDestroy');
@@ -74,7 +77,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     // Index Page
     Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
+    // -------------------------------------------------------------------------
+    // Staff Routes
+    // -------------------------------------------------------------------------
+    Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
+    Route::post('/staff/store', [UserController::class, 'storeStaff'])->name('staff.store'); // <-- This defines admin.staff.store
 
+    // -------------------------------------------------------------------------
+    // Dealer Routes
+    // -------------------------------------------------------------------------
+    Route::get('/dealers', [UserController::class, 'indexDealers'])->name('dealers.index');
+    Route::post('/dealers/store', [UserController::class, 'storeDealer'])->name('dealers.store');
 
     // Restricted Access Routes (Super Admin & Admin Only)
     Route::middleware('role:super_admin,admin')->group(function () {

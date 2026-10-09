@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -9,6 +10,8 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Location;
+use Auth;
+
 class UserController extends Controller
 {
     protected UserRepositoryInterface $userRepository;
@@ -84,5 +87,51 @@ class UserController extends Controller
             'status' => true,
             'message' => 'User deleted successfully.'
         ]);
+    }
+    /**
+     * Display a listing of staff members.
+     */
+    public function indexStaff(Request $request)
+    {
+        $user = Auth::user();
+        $role = strtolower($user->role ?? '');
+        $isAdmin = in_array($role, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin);
+
+        // Restrict access: Only admins can view the staff list
+        if (!$isAdmin) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $staff = User::whereIn('role', ['staff', 'Staff'])
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.staff.index', compact('staff'));
+    }
+
+    /**
+     * Display a listing of dealers.
+     */
+    public function indexDealers(Request $request)
+    {
+        $user = Auth::user();
+        $role = strtolower($user->role ?? '');
+        $isAdmin = in_array($role, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin);
+        $isStaff = $role === 'staff';
+
+        $query = User::whereIn('role', ['dealer', 'Dealer']);
+
+        if ($isStaff) {
+            // Staff sees only dealers they created
+            $query->where('created_by', $user->id);
+        } elseif (!$isAdmin) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $dealers = $query->with('creator:id,name')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.dealers.index', compact('dealers'));
     }
 }

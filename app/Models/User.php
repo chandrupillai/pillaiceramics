@@ -70,7 +70,7 @@ class User extends Authenticatable
      */
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by')->select(['id', 'name', 'mobile_number', 'role']);
+        return $this->belongsTo(User::class, 'created_by')->select(['id', 'name', 'phone', 'role']);
     }
 
     /**
@@ -88,5 +88,4 @@ class User extends Authenticatable
 
         return $this->role === $roles;
     }
-
 }
