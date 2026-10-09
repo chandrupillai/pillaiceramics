@@ -62,7 +62,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
     Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
-    Route::delete('/dealer-enquiries/{id}', [DealerEnquiryController::class, 'destroy'])->name('dealer-enquiries.destroy');
+
+
+
+    Route::patch('/dealer-enquiries/group-status', [DealerEnquiryController::class, 'updateStatusGroup'])->name('dealer-enquiries.updateStatusGroup');
+    Route::post('/dealer-enquiries/group-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.destroyGroup');
+    Route::post('/dealer-enquiries/bulk-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.bulkDestroy');
+
+    // Single Item Delete Action using POST
+    Route::post('/dealer-enquiries/{id}/delete', [DealerEnquiryController::class, 'destroy'])->name('dealer-enquiries.destroy');
+
+    // Index Page
+    Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
+
 
     // Restricted Access Routes (Super Admin & Admin Only)
     Route::middleware('role:super_admin,admin')->group(function () {
