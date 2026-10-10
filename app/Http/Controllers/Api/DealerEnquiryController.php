@@ -95,101 +95,102 @@ class DealerEnquiryController extends Controller
 
 
     public function myEnquiries(Request $request)
-    {
-        try {
-            $user = $request->user() ?? Auth::user();
+{
+    try {
+        $user = $request->user() ?? Auth::user();
 
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthenticated.',
-                ], 401);
-            }
-
-            $userRole = strtolower($user->role ?? '');
-
-            // -----------------------------------------------------------------
-            // 1. Grouping Query (1 Row Per Date + Dealer + Notes)
-            // -----------------------------------------------------------------
-            $query = DealerEnquiry::select(
-                DB::raw('DATE(created_at) as enquiry_date'),
-                'dealer_id',
-                'status',
-                DB::raw('GROUP_CONCAT(id) as enquiry_ids')
-            );
-
-            // -----------------------------------------------------------------
-            // 2. Role-Based Access Control Filtering
-            // -----------------------------------------------------------------
-            // Admin / Super Admin -> See ALL enquiries
-            if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
-                // No dealer_id filter
-            }
-            // Staff -> See enquiries ONLY for dealers created by this staff member
-            elseif ($userRole === 'staff') {
-                $assignedDealerIds = User::where('created_by', $user->id)
-                    ->pluck('id')
-                    ->toArray();
-
-                $query->whereIn('dealer_id', $assignedDealerIds);
-            }
-            // Dealer -> See ONLY their own enquiries
-            else {
-                $query->where('dealer_id', $user->id);
-            }
-
-            // Apply grouping criteria and fetch paginated results
-            $groupedEnquiries = $query->groupBy(DB::raw('DATE(created_at)'), 'dealer_id', 'status')
-                ->orderBy(DB::raw('MAX(created_at)'), 'desc')
-                ->paginate($request->input('per_page', 10));
-
-            // -----------------------------------------------------------------
-            // 3. Selective Format (Only required summary fields)
-            // -----------------------------------------------------------------
-            $formattedData = collect($groupedEnquiries->items())->map(function ($group) {
-                $enquiryIds = explode(',', $group->enquiry_ids);
-
-                // Select ONLY essential fields from product relations
-                $items = DealerEnquiry::with([
-                    'dealer:id,name',
-                    'product:id,product_name,tile_size_id',
-                    'product.size:id,name',
-                ])->whereIn('id', $enquiryIds)->get();
-
-                $firstItem = $items->first();
-
-                return [
-                    'dealer_name'  => $firstItem?->dealer?->name ?? 'N/A',
-                    'enquiry_date' => $group->enquiry_date,
-                    'status'       => $group->status,
-                    'products'     => $items->map(function ($item) {
-                        return [
-                            'product_name' => $item->product?->product_name ?? 'N/A',
-                            'size'         => $item->product?->size?->name ?? 'N/A',
-                        ];
-                    }),
-                ];
-            });
-
-            return response()->json([
-                'success'    => true,
-                'message'    => 'Enquiries retrieved successfully.',
-                'data'       => $formattedData,
-                'pagination' => [
-                    'current_page' => $groupedEnquiries->currentPage(),
-                    'last_page'    => $groupedEnquiries->lastPage(),
-                    'per_page'     => $groupedEnquiries->perPage(),
-                    'total'        => $groupedEnquiries->total(),
-                ],
-            ], 200);
-        } catch (Exception $e) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch enquiries.',
-                'error'   => $e->getMessage(),
-            ], 500);
+                'message' => 'Unauthenticated.',
+            ], 401);
         }
+
+        $userRole = strtolower($user->role ?? '');
+
+        // -----------------------------------------------------------------
+        // 1. Grouping Query (1 Row Per Date + Dealer + Notes)
+        // -----------------------------------------------------------------
+        $query = DealerEnquiry::select(
+            DB::raw('DATE(created_at) as enquiry_date'),
+            'dealer_id',
+            'status',
+            DB::raw('GROUP_CONCAT(id) as enquiry_ids')
+        );
+
+        // -----------------------------------------------------------------
+        // 2. Role-Based Access Control Filtering
+        // -----------------------------------------------------------------
+        // Admin / Super Admin -> See ALL enquiries
+        if (in_array($userRole, ['super_admin', 'superadmin', 'admin']) || !empty($user->is_admin)) {
+            // No dealer_id filter
+        }
+        // Staff -> See enquiries ONLY for dealers created by this staff member
+        elseif ($userRole === 'staff') {
+            $assignedDealerIds = User::where('created_by', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            $query->whereIn('dealer_id', $assignedDealerIds);
+        }
+        // Dealer -> See ONLY their own enquiries
+        else {
+            $query->where('dealer_id', $user->id);
+        }
+
+        // Apply grouping criteria and fetch paginated results
+        $groupedEnquiries = $query->groupBy(DB::raw('DATE(created_at)'), 'dealer_id', 'status')
+            ->orderBy(DB::raw('MAX(created_at)'), 'desc')
+            ->paginate($request->input('per_page', 10));
+
+        // -----------------------------------------------------------------
+        // 3. Selective Format (Including quantity)
+        // -----------------------------------------------------------------
+        $formattedData = collect($groupedEnquiries->items())->map(function ($group) {
+            $enquiryIds = explode(',', $group->enquiry_ids);
+
+            // Select essential fields from product relations and enquiry quantity
+            $items = DealerEnquiry::with([
+                'dealer:id,name',
+                'product:id,product_name,tile_size_id',
+                'product.size:id,name',
+            ])->whereIn('id', $enquiryIds)->get();
+
+            $firstItem = $items->first();
+
+            return [
+                'dealer_name'  => $firstItem?->dealer?->name ?? 'N/A',
+                'enquiry_date' => $group->enquiry_date,
+                'status'       => $group->status,
+                'products'     => $items->map(function ($item) {
+                    return [
+                        'product_name' => $item->product?->product_name ?? 'N/A',
+                        'size'         => $item->product?->size?->name ?? 'N/A',
+                        'quantity'     => $item->quantity,
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Enquiries retrieved successfully.',
+            'data'       => $formattedData,
+            'pagination' => [
+                'current_page' => $groupedEnquiries->currentPage(),
+                'last_page'    => $groupedEnquiries->lastPage(),
+                'per_page'     => $groupedEnquiries->perPage(),
+                'total'        => $groupedEnquiries->total(),
+            ],
+        ], 200);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch enquiries.',
+            'error'   => $e->getMessage(),
+        ], 500);
     }
+}
 
     /**
      * Get grouped enquiries for admin listing (Optional / Additional API route support)

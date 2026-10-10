@@ -37,7 +37,7 @@
                 <div class="col-7">
                     <div class="d-flex align-items-center gap-3">
                         @if($company && $company->logo)
-                            <img src="{{ asset('storage/' . $company->logo) }}" alt="Logo" class="company-logo">
+                            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="company-logo">
                         @else
                             <div class="brand-text">
                                 <h1 class="fw-bold mb-0 text-primary-dark">PILLAI</h1>
