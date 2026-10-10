@@ -24,6 +24,8 @@ class DealerEnquiryController extends Controller
             $validated = $request->validate([
                 'product_ids'   => 'required|array|min:1',
                 'product_ids.*' => 'required|exists:tile_products,id',
+                'quantity'      => 'nullable|array',
+                'quantity.*'    => 'nullable|integer|min:1',
                 'notes'         => 'nullable|string|max:500',
             ]);
 
@@ -31,7 +33,9 @@ class DealerEnquiryController extends Controller
             $todayDate = Carbon::today()->toDateString();
             $createdEnquiries = [];
 
-            foreach ($validated['product_ids'] as $productId) {
+            foreach ($validated['product_ids'] as $index => $productId) {
+                $qty = $request->input("quantity.{$index}", null);
+
                 // Find or create enquiry record
                 $enquiry = DealerEnquiry::firstOrCreate(
                     [
@@ -39,7 +43,7 @@ class DealerEnquiryController extends Controller
                         'tile_product_id' => $productId,
                     ],
                     [
-                        'quantity'   => null,
+                        'quantity'   => $qty,
                         'notes'      => $request->input('notes'),
                         'status'     => 'pending',
                         'created_at' => now(),
@@ -51,7 +55,7 @@ class DealerEnquiryController extends Controller
                     $enquiry = DealerEnquiry::create([
                         'dealer_id'       => $dealerId,
                         'tile_product_id' => $productId,
-                        'quantity'        => null,
+                        'quantity'        => $qty,
                         'notes'           => $request->input('notes'),
                         'status'          => 'pending',
                     ]);
@@ -83,6 +87,7 @@ class DealerEnquiryController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Get authenticated dealer's submitted enquiry list (GET /my-enquiries)
