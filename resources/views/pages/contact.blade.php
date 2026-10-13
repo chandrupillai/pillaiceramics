@@ -30,7 +30,7 @@
                         <option value="karaikal">Karaikal Branch</option>
                         <option value="thanjavur">Thanjavur Branch</option>
                         <option value="madurai">Madurai Branch</option>
-                        <option value="coimbatore">Coimbatore Branch</option>
+                        <option value="coimbatore">Karur Branch</option>
                     </select>
                 </div>
 

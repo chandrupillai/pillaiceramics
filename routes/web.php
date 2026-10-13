@@ -23,7 +23,7 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/shops/{location}', [PageController::class, 'shopDetail'])->name('shops.detail');
 Route::get('/showrooms', [ShopController::class, 'index'])->name('showrooms');
 Route::get('/showrooms/{slug}', [ShopController::class, 'show'])->name('showrooms.show');
-
+Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy.policy');
 
 
 

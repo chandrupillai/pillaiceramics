@@ -80,4 +80,8 @@ class PageController extends Controller
             'meta_description' => "Visit our official store in {$cityName}. Check address, opening hours, and available local services."
         ]);
     }
+    public function privacyPolicy()
+    {
+        return view('pages.privacy-policy');
+    }
 }

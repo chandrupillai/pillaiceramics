@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
+
     {{-- Dynamic SEO Meta Tags --}}
     <title>@yield('title', 'Best Tiles Showroom in Tamil Nadu | Pillai Ceramics - Premium Floor & Wall Tiles')</title>
     <meta name="description" content="@yield('meta_description', 'Looking for the best tiles showroom in Tamil Nadu? Pillai Ceramics offers luxury vitrified floor tiles, GVT slabs, wall tiles & sanitaryware across Trichy, Madurai, Karur, Karaikal, & Ramanathapuram.')">
@@ -29,13 +30,13 @@
     <meta property="og:description" content="@yield('meta_description', 'Leading tiles and sanitaryware showroom chain in Tamil Nadu. Explore vitrified floor tiles, GVT slabs, marble tiles, and luxury bathroom fittings.')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="@yield('og_image', asset('images/logo.png'))">
-    
+
     {{-- Twitter Card Meta Tags --}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'Best Tiles Showroom in Tamil Nadu | Pillai Ceramics')">
     <meta name="twitter:description" content="@yield('meta_description', 'Premium tiles & sanitaryware showrooms across Tamil Nadu - Trichy, Madurai, Karur, Karaikal, & Ramanathapuram.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/logo.png'))">
-    
+
     {{-- Tailwind CSS CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -55,131 +56,133 @@
             }
         }
     </script>
-    
+
     {{-- JSON-LD Structured Data Schema for Local Business Chain across Tamil Nadu --}}
     <script type="application/ld+json">
-    {
-      "@@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Pillai Ceramics",
-      "url": "{{ url('/') }}",
-      "logo": "{{ asset('images/logo.png') }}",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+91-9444365536",
-        "contactType": "sales",
-        "areaServed": "IN-TN",
-        "availableLanguage": ["English", "Tamil"]
-      },
-      "sameAs": [
-        "https://www.facebook.com/pillaiceramics",
-        "https://www.instagram.com/pillaiceramics"
-      ],
-      "department": [
         {
-          "@type": "TileStore",
-          "name": "Pillai Ceramics - Trichy Tiles Showroom",
-          "telephone": "+91-9444365536",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Trichy",
-            "addressRegion": "Tamil Nadu",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "TileStore",
-          "name": "Pillai Ceramics - Madurai Tiles Showroom",
-          "telephone": "+91-9444365536",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Madurai",
-            "addressRegion": "Tamil Nadu",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "TileStore",
-          "name": "Pillai Ceramics - Karur Tiles Showroom",
-          "telephone": "+91-9444365536",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Karur",
-            "addressRegion": "Tamil Nadu",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "TileStore",
-          "name": "Pillai Ceramics - Ramanathapuram Tiles Showroom",
-          "telephone": "+91-9444365536",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Ramanathapuram",
-            "addressRegion": "Tamil Nadu",
-            "addressCountry": "IN"
-          }
-        },
-        {
-          "@type": "TileStore",
-          "name": "Pillai Ceramics - Karaikal Tiles Showroom",
-          "telephone": "+91-9444365536",
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Karaikal",
-            "addressRegion": "Puducherry",
-            "addressCountry": "IN"
-          }
+            "@@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Pillai Ceramics",
+            "url": "{{ url('/') }}",
+            "logo": "{{ asset('images/logo.png') }}",
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-9444365536",
+                "contactType": "sales",
+                "areaServed": "IN-TN",
+                "availableLanguage": ["English", "Tamil"]
+            },
+            "sameAs": [
+                "https://www.facebook.com/pillaiceramics",
+                "https://www.instagram.com/pillaiceramics"
+            ],
+            "department": [{
+                    "@type": "TileStore",
+                    "name": "Pillai Ceramics - Trichy Tiles Showroom",
+                    "telephone": "+91-9444365536",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Trichy",
+                        "addressRegion": "Tamil Nadu",
+                        "addressCountry": "IN"
+                    }
+                },
+                {
+                    "@type": "TileStore",
+                    "name": "Pillai Ceramics - Madurai Tiles Showroom",
+                    "telephone": "+91-9444365536",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Madurai",
+                        "addressRegion": "Tamil Nadu",
+                        "addressCountry": "IN"
+                    }
+                },
+                {
+                    "@type": "TileStore",
+                    "name": "Pillai Ceramics - Karur Tiles Showroom",
+                    "telephone": "+91-9444365536",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Karur",
+                        "addressRegion": "Tamil Nadu",
+                        "addressCountry": "IN"
+                    }
+                },
+                {
+                    "@type": "TileStore",
+                    "name": "Pillai Ceramics - Ramanathapuram Tiles Showroom",
+                    "telephone": "+91-9444365536",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Ramanathapuram",
+                        "addressRegion": "Tamil Nadu",
+                        "addressCountry": "IN"
+                    }
+                },
+                {
+                    "@type": "TileStore",
+                    "name": "Pillai Ceramics - Karaikal Tiles Showroom",
+                    "telephone": "+91-9444365536",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "Karaikal",
+                        "addressRegion": "Puducherry",
+                        "addressCountry": "IN"
+                    }
+                }
+            ]
         }
-      ]
-    }
     </script>
 
     @stack('styles')
     @stack('schema')
 </head>
+
 <body class="bg-slate-50 text-slate-800 font-sans flex flex-col min-h-screen antialiased">
 
     {{-- Header / Navbar --}}
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 shadow-sm transition-all">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
+
             {{-- Brand Logo --}}
             <a href="{{ route('home') }}" class="flex items-center group transition transform hover:scale-[1.02]" title="Pillai Ceramics - Best Tiles Showroom in Tamil Nadu">
-                <img src="{{ asset('images/logo.png') }}" 
-                     alt="Pillai Ceramics Logo - Tiles Showroom Tamil Nadu" 
-                     class="h-10 sm:h-12 w-auto object-contain" 
-                     style="max-height: 48px;">
+                <img src="{{ asset('images/logo.png') }}"
+                    alt="Pillai Ceramics Logo - Tiles Showroom Tamil Nadu"
+                    class="h-10 sm:h-12 w-auto object-contain"
+                    style="max-height: 48px;">
             </a>
-            
+
             {{-- Navigation Links --}}
             <div class="hidden md:flex items-center space-x-1 lg:space-x-2 font-medium text-slate-600 text-sm">
-                <a href="{{ route('home') }}" 
-                   class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('home') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
-                   Home
+                <a href="{{ route('home') }}"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('home') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
+                    Home
                 </a>
-                <a href="{{ route('about') }}" 
-                   class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('about') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
-                   About Us
+                <a href="{{ route('about') }}"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('about') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
+                    About Us
                 </a>
-                <a href="{{ route('services') }}" 
-                   class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('services') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
-                   Tile Collections
+                <a href="{{ route('services') }}"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('services') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
+                    Tile Collections
                 </a>
-                <a href="{{ route('shops') }}" 
-                   class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('shops') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
-                   Our Showrooms
+                <a href="{{ route('shops') }}"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('shops') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
+                    Our Showrooms
                 </a>
-                <a href="{{ route('contact') }}" 
-                   class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
-                   Contact
+                <a href="{{ route('contact') }}"
+                    class="px-4 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-sky-50 text-sky-600 font-bold shadow-sm' : 'hover:text-sky-600 hover:bg-slate-100/60' }}">
+                    Contact
                 </a>
             </div>
 
             {{-- Right CTA Button --}}
             <div class="hidden sm:flex items-center space-x-4">
                 <a href="{{ route('contact') }}" class="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-sky-500/25 active:scale-95 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
                     Enquire Now
                 </a>
             </div>
@@ -242,6 +245,47 @@
                 <p class="text-sm text-slate-400">Email: info@pillaiceramics.in</p>
                 <p class="text-sm text-slate-400 mt-2">Sales Helpline: +91 9444365536</p>
                 <p class="text-xs text-slate-500 mt-3">Serving: Trichy, Madurai, Karur, Ramanathapuram, Karaikal, Thanjavur, Dindigul, Pudukkottai, Tirunelveli & across Tamil Nadu.</p>
+               
+                {{-- Social Media Links --}}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 flex items-center justify-center sm:justify-end gap-3">
+
+                    <!-- Facebook -->
+                    <a href="https://www.facebook.com/pillaiceramics"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Visit Pillai Ceramics on Facebook"
+                        title="Facebook"
+                        class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 hover:bg-slate-800 transition transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                    </a>
+
+                    <!-- YouTube -->
+                    <a href="www.youtube.com/@PillaiCeramics"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Visit YouTube"
+                        title="YouTube"
+                        class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-red-500 hover:border-red-500/50 hover:bg-slate-800 transition transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                        </svg>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/pillaiceramics/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Visit Pillai Ceramics on Instagram"
+                        title="Instagram"
+                        class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-pink-500 hover:border-pink-500/50 hover:bg-slate-800 transition transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
+                    </a>
+
+                </div>
             </div>
         </div>
 
@@ -257,6 +301,7 @@
             <p>&copy; {{ date('Y') }} Pillai Ceramics. Premium Tiles & Sanitaryware Showrooms Tamil Nadu. All rights reserved.</p>
             <p>Trichy &bull; Karaikal &bull; Karur &bull; Ramanathapuram &bull; Madurai</p>
         </div>
+
     </footer>
 
     {{-- Mobile Menu Toggle --}}
@@ -266,7 +311,8 @@
             menu.classList.toggle('hidden');
         });
     </script>
-    
+
     @stack('scripts')
 </body>
+
 </html>
