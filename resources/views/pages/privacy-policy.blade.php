@@ -6,24 +6,25 @@
 @section('content')
 
 <!-- HEADER HERO SECTION -->
-<section class="bg-slate-950 text-white py-16 lg:py-20 border-b border-slate-800 relative overflow-hidden">
+<section class="bg-slate-950 text-white py-16 lg:py-20 border-b border-slate-800 relative overflow-hidden text-center">
     <div class="absolute -top-32 -left-32 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="container-fluid max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center justify-center">
         <span class="inline-block bg-cyan-950 border border-cyan-500/30 text-cyan-400 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
             Legal & Compliance
         </span>
-        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white">Privacy Policy</h1>
-        <p class="text-slate-400 text-sm sm:text-base mt-3 max-w-2xl mx-auto">
+        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white text-center">Privacy Policy</h1>
+        <p class="text-slate-400 text-sm sm:text-base mt-3 max-w-2xl mx-auto text-center">
             Last updated: October 13, 2026. This policy outlines how Pillai Ceramics collects, uses, and safeguards your personal data.
         </p>
     </div>
 </section>
 
 <!-- POLICY CONTENT SECTION -->
-<section class="py-16 bg-slate-50 text-slate-800">
-    <div class="container-fluid max-w-5xl px-4 sm:px-6 lg:px-8">
+<section class="py-16 bg-slate-50 text-slate-800 min-h-screen">
+    <div class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         
-        <div class="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/80 shadow-sm space-y-10 leading-relaxed text-sm sm:text-base text-slate-600">
+        <!-- Main Centered Content Card -->
+        <div class="w-full bg-white rounded-3xl p-6 sm:p-12 border border-slate-200/80 shadow-sm space-y-10 leading-relaxed text-sm sm:text-base text-slate-600 mx-auto">
 
             <!-- Intro -->
             <div class="space-y-3">
@@ -98,7 +99,7 @@
                 <p>
                     You have the right to request access to your personal information, request corrections to inaccurate details, or ask for the removal of your contact data from our marketing communications.
                 </p>
-                <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 space-y-2 mt-4">
+                <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200/80 space-y-2 mt-4 text-center sm:text-left">
                     <h3 class="font-bold text-slate-900 text-lg">Contact Corporate Headquarters</h3>
                     <p class="text-xs sm:text-sm text-slate-600"><strong>Pillai Ceramics - Headquarters</strong></p>
                     <p class="text-xs sm:text-sm text-slate-600">111, Pitchi nagar, Varageri, Trichy - 620008, Tamil Nadu</p>
@@ -108,8 +109,9 @@
 
         </div>
 
-        <div class="text-center mt-10">
-            <a href="{{ url('/') }}" class="inline-flex items-center gap-2 text-cyan-600 font-bold hover:underline text-sm">
+        <!-- Centered Back Button -->
+        <div class="text-center mt-10 w-full flex justify-center">
+            <a href="{{ url('/') }}" class="inline-flex items-center gap-2 text-cyan-600 font-bold hover:underline text-sm text-center">
                 &larr; Back to Home
             </a>
         </div>

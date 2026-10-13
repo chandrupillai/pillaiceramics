@@ -84,4 +84,8 @@ class PageController extends Controller
     {
         return view('pages.privacy-policy');
     }
+    public function termsAndConditions()
+    {
+        return view('pages.terms-and-conditions');
+    }
 }
