@@ -7,15 +7,17 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     {{-- Dynamic SEO Meta Tags --}}
-    <title>@yield('title', 'Best Tiles Showroom in Tamil Nadu | Pillai Ceramics - Premium Floor & Wall Tiles')</title>
-    <meta name="description" content="@yield('meta_description', 'Looking for the best tiles showroom in Tamil Nadu? Pillai Ceramics offers luxury vitrified floor tiles, GVT slabs, wall tiles & sanitaryware across Trichy, Madurai, Karur, Karaikal, & Ramanathapuram.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'tiles showroom in tamil nadu, best tiles showroom tamil nadu, tiles showroom trichy, tiles showroom madurai, tiles showroom karur, tiles showroom ramanathapuram, tiles showroom karaikal, vitrified tiles dealers tn, wall tiles shop, sanitaryware showroom tamilnadu')">
+    <title>@yield('title', 'Wholesale Tiles, Branded Tiles Showroom & Ramco Dealer in Trichy | Pillai Ceramics')</title>
+    <meta name="description" content="@yield('meta_description', 'Looking for the best tiles showroom and authorized Ramco dealer in Trichy? Pillai Ceramics offers wholesale vitrified floor tiles, GVT slabs, wall tiles & Ramco products in Varageri, Trichy.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'wholesale tiles trichy, tiles showroom in trichy, branded tiles showroom in trichy, ramco dealer trichy, floor tiles wholesale trichy, vitrified tiles trichy, wall tiles shop trichy')">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
 
-    {{-- Geo Location & Region Tags for Tamil Nadu --}}
+    {{-- Geo Location & Region Tags for Trichy & Tamil Nadu --}}
     <meta name="geo.region" content="IN-TN">
-    <meta name="geo.placename" content="Tamil Nadu, India">
+    <meta name="geo.placename" content="Trichy, Tamil Nadu, India">
+    <meta name="geo.position" content="10.8282;78.7054">
+    <meta name="ICBM" content="10.8282, 78.7054">
     <meta name="author" content="Pillai Ceramics">
 
     {{-- Favicon Setup --}}
@@ -26,15 +28,15 @@
     <meta property="og:type" content="website">
     <meta property="og:locale" content="en_IN">
     <meta property="og:site_name" content="Pillai Ceramics">
-    <meta property="og:title" content="@yield('title', 'Best Tiles Showroom in Tamil Nadu | Pillai Ceramics')">
-    <meta property="og:description" content="@yield('meta_description', 'Leading tiles and sanitaryware showroom chain in Tamil Nadu. Explore vitrified floor tiles, GVT slabs, marble tiles, and luxury bathroom fittings.')">
+    <meta property="og:title" content="@yield('title', 'Wholesale Tiles, Branded Tiles Showroom & Ramco Dealer in Trichy | Pillai Ceramics')">
+    <meta property="og:description" content="@yield('meta_description', 'Looking for the best tiles showroom and authorized Ramco dealer in Trichy? Pillai Ceramics offers wholesale vitrified floor tiles, GVT slabs, wall tiles & Ramco products.')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="@yield('og_image', asset('images/logo.png'))">
 
     {{-- Twitter Card Meta Tags --}}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', 'Best Tiles Showroom in Tamil Nadu | Pillai Ceramics')">
-    <meta name="twitter:description" content="@yield('meta_description', 'Premium tiles & sanitaryware showrooms across Tamil Nadu - Trichy, Madurai, Karur, Karaikal, & Ramanathapuram.')">
+    <meta name="twitter:title" content="@yield('title', 'Wholesale Tiles, Branded Tiles Showroom & Ramco Dealer in Trichy | Pillai Ceramics')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Looking for the best tiles showroom and authorized Ramco dealer in Trichy? Pillai Ceramics offers wholesale vitrified floor tiles, GVT slabs, wall tiles & Ramco products.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/logo.png'))">
 
     {{-- Tailwind CSS CDN --}}
@@ -76,15 +78,37 @@
                 "https://www.facebook.com/pillaiceramics",
                 "https://www.instagram.com/pillaiceramics/"
             ],
-            "department": [{
+            "department": [
+                {
                     "@type": "TileStore",
-                    "name": "Pillai Ceramics - Trichy Tiles Showroom",
+                    "name": "Pillai Ceramics - Wholesale Tiles Showroom & Ramco Dealer in Trichy",
+                    "image": "{{ asset('images/logo.png') }}",
                     "telephone": "+91-9444365536",
+                    "priceRange": "₹₹",
                     "address": {
                         "@type": "PostalAddress",
+                        "streetAddress": "111, Pitchi nagar, Varageri",
                         "addressLocality": "Trichy",
                         "addressRegion": "Tamil Nadu",
+                        "postalCode": "620008",
                         "addressCountry": "IN"
+                    },
+                    "geo": {
+                        "@type": "GeoCoordinates",
+                        "latitude": "10.8282",
+                        "longitude": "78.7054"
+                    },
+                    "openingHoursSpecification": {
+                        "@type": "OpeningHoursSpecification",
+                        "dayOfWeek": [
+                            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+                        ],
+                        "opens": "09:00",
+                        "closes": "20:00"
+                    },
+                    "areaServed": {
+                        "@type": "City",
+                        "name": "Trichy"
                     }
                 },
                 {
@@ -146,9 +170,9 @@
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
 
             {{-- Brand Logo --}}
-            <a href="{{ route('home') }}" class="flex items-center group transition transform hover:scale-[1.02]" title="Pillai Ceramics - Best Tiles Showroom in Tamil Nadu">
+            <a href="{{ route('home') }}" class="flex items-center group transition transform hover:scale-[1.02]" title="Pillai Ceramics - Wholesale Tiles Showroom & Ramco Dealer in Trichy">
                 <img src="{{ asset('images/logo.png') }}"
-                    alt="Pillai Ceramics Logo - Tiles Showroom Tamil Nadu"
+                    alt="Pillai Ceramics Logo - Tiles Showroom in Trichy"
                     class="h-10 sm:h-12 w-auto object-contain"
                     style="max-height: 48px;">
             </a>
@@ -177,13 +201,28 @@
                 </a>
             </div>
 
-            {{-- Right CTA Button --}}
-            <div class="hidden sm:flex items-center space-x-4">
-                <a href="{{ route('contact') }}" class="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-sky-500/25 active:scale-95 flex items-center gap-2">
+            {{-- Right CTA Buttons (Enquire & Play Store App Download) --}}
+            <div class="hidden sm:flex items-center space-x-3">
+                <a href="{{ route('contact') }}" class="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-sky-500/25 active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     Enquire Now
+                </a>
+
+                {{-- Play Store Download Button --}}
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   title="Download Pillai Ceramics App on Google Play"
+                   class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl font-medium text-xs transition-all shadow-md hover:shadow-slate-900/20 active:scale-95 flex items-center gap-2 border border-slate-700">
+                    <svg class="w-5 h-5 fill-current text-sky-400" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3.609 1.814L13.792 12 3.61 22.186a1.51 1.51 0 0 1-.61-1.21V3.024c0-.495.22-.962.609-1.21zm11.192 11.193l2.802 2.802-9.593 5.545 6.791-8.347zM17.6 15.007l3.39-1.958c.84-.485.84-1.609 0-2.094l-3.39-1.958-2.803 2.803 2.803 3.207zm-2.803-3.81l-9.593-5.545 6.791 8.347 2.802-2.802z"/>
+                    </svg>
+                    <div class="text-left leading-tight">
+                        <span class="block text-[9px] text-slate-400 uppercase tracking-wider">Get it on</span>
+                        <span class="block font-semibold text-xs">Google Play</span>
+                    </div>
                 </a>
             </div>
 
@@ -202,7 +241,16 @@
             <a href="{{ route('services') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Tile Collections</a>
             <a href="{{ route('shops') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Our Showrooms</a>
             <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600">Contact</a>
-            <a href="{{ route('contact') }}" class="block w-full text-center bg-sky-600 text-white font-semibold py-2.5 rounded-lg mt-3">Enquire Now</a>
+            
+            <div class="pt-2 space-y-2">
+                <a href="{{ route('contact') }}" class="block w-full text-center bg-sky-600 text-white font-semibold py-2.5 rounded-lg">Enquire Now</a>
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg">
+                    <svg class="w-5 h-5 fill-current text-sky-400" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3.609 1.814L13.792 12 3.61 22.186a1.51 1.51 0 0 1-.61-1.21V3.024c0-.495.22-.962.609-1.21zm11.192 11.193l2.802 2.802-9.593 5.545 6.791-8.347zM17.6 15.007l3.39-1.958c.84-.485.84-1.609 0-2.094l-3.39-1.958-2.803 2.803 2.803 3.207zm-2.803-3.81l-9.593-5.545 6.791 8.347 2.802-2.802z"/>
+                    </svg>
+                    Download App (Google Play)
+                </a>
+            </div>
         </div>
     </header>
 
@@ -211,15 +259,42 @@
         @yield('content')
     </main>
 
+    {{-- App Download Promo Banner Section --}}
+    <section class="bg-gradient-to-r from-sky-600 via-sky-700 to-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8 border-t border-sky-500/20 shadow-inner">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div class="text-center lg:text-left space-y-2 max-w-2xl">
+                <span class="inline-block bg-sky-500/30 text-sky-200 border border-sky-400/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Official Mobile App</span>
+                <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Explore & Buy Tiles on the Go with <span class="text-sky-300">Pillai Ceramics App</span></h3>
+                <p class="text-slate-200 text-sm leading-relaxed">
+                    Browse our massive wholesale tile catalogs, check live inventory, generate instant estimates, and connect directly with our Trichy showroom right from your mobile device.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="bg-black hover:bg-slate-950 text-white border border-slate-700 hover:border-sky-400/50 px-6 py-3.5 rounded-2xl flex items-center gap-3 transition-all shadow-xl hover:shadow-sky-500/10 active:scale-95 group">
+                    <svg class="w-8 h-8 fill-current text-sky-400 group-hover:scale-105 transition-transform" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3.609 1.814L13.792 12 3.61 22.186a1.51 1.51 0 0 1-.61-1.21V3.024c0-.495.22-.962.609-1.21zm11.192 11.193l2.802 2.802-9.593 5.545 6.791-8.347zM17.6 15.007l3.39-1.958c.84-.485.84-1.609 0-2.094l-3.39-1.958-2.803 2.803 2.803 3.207zm-2.803-3.81l-9.593-5.545 6.791 8.347 2.802-2.802z"/>
+                    </svg>
+                    <div class="text-left leading-tight">
+                        <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-medium">Download on the</span>
+                        <span class="block font-bold text-base tracking-wide">Google Play</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
     {{-- Unified Professional Footer --}}
     <footer class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             
             {{-- Column 1: Brand Info & Social Icons --}}
             <div>
-                <img src="{{ asset('images/logo.png') }}" alt="Pillai Ceramics - Premium Tiles Showroom Tamil Nadu" class="h-10 w-auto mb-4 brightness-200 contrast-200">
+                <img src="{{ asset('images/logo.png') }}" alt="Pillai Ceramics - Wholesale Tiles Showroom in Trichy" class="h-10 w-auto mb-4 brightness-200 contrast-200">
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    Pillai Ceramics is Tamil Nadu's leading tiles showroom network. We offer vitrified floor tiles, GVT marble slabs, wall ceramics, Ramco products, and luxury sanitaryware across Tamil Nadu & Puducherry.
+                    Pillai Ceramics is Tamil Nadu's leading tiles showroom network and authorized Ramco dealer. We offer wholesale vitrified floor tiles, GVT marble slabs, wall ceramics, and Ramco products across Trichy, Madurai, Karur, Karaikal, and Ramanathapuram[cite: 1].
                 </p>
 
                 {{-- Social Media Links --}}
@@ -294,7 +369,7 @@
             <div>
                 <h4 class="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Corporate Info</h4>
                 <p class="text-xs text-slate-400 leading-relaxed mb-2">
-                    <strong class="text-slate-200">Headquarters:</strong><br>
+                    <strong class="text-slate-200">Headquarters (Trichy):</strong><br>
                     111, Pitchi nagar, Varageri, Trichy - 620008, Tamil Nadu
                 </p>
                 <p class="text-xs text-slate-400 mt-2">Sales Helpline: <strong class="text-slate-200">+91 9444365536</strong></p>
@@ -306,17 +381,17 @@
 
         </div>
 
-        {{-- SEO Regional Keywords --}}
+        {{-- SEO Regional Keywords Footer Section --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-6 border-t border-slate-800 text-xs text-slate-500">
-            <p class="font-semibold text-slate-400 mb-2">Popular Searches in Tamil Nadu:</p>
+            <p class="font-semibold text-slate-400 mb-2">Popular Searches in Trichy & Tamil Nadu:</p>
             <p class="leading-relaxed">
-                Tiles Showroom near me &bull; Vitrified Tiles Dealers in Tamil Nadu &bull; Floor Tiles Shop Trichy &bull; Wall Tiles Showroom Madurai &bull; Kitchen Tiles Karur &bull; Bathroom Sanitaryware Ramanathapuram &bull; GVT Marble Slabs Karaikal &bull; Premium Tiles Dealer TN
+                Wholesale Tiles Trichy &bull; Tiles Showroom in Trichy &bull; Branded Tiles Showroom in Trichy &bull; Ramco Dealer Trichy &bull; Floor Tiles Wholesale Trichy &bull; Vitrified Tiles Dealers in Tamil Nadu &bull; Wall Tiles Showroom Madurai
             </p>
         </div>
 
         {{-- Copyright & Legal Links --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
-            <p>&copy; {{ date('Y') }} Pillai Ceramics. Premium Tiles & Sanitaryware Showrooms. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} Pillai Ceramics. Wholesale Tiles Showroom & Ramco Dealer in Trichy. All rights reserved.</p>
             <div class="flex items-center gap-4">
                 <a href="{{ route('privacy.policy') }}" class="hover:text-slate-300 transition">Privacy Policy</a>
                 <span>&bull;</span>
