@@ -131,4 +131,13 @@ class StaffCustomerController extends Controller
             'data'    => $user
         ]);
     }
+    public function showDigitalCard(User $user) // Laravel automatically binds the ID
+    {
+        return view('admin.staff.digital_card', ['staff' => $user]);
+    }
+
+    public function publicDigitalCard(User $user)
+    {
+        return view('admin.staff.public_card', ['staff' => $user]);
+    }
 }

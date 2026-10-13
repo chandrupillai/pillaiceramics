@@ -52,63 +52,74 @@
                             <th>Contact Info</th>
                             <th>Created By</th>
                             <th>Created Date</th>
-                            <th class="text-end pe-4" style="width: 140px;">Actions</th>
+                            <th class="text-end pe-4" style="width: 170px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="fs-7">
                         @forelse($staff as $member)
-                            <tr id="row-{{ $member->id }}" class="staff-row">
-                                <td class="ps-4 fw-bold text-secondary">#{{ $member->id }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
-                                            {{ strtoupper(substr($member->name, 0, 2)) }}
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark staff-name">{{ $member->name }}</div>
-                                            <small class="text-muted fs-8">Role: {{ ucfirst($member->role ?? 'Staff') }}</small>
-                                        </div>
+                        <tr id="row-{{ $member->id }}" class="staff-row">
+                            <td class="ps-4 fw-bold text-secondary">#{{ $member->id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                                        {{ strtoupper(substr($member->name, 0, 2)) }}
                                     </div>
-                                </td>
-                                <td>
-                                    <div class="text-dark staff-email"><i class="bi bi-envelope text-muted me-1"></i>{{ $member->email }}</div>
-                                    <small class="text-muted staff-phone"><i class="bi bi-telephone text-muted me-1"></i>{{ $member->phone ?? 'N/A' }}</small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 fs-8">
-                                        <i class="bi bi-person-check me-1"></i>{{ $member->creator?->name ?? 'System Admin' }}
-                                    </span>
-                                </td>
-                                <td class="text-muted">
-                                    {{ $member->created_at ? $member->created_at->format('M d, Y') : 'N/A' }}
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary btn-edit" data-id="{{ $member->id }}" title="Edit Staff">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-danger btn-delete" data-id="{{ $member->id }}" title="Delete Staff">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
+                                    <div>
+                                        <div class="fw-bold text-dark staff-name">{{ $member->name }}</div>
+                                        <small class="text-muted fs-8">Role: {{ ucfirst($member->role ?? 'Staff') }}</small>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-dark staff-email"><i class="bi bi-envelope text-muted me-1"></i>{{ $member->email }}</div>
+                                <small class="text-muted staff-phone"><i class="bi bi-telephone text-muted me-1"></i>{{ $member->phone ?? 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 fs-8">
+                                    <i class="bi bi-person-check me-1"></i>{{ $member->creator?->name ?? 'System Admin' }}
+                                </span>
+                            </td>
+                            <td class="text-muted">
+                                {{ $member->created_at ? $member->created_at->format('M d, Y') : 'N/A' }}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- NEW DIGITAL VISITING CARD BUTTON -->
+                                    <a href="{{ route('admin.staff.digital-card', $member->id) }}"
+                                        target="_blank"
+                                        class="btn btn-outline-info"
+                                        title="View Digital Visiting Card">
+                                        <i class="bi bi-person-badge-fill"></i>
+                                    </a>
+
+                                    <!-- EDIT BUTTON -->
+                                    <button type="button" class="btn btn-outline-primary btn-edit" data-id="{{ $member->id }}" title="Edit Staff">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+
+                                    <!-- DELETE BUTTON -->
+                                    <button type="button" class="btn btn-outline-danger btn-delete" data-id="{{ $member->id }}" title="Delete Staff">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr id="noDataRow">
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-person-x fs-1 text-secondary d-block mb-2"></i>
-                                    <span>No staff members found.</span>
-                                </td>
-                            </tr>
+                        <tr id="noDataRow">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-person-x fs-1 text-secondary d-block mb-2"></i>
+                                <span>No staff members found.</span>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-        @if(method_exists($staff, 'hasPages') &&$staff->hasPages())
-            <div class="card-footer bg-white border-top py-3">
-                {{ $staff->links() }}
-            </div>
+        @if(method_exists($staff, 'hasPages') && $staff->hasPages())
+        <div class="card-footer bg-white border-top py-3">
+            {{ $staff->links() }}
+        </div>
         @endif
     </div>
 </div>
@@ -187,165 +198,167 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
-$(document).ready(function () {
+    $(document).ready(function() {
 
-    // Initialize Bootstrap Modal Instance
-    const staffModalEl = document.getElementById('staffModal');
-    const staffModal = new bootstrap.Modal(staffModalEl);
+        // Initialize Bootstrap Modal Instance
+        const staffModalEl = document.getElementById('staffModal');
+        const staffModal = new bootstrap.Modal(staffModalEl);
 
-    // Setup global CSRF header for jQuery AJAX
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // 1. Client-Side Live Search
-    // -------------------------------------------------------------------------
-    $('#staffSearch').on('keyup', function () {
-        let value = $(this).val().toLowerCase().trim();
-        let visibleRows = 0;
-
-        $('.staff-row').each(function () {
-            let name  = $(this).find('.staff-name').text().toLowerCase();
-            let email = $(this).find('.staff-email').text().toLowerCase();
-            let phone = $(this).find('.staff-phone').text().toLowerCase();
-
-            if (name.includes(value) || email.includes(value) || phone.includes(value)) {
-                $(this).show();
-                visibleRows++;
-            } else {
-                $(this).hide();
+        // Setup global CSRF header for jQuery AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
 
-        if (visibleRows === 0 && value !== '') {
-            if ($('#searchEmptyRow').length === 0) {
-                $('#staffTable tbody').append(`
+        // -------------------------------------------------------------------------
+        // 1. Client-Side Live Search
+        // -------------------------------------------------------------------------
+        $('#staffSearch').on('keyup', function() {
+            let value = $(this).val().toLowerCase().trim();
+            let visibleRows = 0;
+
+            $('.staff-row').each(function() {
+                let name = $(this).find('.staff-name').text().toLowerCase();
+                let email = $(this).find('.staff-email').text().toLowerCase();
+                let phone = $(this).find('.staff-phone').text().toLowerCase();
+
+                if (name.includes(value) || email.includes(value) || phone.includes(value)) {
+                    $(this).show();
+                    visibleRows++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if (visibleRows === 0 && value !== '') {
+                if ($('#searchEmptyRow').length === 0) {
+                    $('#staffTable tbody').append(`
                     <tr id="searchEmptyRow">
                         <td colspan="6" class="text-center py-4 text-muted">No staff members matching "${value}".</td>
                     </tr>
                 `);
-            }
-        } else {
-            $('#searchEmptyRow').remove();
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // 2. Open Create Staff Modal
-    // -------------------------------------------------------------------------
-    $('#btnCreateStaff').click(function () {
-        $('#staffForm')[0].reset();
-        $('#staff_id').val('');
-        $('#modalTitle').html('<i class="bi bi-person-plus-fill me-2"></i>Add New Staff');
-        $('#pwdRequired').removeClass('d-none');
-        $('#pwdHelp').text('(Min 6 characters)');
-        $('#errorBox').addClass('d-none').html('');
-        staffModal.show();
-    });
-
-    // -------------------------------------------------------------------------
-    // 3. Open Edit Staff Modal (Fetch record via AJAX)
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-edit', function () {
-        let id = $(this).data('id');$('#errorBox').addClass('d-none').html('');
-
-        $.ajax({
-            url: '/admin/users/' + id + '/edit',
-            type: 'GET',
-            success: function (res) {
-                if (res.success) {
-                    $('#staff_id').val(res.data.id);
-                    $('#name').val(res.data.name);
-                    $('#email').val(res.data.email);
-                    $('#phone').val(res.data.phone);
-                    $('#password').val('');
-                    
-                    // Modify password requirements for editing mode
-                    $('#modalTitle').html('<i class="bi bi-pencil-square me-2"></i>Edit Staff Member');
-                    $('#pwdRequired').addClass('d-none');
-                    $('#pwdHelp').text('(Leave blank to keep unchanged)');
-                    
-                    staffModal.show();
                 }
-            },
-            error: function () {
-                alert('Failed to load staff details. Please refresh the page.');
+            } else {
+                $('#searchEmptyRow').remove();
             }
         });
-    });
 
-    // -------------------------------------------------------------------------
-    // 4. Save/Update Staff (Submit Form via AJAX)
-    // -------------------------------------------------------------------------
-    $('#staffForm').submit(function (e) {
-        e.preventDefault();
-
-        let id = $('#staff_id').val();
-        let url = id ? '/admin/users/' + id + '/update' : '{{ route("admin.staff.store") }}';
-        
-        let $saveBtn =$('#saveBtn');
-        $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function (res) {
-                $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
-                if (res.success) {
-                    staffModal.hide();
-                    location.reload(); // Reload to refresh grid & updated roles
-                }
-            },
-            error: function (xhr) {
-                $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorHtml = '<ul class="mb-0 ps-3">';
-                    $.each(errors, function (key, value) {
-                        errorHtml += '<li>' + value[0] + '</li>';
-                    });
-                    errorHtml += '</ul>';
-                    $('#errorBox').removeClass('d-none').html(errorHtml);
-                } else {
-                    alert('An error occurred. Please try again.');
-                }
-            }
+        // -------------------------------------------------------------------------
+        // 2. Open Create Staff Modal
+        // -------------------------------------------------------------------------
+        $('#btnCreateStaff').click(function() {
+            $('#staffForm')[0].reset();
+            $('#staff_id').val('');
+            $('#modalTitle').html('<i class="bi bi-person-plus-fill me-2"></i>Add New Staff');
+            $('#pwdRequired').removeClass('d-none');
+            $('#pwdHelp').text('(Min 6 characters)');
+            $('#errorBox').addClass('d-none').html('');
+            staffModal.show();
         });
-    });
 
-    // -------------------------------------------------------------------------
-    // 5. Delete Staff Record via AJAX
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-delete', function () {
-        if (!confirm('Are you sure you want to delete this staff member? This action cannot be undone.')) {
-            return;
-        }
+        // -------------------------------------------------------------------------
+        // 3. Open Edit Staff Modal (Fetch record via AJAX)
+        // -------------------------------------------------------------------------
+        $(document).on('click', '.btn-edit', function() {
+            let id = $(this).data('id');
+            $('#errorBox').addClass('d-none').html('');
 
-        let id = $(this).data('id');
-        let $row =$('#row-' + id);
+            $.ajax({
+                url: '/admin/users/' + id + '/edit',
+                type: 'GET',
+                success: function(res) {
+                    if (res.success) {
+                        $('#staff_id').val(res.data.id);
+                        $('#name').val(res.data.name);
+                        $('#email').val(res.data.email);
+                        $('#phone').val(res.data.phone);
+                        $('#password').val('');
 
-        $.ajax({
-            url: '/admin/users/' + id + '/delete',
-            type: 'DELETE',
-            success: function (res) {
-                if (res.success) {
-                    $row.fadeOut(300, function () {$(this).remove(); 
-                        if ($('.staff-row:visible').length === 0) {
-                            location.reload();
-                        }
-                    });
+                        // Modify password requirements for editing mode
+                        $('#modalTitle').html('<i class="bi bi-pencil-square me-2"></i>Edit Staff Member');
+                        $('#pwdRequired').addClass('d-none');
+                        $('#pwdHelp').text('(Leave blank to keep unchanged)');
+
+                        staffModal.show();
+                    }
+                },
+                error: function() {
+                    alert('Failed to load staff details. Please refresh the page.');
                 }
-            },
-            error: function () {
-                alert('Failed to delete user. Please try again.');
-            }
+            });
         });
-    });
 
-});
+        // -------------------------------------------------------------------------
+        // 4. Save/Update Staff (Submit Form via AJAX)
+        // -------------------------------------------------------------------------
+        $('#staffForm').submit(function(e) {
+            e.preventDefault();
+
+            let id = $('#staff_id').val();
+            let url = id ? '/admin/users/' + id + '/update' : '{{ route("admin.staff.store") }}';
+
+            let $saveBtn = $('#saveBtn');
+            $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(res) {
+                    $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
+                    if (res.success) {
+                        staffModal.hide();
+                        location.reload(); // Reload to refresh grid & updated roles
+                    }
+                },
+                error: function(xhr) {
+                    $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorHtml = '<ul class="mb-0 ps-3">';
+                        $.each(errors, function(key, value) {
+                            errorHtml += '<li>' + value[0] + '</li>';
+                        });
+                        errorHtml += '</ul>';
+                        $('#errorBox').removeClass('d-none').html(errorHtml);
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
+                }
+            });
+        });
+
+        // -------------------------------------------------------------------------
+        // 5. Delete Staff Record via AJAX
+        // -------------------------------------------------------------------------
+        $(document).on('click', '.btn-delete', function() {
+            if (!confirm('Are you sure you want to delete this staff member? This action cannot be undone.')) {
+                return;
+            }
+
+            let id = $(this).data('id');
+            let $row = $('#row-' + id);
+
+            $.ajax({
+                url: '/admin/users/' + id + '/delete',
+                type: 'DELETE',
+                success: function(res) {
+                    if (res.success) {
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('.staff-row:visible').length === 0) {
+                                location.reload();
+                            }
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Failed to delete user. Please try again.');
+                }
+            });
+        });
+
+    });
 </script>
 @endpush

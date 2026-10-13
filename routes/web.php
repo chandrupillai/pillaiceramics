@@ -26,7 +26,7 @@ Route::get('/showrooms/{slug}', [ShopController::class, 'show'])->name('showroom
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy.policy');
 Route::get('/terms-and-conditions', [PageController::class, 'termsAndConditions'])->name('terms.conditions');
 
-
+Route::get('/staff/card/{id}', [StaffCustomerController::class, 'publicDigitalCard'])->name('staff.public.card');
 /*
 |--------------------------------------------------------------------------
 | Public Admin Auth Routes (Guest Only)
@@ -48,7 +48,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     // Auth & Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
-
+    Route::get('/staff/{user}/digital-card', [StaffCustomerController::class, 'showDigitalCard'])->name('staff.digital-card');
     // Quotation Routes
     Route::get('/quotations/quick-create-new', [QuotationController::class, 'quickCreate'])->name('quotations.quick-create');
     Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
