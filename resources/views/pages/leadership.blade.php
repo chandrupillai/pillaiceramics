@@ -1,35 +1,37 @@
 @extends('layouts.app')
 
 @section('title', 'Leadership & Executive Team | Pillai Ceramics')
-@section('meta_description', 'Meet the leadership team at Pillai Ceramics, guided by CEO Anand Pillai, CFO Thara A, General Manager Uma Maheswari, and Sales Managers Muthu & Ashok.')
+@section('meta_description', 'Meet the leadership and management team at Pillai Ceramics, guided by our executive board and regional managers across South India.')
 
 @push('styles')
 <style>
     .glass-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(226, 232, 240, 0.8);
     }
     .brand-gradient {
         background: linear-gradient(135deg, #0081b8 0%, #009edb 50%, #00b4fc 100%);
     }
     .card-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 35px -10px rgba(0, 129, 184, 0.12);
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px -12px rgba(0, 129, 184, 0.15);
+        border-color: rgba(0, 158, 219, 0.4);
     }
     .leader-img-wrapper {
         position: relative;
         overflow: hidden;
-        border-radius: 1rem;
+        border-radius: 1.25rem;
     }
     .leader-img-wrapper::after {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(15, 23, 42, 0.7) 0%, transparent 60%);
+        background: linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.1) 50%, transparent 100%);
         pointer-events: none;
     }
 </style>
@@ -38,81 +40,87 @@
 @section('content')
 
 <!-- 1. HERO HEADER SECTION -->
-<section class="relative bg-slate-950 text-white py-20 lg:py-28 overflow-hidden border-b border-slate-800">
-    <div class="absolute -top-32 -left-32 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+<section class="relative bg-slate-950 text-white py-24 lg:py-32 overflow-hidden border-b border-slate-800">
+    <!-- Architectural glow accents -->
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <span class="inline-flex items-center gap-2 bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-6">
+        <span class="inline-flex items-center gap-2 bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest mb-6 shadow-sm">
             <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-            Pillai Ceramics Leadership
+            Pillai Ceramics Leadership Board
         </span>
-        <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight mb-6">
+        <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight mb-6 text-white">
             Driven by Vision, <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Led by Experience</span>
         </h1>
-        <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Our executive leadership and management teams combine surface expertise to deliver unmatched quality across South India.
+        <p class="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-normal">
+            Our executive leadership and management teams combine decades of structural and surface expertise to deliver unmatched quality across Tamil Nadu & Puducherry.
         </p>
     </div>
 </section>
 
-<!-- 2. EXECUTIVE BOARD (CEO & CFO) -->
+<!-- 2. EXECUTIVE BOARD (Super Admins & Admins) -->
 @if(isset($executives) && $executives->count() > 0)
-<section class="py-20 bg-slate-50 border-b border-slate-200/60">
+<section class="py-24 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <span class="text-cyan-600 font-bold uppercase text-xs tracking-widest">Executive Board</span>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Core Leadership</h2>
+            <span class="text-cyan-600 font-extrabold uppercase text-xs tracking-widest bg-cyan-50 px-3.5 py-1.5 rounded-full border border-cyan-100">Executive Board</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mt-3">Core Leadership & Direction</h2>
+            <p class="text-slate-500 text-sm mt-2">Guiding strategic expansion, institutional partnerships, and surface excellence.</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
             @foreach($executives as $executive)
                 @php
-                    // Dynamic Profile & Bio Data
                     $profile = $executive->profile;
-                    $roleTitle = ($executive->name == 'Anand Pillai') ? 'CEO & Founder' : 'Chief Financial Officer';
-                    
-                    // Priority: DB bio -> fallback default text
-                    $bioText = optional($profile)->bio 
-                        ?? (($executive->name == 'Anand Pillai') 
-                            ? 'Founding Pillai Ceramics in June 2016, Anand Pillai established the company vision: making luxury architectural surfaces and our HPT Ceramics brand accessible.' 
-                            : 'Managing financial architecture, strategic budgeting, and institutional supplier partnerships across all showroom locations.');
-                    
-                    // Priority: DB avatar/photo -> fallback null
                     $photoPath = optional($profile)->avatar ?? optional($profile)->photo;
                     $imageUrl = $photoPath ? asset('storage/' . $photoPath) : null;
+                    $roleLabel = str_replace('_', ' ', strtoupper($executive->role ?? 'Executive'));
                 @endphp
 
-                <div class="glass-card rounded-3xl p-8 lg:p-10 card-hover shadow-sm relative overflow-hidden flex flex-col justify-between">
+                <div class="glass-card rounded-3xl p-8 lg:p-10 card-hover shadow-md relative overflow-hidden flex flex-col justify-between border border-slate-200/80 bg-white">
                     <div>
-                        <!-- Profile Image from user_profile table -->
-                        @if($imageUrl)
-                            <div class="leader-img-wrapper mb-6 aspect-[16/9] bg-slate-900">
+                        <!-- Profile Image Avatar -->
+                        <div class="leader-img-wrapper mb-6 aspect-[16/9] bg-slate-900 shadow-inner">
+                            @if($imageUrl)
                                 <img src="{{ $imageUrl }}" alt="{{ $executive->name }}" class="w-full h-full object-cover">
-                            </div>
-                        @endif
-
-                        <div class="flex items-center justify-between mb-6">
-                            <span class="bg-cyan-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                {{ $roleTitle }}
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <a href="https://instagram.com/" target="_blank" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-cyan-600 hover:text-white text-slate-600 flex items-center justify-center transition" title="Instagram">
-                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                </a>
-                                <a href="{{ route('admin.staff.digital-card', $executive->id) }}" class="inline-flex items-center gap-1.5 bg-slate-900 text-white hover:bg-cyan-600 text-xs font-semibold px-3.5 py-2 rounded-xl transition">
-                                    Digital Card
-                                </a>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-cyan-950 text-cyan-400 font-black text-3xl">
+                                    {{ strtoupper(substr($executive->name, 0, 2)) }}
+                                </div>
+                            @endif
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-cyan-600/90 backdrop-blur-md text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg">
+                                    {{ $roleLabel }}
+                                </span>
                             </div>
                         </div>
-                        <h3 class="text-2xl font-black text-slate-900 mb-1">{{ $executive->name }}</h3>
-                        <p class="text-sm text-cyan-600 font-semibold mb-4">{{ $roleTitle }}</p>
-                        <p class="text-slate-600 text-sm leading-relaxed mb-6">{{ $bioText }}</p>
+
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ $executive->name }}</h3>
+                                <p class="text-sm font-semibold text-cyan-600 mt-0.5">{{ $executive->email }}</p>
+                            </div>
+                            <a href="{{ route('admin.staff.digital-card', $executive->id) }}" target="_blank" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-cyan-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 22 2 0 000 4z"></path></svg>
+                                Digital Card
+                            </a>
+                        </div>
+
+                        <p class="text-slate-600 text-sm leading-relaxed mt-4 mb-6">
+                            {{ optional($profile)->bio ?: 'Providing expert executive leadership, maintaining high quality standards across HPT Tiles collections and Ramco structural building supplies.' }}
+                        </p>
                     </div>
 
-                    <div class="pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-500 font-medium">
-                        <span>Address: {{ optional($profile)->address ?? 'Trichy Headquarters' }}</span>
-                        <span class="text-cyan-600 font-semibold">Verified Profile</span>
+                    <div class="pt-5 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            {{ optional($profile)->address ?: 'Trichy Headquarters' }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-md">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified Official
+                        </span>
                     </div>
                 </div>
             @endforeach
@@ -121,67 +129,62 @@
 </section>
 @endif
 
-<!-- 3. OPERATIONS & MANAGEMENT TEAM -->
+<!-- 3. MANAGEMENT & OPERATIONS TEAM (Staff) -->
 @if(isset($managementTeam) && $managementTeam->count() > 0)
-<section class="py-20 bg-white">
+<section class="py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <span class="text-cyan-600 font-bold uppercase text-xs tracking-widest">Operations & Sales Leadership</span>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">Management & Collection Team</h2>
+            <span class="text-cyan-600 font-extrabold uppercase text-xs tracking-widest bg-cyan-50 px-3.5 py-1.5 rounded-full border border-cyan-100">Operations & Support</span>
+            <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mt-3">Staff & Management Team</h2>
+            <p class="text-slate-500 text-sm mt-2">Managing regional showroom inventories, customer care, and logistics workflows.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($managementTeam as $member)
                 @php
                     $profile = $member->profile;
-
-                    // Role Designation
-                    if ($member->name == 'Uma Maheswari') {
-                        $roleName = 'General Manager';
-                        $defaultBio = 'Overseeing day-to-day showroom administration and inventory distribution workflows.';
-                        $defaultImg = asset('images/uma.png');
-                    } elseif ($member->name == 'Muthu') {
-                        $roleName = 'Sales & Collection Manager';
-                        $defaultBio = 'Managing key dealer accounts, client sales pipelines, and structured collection cycles.';
-                        $defaultImg = asset('images/muthu.png');
-                    } else {
-                        $roleName = 'Sales & Collection Manager';
-                        $defaultBio = 'Driving regional builder outreach, retail showroom orders, and efficient collection logistics.';
-                        $defaultImg = asset('images/ashok.png');
-                    }
-
-                    // Priority: DB bio -> fallback default bio
-                    $bio = optional($profile)->bio ?? $defaultBio;
-
-                    // Priority: DB avatar/photo -> fallback local image asset
                     $photoPath = optional($profile)->avatar ?? optional($profile)->photo;
-                    $memberImg = $photoPath ? asset('storage/' . $photoPath) : $defaultImg;
+                    $memberImg = $photoPath ? asset('storage/' . $photoPath) : null;
+                    $roleLabel = ucfirst($member->role ?? 'Staff Member');
                 @endphp
 
-                <div class="glass-card rounded-2xl p-6 card-hover border border-slate-200/80 flex flex-col justify-between">
+                <div class="glass-card rounded-2xl p-6 card-hover border border-slate-200/80 bg-white shadow-sm flex flex-col justify-between">
                     <div>
-                        <!-- Dynamic Image Container -->
-                        <div class="leader-img-wrapper mb-5 aspect-[4/3] bg-slate-900">
-                            <img src="{{ $memberImg }}" alt="{{ $member->name }}" class="w-full h-full object-cover">
-                        </div>
-
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                {{ $roleName }}
-                            </span>
-                            <div class="flex items-center gap-1.5">
-                                <a href="https://instagram.com/" target="_blank" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-cyan-600 hover:text-white text-slate-600 flex items-center justify-center transition" title="Instagram">
-                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                </a>
-                                <a href="{{ route('admin.staff.digital-card', $member->id) }}" class="bg-slate-900 text-white hover:bg-cyan-600 text-[10px] font-semibold px-2.5 py-1.5 rounded-lg transition">Card</a>
+                        <!-- Member Photo -->
+                        <div class="leader-img-wrapper mb-5 aspect-[4/3] bg-slate-900 shadow-inner">
+                            @if($memberImg)
+                                <img src="{{ $memberImg }}" alt="{{ $member->name }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center bg-slate-800 text-slate-300 font-bold text-2xl">
+                                    {{ strtoupper(substr($member->name, 0, 2)) }}
+                                </div>
+                            @endif
+                            <div class="absolute top-3 left-3">
+                                <span class="bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                    {{ $roleLabel }}
+                                </span>
                             </div>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-0.5">{{ $member->name }}</h3>
-                        <p class="text-xs text-cyan-600 font-semibold mb-3">{{ $roleName }}</p>
-                        <p class="text-slate-600 text-xs leading-relaxed mb-4">{{ $bio }}</p>
+
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 tracking-tight">{{ $member->name }}</h3>
+                                <p class="text-xs font-semibold text-cyan-600 mt-0.5">{{ $member->email }}</p>
+                            </div>
+                            <a href="{{ route('admin.staff.digital-card', $member->id) }}" target="_blank" class="bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-[11px] font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
+                                Card
+                            </a>
+                        </div>
+
+                        <p class="text-slate-600 text-xs leading-relaxed mt-3 mb-5">
+                            {{ optional($profile)->bio ?: 'Dedicated to providing seamless customer support, showroom assistance, and reliable service.' }}
+                        </p>
                     </div>
-                    <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
-                        {{ optional($profile)->address ?? 'Showroom Staff' }}
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                        <span>{{ optional($profile)->address ?: 'Showroom Outlet' }}</span>
+                        <span class="text-cyan-600 font-semibold">Active Staff</span>
                     </div>
                 </div>
             @endforeach
@@ -191,15 +194,16 @@
 @endif
 
 <!-- 4. CALL TO ACTION -->
-<section class="py-16 brand-gradient text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <h2 class="text-3xl sm:text-4xl font-extrabold">Connect With Our Team</h2>
-        <p class="text-slate-100 max-w-2xl mx-auto text-base">
-            Partner with Pillai Ceramics for premium tile supplies and dealer queries.
+<section class="py-20 brand-gradient text-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-slate-950/10 pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+        <h2 class="text-3xl sm:text-4xl font-black">Connect With Our Showroom Network</h2>
+        <p class="text-slate-100 max-w-2xl mx-auto text-base font-medium">
+            Partner with Pillai Ceramics for premium vitrified tile supplies, wholesale inquiries, and Ramco building material solutions.
         </p>
-        <div class="pt-2 flex justify-center gap-4">
-            <a href="{{ route('shops') }}" class="bg-slate-900 hover:bg-slate-950 text-white px-8 py-3.5 rounded-xl font-bold transition inline-block">
-                Visit Our Showrooms
+        <div class="pt-2 flex flex-wrap justify-center gap-4">
+            <a href="{{ route('shops') }}" class="bg-slate-900 hover:bg-slate-950 text-white px-8 py-3.5 rounded-xl font-bold transition shadow-lg text-sm">
+                Visit Our 5 Showrooms
             </a>
         </div>
     </div>

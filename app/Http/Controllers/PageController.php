@@ -90,17 +90,17 @@ class PageController extends Controller
         return view('pages.terms-and-conditions');
     }
     public function leadership()
-    {
-        // Fetch specific leaders mapped to your 5 required profiles or roles/designations
-        // Using with('profile') to connect to your existing user_profile table
-        $executives = User::with('profile')
-            ->whereIn('name', ['Anand Pillai', 'Thara A'])
-            ->get();
+{
+    // Fetch Super Admins and Admins for the Core Leadership / Executive Board
+    $executives = User::with('profile')
+        ->whereIn('role', ['super_admin', 'admin'])
+        ->get();
 
-        $managementTeam = User::with('profile')
-            ->whereIn('name', ['Uma Maheswari', 'Muthu', 'Ashok'])
-            ->get();
+    // Fetch Staff members for the Operations & Management Team
+    $managementTeam = User::with('profile')
+        ->where('role', 'staff')
+        ->get();
 
-        return view('pages.leadership', compact('executives', 'managementTeam'));
-    }
+    return view('pages.leadership', compact('executives', 'managementTeam'));
+}
 }
