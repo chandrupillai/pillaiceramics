@@ -25,7 +25,7 @@ Route::get('/showrooms', [ShopController::class, 'index'])->name('showrooms');
 Route::get('/showrooms/{slug}', [ShopController::class, 'show'])->name('showrooms.show');
 Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy.policy');
 Route::get('/terms-and-conditions', [PageController::class, 'termsAndConditions'])->name('terms.conditions');
-
+Route::get('/leadership', [PageController::class, 'leadership'])->name('leadership');
 Route::get('/staff/card/{id}', [StaffCustomerController::class, 'publicDigitalCard'])->name('staff.public.card');
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     // -------------------------------------------------------------------------
     Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
     Route::post('/staff/store', [UserController::class, 'storeStaff'])->name('staff.store'); // <-- This defines admin.staff.store
-
+    Route::post('/staff/{id}/update', [UserController::class, 'staffUpdate'])->name('admin.staff.update');
     // -------------------------------------------------------------------------
     // Dealer Routes
     // -------------------------------------------------------------------------

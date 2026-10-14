@@ -32,6 +32,15 @@ class User extends Authenticatable
         'address',
         'gst_number'
     ];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     public function profile()
     {
@@ -42,15 +51,7 @@ class User extends Authenticatable
         return $this->belongsTo(Location::class);
     }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+
 
     /**
      * Get the attributes that should be cast.

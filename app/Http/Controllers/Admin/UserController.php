@@ -134,4 +134,102 @@ class UserController extends Controller
 
         return view('admin.dealers.index', compact('dealers'));
     }
+    public function storeStaff(Request $request)
+    {
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
+            'bio'   => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'password' => 'required|string|min:6',
+        ]);
+
+        // Create User
+        $user = User::create([
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'password'   => bcrypt($request->password),
+            'role'       => 'staff',
+            'created_by' => auth()->id(),
+        ]);
+
+        // Handle Photo Upload
+        $photoPath = null;
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('profiles', 'public');
+        }
+
+        // Create or Update User Profile (Bio & Photo)
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'bio'   => $request->bio,
+                'photo' => $photoPath,
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff member created successfully!',
+        ]);
+    }
+    public function edit($id)
+    {
+        $user = User::with('profile')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $user
+        ]);
+    }
+    public function staffUpdate(Request $request, $id)
+    {
+        $user = User::with('profile')->findOrFail($id);
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'phone'    => 'nullable|string|max:20',
+            'bio'      => 'nullable|string',
+            'photo'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        // 1. Update core user details
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+        $user->save();
+
+        // 2. Prepare profile data array matching your fillable attributes
+        $profileData = [
+            'bio' => $request->bio,
+        ];
+
+        // Handle file upload (mapping form field 'photo' to database column 'avatar')
+        if ($request->hasFile('photo')) {
+            // Delete old avatar file if it exists
+            if ($user->profile && $user->profile->avatar) {
+                Storage::disk('public')->delete($user->profile->avatar);
+            }
+            $profileData['avatar'] = $request->file('photo')->store('profiles', 'public');
+        }
+
+        // 3. Safely update or create the user_profile record linked via user_id
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            $profileData
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff member and profile updated successfully!',
+        ]);
+    }
 }

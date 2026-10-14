@@ -16,6 +16,7 @@ class UserProfile extends Model
         'address',
         'city',
         'pincode',
+        'bio',
         'avatar'
     ];
 

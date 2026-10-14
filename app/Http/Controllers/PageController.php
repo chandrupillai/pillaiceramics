@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -87,5 +88,19 @@ class PageController extends Controller
     public function termsAndConditions()
     {
         return view('pages.terms-and-conditions');
+    }
+    public function leadership()
+    {
+        // Fetch specific leaders mapped to your 5 required profiles or roles/designations
+        // Using with('profile') to connect to your existing user_profile table
+        $executives = User::with('profile')
+            ->whereIn('name', ['Anand Pillai', 'Thara A'])
+            ->get();
+
+        $managementTeam = User::with('profile')
+            ->whereIn('name', ['Uma Maheswari', 'Muthu', 'Ashok'])
+            ->get();
+
+        return view('pages.leadership', compact('executives', 'managementTeam'));
     }
 }

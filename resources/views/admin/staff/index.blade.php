@@ -11,7 +11,7 @@
             <h4 class="fw-bold mb-1 text-dark">
                 <i class="bi bi-shield-lock-fill text-primary me-2"></i>Staff Members
             </h4>
-            <p class="text-muted fs-7 mb-0">Manage system staff accounts, credentials, and access roles.</p>
+            <p class="text-muted fs-7 mb-0">Manage system staff accounts, credentials, access roles, and profiles.</p>
         </div>
         <button class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" id="btnCreateStaff">
             <i class="bi bi-plus-circle-fill"></i>
@@ -61,9 +61,13 @@
                             <td class="ps-4 fw-bold text-secondary">#{{ $member->id }}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
-                                        {{ strtoupper(substr($member->name, 0, 2)) }}
-                                    </div>
+                                    @if(optional($member->profile)->photo)
+                                        <img src="{{ asset('storage/' . $member->profile->photo) }}" alt="{{ $member->name }}" class="rounded-circle object-fit-cover" style="width: 36px; height: 36px;">
+                                    @else
+                                        <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                                            {{ strtoupper(substr($member->name, 0, 2)) }}
+                                        </div>
+                                    @endif
                                     <div>
                                         <div class="fw-bold text-dark staff-name">{{ $member->name }}</div>
                                         <small class="text-muted fs-8">Role: {{ ucfirst($member->role ?? 'Staff') }}</small>
@@ -84,7 +88,7 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm">
-                                    <!-- NEW DIGITAL VISITING CARD BUTTON -->
+                                    <!-- Digital Visiting Card Button -->
                                     <a href="{{ route('admin.staff.digital-card', $member->id) }}"
                                         target="_blank"
                                         class="btn btn-outline-info"
@@ -136,7 +140,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="staffForm">
+            <form id="staffForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" id="staff_id" name="staff_id">
                 <div class="modal-body p-4">
@@ -165,6 +169,28 @@
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
                             <input type="text" class="form-control fs-7" id="phone" name="phone" placeholder="+91 9876543210">
+                        </div>
+                    </div>
+
+                    <!-- NEW: Bio Field -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold fs-7 text-dark">Bio / Professional Summary</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light align-items-start pt-2"><i class="bi bi-card-text"></i></span>
+                            <textarea class="form-control fs-7" id="bio" name="bio" rows="3" placeholder="Enter brief professional bio..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Photo Upload Field -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold fs-7 text-dark">Profile Photo</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-image"></i></span>
+                            <input type="file" class="form-control fs-7" id="photo" name="photo" accept="image/*">
+                        </div>
+                        <div id="photoPreviewContainer" class="mt-2 d-none">
+                            <small class="text-muted d-block mb-1">Current Photo:</small>
+                            <img id="currentPhotoPreview" src="" alt="Photo" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;">
                         </div>
                     </div>
 
@@ -253,6 +279,8 @@
             $('#modalTitle').html('<i class="bi bi-person-plus-fill me-2"></i>Add New Staff');
             $('#pwdRequired').removeClass('d-none');
             $('#pwdHelp').text('(Min 6 characters)');
+            $('#photoPreviewContainer').addClass('d-none');
+            $('#currentPhotoPreview').attr('src', '');
             $('#errorBox').addClass('d-none').html('');
             staffModal.show();
         });
@@ -261,8 +289,8 @@
         // 3. Open Edit Staff Modal (Fetch record via AJAX)
         // -------------------------------------------------------------------------
         $(document).on('click', '.btn-edit', function() {
-            let id = $(this).data('id');
-            $('#errorBox').addClass('d-none').html('');
+            let id = $(this).data('id');$('#errorBox').addClass('d-none').html('');
+            $('#staffForm')[0].reset();
 
             $.ajax({
                 url: '/admin/users/' + id + '/edit',
@@ -273,7 +301,16 @@
                         $('#name').val(res.data.name);
                         $('#email').val(res.data.email);
                         $('#phone').val(res.data.phone);
+                        $('#bio').val(res.data.profile ? res.data.profile.bio : '');
                         $('#password').val('');
+
+                        // Show photo preview if exists in profile
+                        if (res.data.profile && res.data.profile.photo) {
+                            $('#currentPhotoPreview').attr('src', '/storage/' + res.data.profile.photo);
+                            $('#photoPreviewContainer').removeClass('d-none');
+                        } else {
+                            $('#photoPreviewContainer').addClass('d-none');
+                        }
 
                         // Modify password requirements for editing mode
                         $('#modalTitle').html('<i class="bi bi-pencil-square me-2"></i>Edit Staff Member');
@@ -290,26 +327,31 @@
         });
 
         // -------------------------------------------------------------------------
-        // 4. Save/Update Staff (Submit Form via AJAX)
+        // 4. Save/Update Staff (Submit Form via AJAX with FormData for File Upload)
         // -------------------------------------------------------------------------
         $('#staffForm').submit(function(e) {
             e.preventDefault();
 
             let id = $('#staff_id').val();
-            let url = id ? '/admin/users/' + id + '/update' : '{{ route("admin.staff.store") }}';
+            let url = id ? '/admin/staff/' + id + '/update' : '{{ route("admin.staff.store") }}';
 
-            let $saveBtn = $('#saveBtn');
+            // Use FormData object to support file upload & bio
+            let formData = new FormData(this);
+
+            let $saveBtn =$('#saveBtn');
             $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
 
             $.ajax({
                 url: url,
                 type: 'POST',
-                data: $(this).serialize(),
+                data: formData,
+                processData: false, // Required for FormData
+                contentType: false, // Required for FormData
                 success: function(res) {
                     $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
                     if (res.success) {
                         staffModal.hide();
-                        location.reload(); // Reload to refresh grid & updated roles
+                        location.reload(); // Reload to refresh grid & profile data
                     }
                 },
                 error: function(xhr) {
@@ -338,15 +380,14 @@
             }
 
             let id = $(this).data('id');
-            let $row = $('#row-' + id);
+            let $row =$('#row-' + id);
 
             $.ajax({
                 url: '/admin/users/' + id + '/delete',
                 type: 'DELETE',
                 success: function(res) {
                     if (res.success) {
-                        $row.fadeOut(300, function() {
-                            $(this).remove();
+                        $row.fadeOut(300, function() {$(this).remove();
                             if ($('.staff-row:visible').length === 0) {
                                 location.reload();
                             }
