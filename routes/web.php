@@ -27,6 +27,7 @@ Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('p
 Route::get('/terms-and-conditions', [PageController::class, 'termsAndConditions'])->name('terms.conditions');
 Route::get('/leadership', [PageController::class, 'leadership'])->name('leadership');
 Route::get('/staff/card/{id}', [StaffCustomerController::class, 'publicDigitalCard'])->name('staff.public.card');
+Route::get('/{slug}', [StaffCustomerController::class, 'digitalCard'])->name('staff.digital-card');
 /*
 |--------------------------------------------------------------------------
 | Public Admin Auth Routes (Guest Only)
@@ -59,7 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     // Locations Management (Accessible by Super Admin, Admin, Staff)
     Route::get('locations/fetch', [LocationController::class, 'fetch'])->name('locations.fetch');
     Route::resource('locations', LocationController::class);
-
+    Route::post('/users/{id}/toggle-leadership', [StaffCustomerController::class, 'toggleLeadership'])->name('admin.staff.toggle-leadership');
     Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
     Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
     Route::get('/daily-offers', [DailyOfferController::class, 'index'])->name('daily-offers.index');

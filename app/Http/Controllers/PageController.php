@@ -90,17 +90,18 @@ class PageController extends Controller
         return view('pages.terms-and-conditions');
     }
     public function leadership()
-{
-    // Fetch Super Admins and Admins for the Core Leadership / Executive Board
-    $executives = User::with('profile')
-        ->whereIn('role', ['super_admin', 'admin'])
-        ->get();
+    {
+        // Fetch Super Admins and Admins for the Core Leadership / Executive Board
+        $executives = User::with('profile')
+            ->whereIn('role', ['super_admin', 'admin'])
+            ->get();
 
-    // Fetch Staff members for the Operations & Management Team
-    $managementTeam = User::with('profile')
-        ->where('role', 'staff')
-        ->get();
+        // Fetch Staff members for the Operations & Management Team
+        $managementTeam = User::with('profile')
+            ->where('role', 'staff')
+            ->where('show_in_leadership', 1)
+            ->get();
 
-    return view('pages.leadership', compact('executives', 'managementTeam'));
-}
+        return view('pages.leadership', compact('executives', 'managementTeam'));
+    }
 }

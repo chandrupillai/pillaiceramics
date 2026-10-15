@@ -140,4 +140,22 @@ class StaffCustomerController extends Controller
     {
         return view('admin.staff.public_card', ['staff' => $user]);
     }
+    public function digitalCard($slug)
+    {
+        $staff = User::with('profile')->where('slug', $slug)->firstOrFail();
+
+        return view('admin.staff.public_card', compact('staff'));
+    }
+    public function toggleLeadership($id)
+    {
+        $user = User::findOrFail($id);
+        $user->show_in_leadership = !$user->show_in_leadership; // Flip 0 to 1 or 1 to 0
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'show_in_leadership' => $user->show_in_leadership,
+            'message' => 'Leadership status updated successfully!'
+        ]);
+    }
 }

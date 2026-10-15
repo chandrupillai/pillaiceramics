@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Location;
 use Auth;
+use Str;
 
 class UserController extends Controller
 {
@@ -201,6 +202,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->phone = $request->phone;
+        $user->slug = Str::slug($request->name);
 
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);

@@ -346,6 +346,7 @@
                 <ul class="space-y-2 text-sm text-slate-400">
                     <li><a href="{{ route('home') }}" class="hover:text-sky-400 transition">Home</a></li>
                     <li><a href="{{ route('about') }}" class="hover:text-sky-400 transition">About Us</a></li>
+                    <li><a href="{{ route('leadership') }}" class="hover:text-sky-400 transition">Leadership</a></li>
                     <li><a href="{{ route('services') }}" class="hover:text-sky-400 transition">Tile Collections</a></li>
                     <li><a href="{{ route('shops') }}" class="hover:text-sky-400 transition">Showrooms Network</a></li>
                     <li><a href="{{ route('privacy.policy') }}" class="hover:text-sky-400 transition">Privacy Policy</a></li>

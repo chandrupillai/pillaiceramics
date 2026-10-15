@@ -37,13 +37,13 @@
 
             <!-- Quick Action Buttons -->
             <div class="flex justify-center gap-3 mt-6">
-                <a href="tel:{{ $staff->staff_contactno }}" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-sky-600 transition shadow">
+                <a href="tel:{{ $staff->phone }}" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-sky-600 transition shadow">
                     <i class="fa-solid fa-phone"></i>
                 </a>
-                <a href="https://wa.me/{{ $staff->staff_contactno }}" target="_blank" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-emerald-600 transition shadow">
+                <a href="https://wa.me/{{ $staff->phone }}" target="_blank" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-emerald-600 transition shadow">
                     <i class="fa-brands fa-whatsapp text-lg"></i>
                 </a>
-                <a href="mailto:{{ $staff->staff_emailid }}" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-sky-600 transition shadow">
+                <a href="mailto:{{ $staff->email }}" class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white hover:bg-sky-600 transition shadow">
                     <i class="fa-solid fa-envelope"></i>
                 </a>
             </div>
@@ -53,8 +53,8 @@
         <div class="p-6 border-t border-slate-800">
             <h2 class="text-xs font-extrabold uppercase tracking-widest text-sky-400 mb-3">Contact Information</h2>
             <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 text-sm space-y-2">
-                <p><strong>Mobile:</strong> <span class="text-slate-300">{{ $staff->staff_contactno }}</span></p>
-                <p><strong>Email:</strong> <span class="text-slate-300">{{ $staff->staff_emailid }}</span></p>
+                <p><strong>Mobile:</strong> <span class="text-slate-300">{{ $staff->phone }}</span></p>
+                <p><strong>Email:</strong> <span class="text-slate-300">{{ $staff->email }}</span></p>
                 <p><strong>Address:</strong> <span class="text-slate-300">{{ $companyAddress }}</span></p>
             </div>
         </div>

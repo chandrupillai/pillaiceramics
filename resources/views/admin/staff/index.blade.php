@@ -62,11 +62,11 @@
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     @if(optional($member->profile)->photo)
-                                        <img src="{{ asset('storage/' . $member->profile->photo) }}" alt="{{ $member->name }}" class="rounded-circle object-fit-cover" style="width: 36px; height: 36px;">
+                                    <img src="{{ asset('storage/' . $member->profile->photo) }}" alt="{{ $member->name }}" class="rounded-circle object-fit-cover" style="width: 36px; height: 36px;">
                                     @else
-                                        <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
-                                            {{ strtoupper(substr($member->name, 0, 2)) }}
-                                        </div>
+                                    <div class="bg-primary-subtle text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                                        {{ strtoupper(substr($member->name, 0, 2)) }}
+                                    </div>
                                     @endif
                                     <div>
                                         <div class="fw-bold text-dark staff-name">{{ $member->name }}</div>
@@ -89,13 +89,18 @@
                             <td class="text-end pe-4">
                                 <div class="btn-group btn-group-sm">
                                     <!-- Digital Visiting Card Button -->
-                                    <a href="{{ route('admin.staff.digital-card', $member->id) }}"
+                                    <a href="{{ route('staff.digital-card', $member->slug) }}"
                                         target="_blank"
                                         class="btn btn-outline-info"
                                         title="View Digital Visiting Card">
                                         <i class="bi bi-person-badge-fill"></i>
                                     </a>
+                                    <button type="button"
+                                        onclick="toggleLeadership('{{ $member->id }}', this)"
+                                        class="btn btn-sm {{ $member->show_in_leadership ? 'btn-success' : 'btn-outline-secondary' }}">
+                                        <i class="fas fa-star"></i>
 
+                                    </button>
                                     <!-- EDIT BUTTON -->
                                     <button type="button" class="btn btn-outline-primary btn-edit" data-id="{{ $member->id }}" title="Edit Staff">
                                         <i class="bi bi-pencil-square"></i>
@@ -289,7 +294,8 @@
         // 3. Open Edit Staff Modal (Fetch record via AJAX)
         // -------------------------------------------------------------------------
         $(document).on('click', '.btn-edit', function() {
-            let id = $(this).data('id');$('#errorBox').addClass('d-none').html('');
+            let id = $(this).data('id');
+            $('#errorBox').addClass('d-none').html('');
             $('#staffForm')[0].reset();
 
             $.ajax({
@@ -338,7 +344,7 @@
             // Use FormData object to support file upload & bio
             let formData = new FormData(this);
 
-            let $saveBtn =$('#saveBtn');
+            let $saveBtn = $('#saveBtn');
             $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
 
             $.ajax({
@@ -380,14 +386,15 @@
             }
 
             let id = $(this).data('id');
-            let $row =$('#row-' + id);
+            let $row = $('#row-' + id);
 
             $.ajax({
                 url: '/admin/users/' + id + '/delete',
                 type: 'DELETE',
                 success: function(res) {
                     if (res.success) {
-                        $row.fadeOut(300, function() {$(this).remove();
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
                             if ($('.staff-row:visible').length === 0) {
                                 location.reload();
                             }
@@ -401,5 +408,30 @@
         });
 
     });
+
+    function toggleLeadership(userId, buttonElement) {
+        $.ajax({
+            url: '/admin/users/' + userId + '/toggle-leadership',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    let btn = $(buttonElement);
+                    if (response.show_in_leadership == 1) {
+                        btn.removeClass('btn-outline-secondary').addClass('btn-success');
+                        btn.find('.status-text').text('Shown on Leadership');
+                    } else {
+                        btn.removeClass('btn-success').addClass('btn-outline-secondary');
+                        btn.find('.status-text').text('Hidden');
+                    }
+                }
+            },
+            error: function(xhr) {
+                alert('Failed to update status.');
+            }
+        });
+    }
 </script>
 @endpush
