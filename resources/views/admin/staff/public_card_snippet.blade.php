@@ -27,7 +27,7 @@
                 
                 <!-- Header Profile Section -->
                 <div class="text-center px-6 pt-10 pb-6 bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
-                    <img src="{{ $staff->image ? asset('uploads/Staff/' . $staff->image) : asset('images/default-profile.png') }}" 
+                    <img src="{{ $staff->image ? asset('uploads/Staff/' . $staff->profile?->avatar) : asset('images/default-profile.png') }}" 
                          class="w-28 h-28 rounded-full border-4 border-sky-500/30 object-cover mx-auto mb-4 shadow-md" 
                          alt="{{ $staff->name }}">
                     
