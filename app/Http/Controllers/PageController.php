@@ -93,7 +93,7 @@ class PageController extends Controller
     {
         // Fetch Super Admins and Admins for the Core Leadership / Executive Board
         $executives = User::with('profile')
-            ->whereIn('role', ['super_admin', 'admin'])
+            ->whereIn('role', ['super_admin'])
             ->get();
 
         // Fetch Staff members for the Operations & Management Team
