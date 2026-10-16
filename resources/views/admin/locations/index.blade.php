@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
         <h4 class="fw-bold mb-1">Locations Management</h4>
-        <p class="text-muted fs-7 mb-0">Manage business branches, shop locations, addresses, and status without page reloads.</p>
+        <p class="text-muted fs-7 mb-0">Manage business branches, shop locations, banners, inner images, and status without page reloads.</p>
     </div>
     <button class="btn btn-primary fw-semibold px-3" onclick="openCreateModal()">
         <i class="bi bi-plus-lg me-1"></i> Add Location
@@ -23,10 +23,10 @@
             <thead class="bg-light">
                 <tr>
                     <th class="ps-3 py-3">#</th>
+                    <th>Images</th>
                     <th>Location Name</th>
                     <th>City / State</th>
                     <th>Phone / Email</th>
-                    <th>Address</th>
                     <th>Status</th>
                     <th class="text-end pe-3">Actions</th>
                 </tr>
@@ -46,7 +46,8 @@
                 <h5 class="modal-title fw-bold" id="locationModalTitle">Add New Location</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="locationForm">
+            <!-- Added enctype for file uploads -->
+            <form id="locationForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" id="locationId" name="id">
                 <div class="modal-body p-4">
@@ -87,6 +88,24 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold fs-7">Email Address</label>
                             <input type="email" id="locationEmail" name="email" class="form-control" placeholder="e.g. trichy@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Fields -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">Banner Image</label>
+                            <input type="file" id="bannerImage" name="banner" class="form-control" accept="image/*">
+                            <div id="bannerPreviewContainer" class="mt-2 d-none">
+                                <img id="currentBannerPreview" src="" alt="Banner Preview" class="rounded border" style="height: 60px; object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">Shop Inner Page Image</label>
+                            <input type="file" id="innerImage" name="inner_image" class="form-control" accept="image/*">
+                            <div id="innerPreviewContainer" class="mt-2 d-none">
+                                <img id="currentInnerPreview" src="" alt="Inner Page Preview" class="rounded border" style="height: 60px; object-fit: cover;">
+                            </div>
                         </div>
                     </div>
 
@@ -131,33 +150,49 @@
             return;
         }
 
-        tbody.innerHTML = items.map((item, index) => `
-            <tr>
-                <td class="ps-3">${index + 1}</td>
-                <td>
-                    <div class="fw-semibold text-dark">${item.name}</div>
-                    <span class="badge bg-light text-secondary fs-8">${item.slug}</span>
-                </td>
-                <td>${item.city}${item.state ? ', ' + item.state : ''}</td>
-                <td>
-                    <div class="fs-8">
-                        ${item.phone ? `<div><i class="bi bi-telephone me-1 text-muted"></i>${item.phone}</div>` : ''}
-                        ${item.email ? `<div><i class="bi bi-envelope me-1 text-muted"></i>${item.email}</div>` : ''}
-                        ${!item.phone && !item.email ? '<span class="text-muted">N/A</span>' : ''}
-                    </div>
-                </td>
-                <td><span class="text-muted fs-8">${item.address}</span></td>
-                <td>
-                    <span class="badge ${item.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} rounded-pill">
-                        ${item.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                </td>
-                <td class="text-end pe-3">
-                    <button onclick="openEditModal(${item.id})" class="btn btn-sm btn-light border me-1"><i class="bi bi-pencil-fill text-secondary"></i></button>
-                    <button onclick="deleteLocation(${item.id})" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash-fill"></i></button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = items.map((item, index) => {
+            const bannerUrl = item.banner ? `{{ asset('storage') }}/${item.banner}` : null;
+            const innerUrl = item.inner_image ? `{{ asset('storage') }}/${item.inner_image}` : null;
+
+            return `
+                <tr>
+                    <td class="ps-3">${index + 1}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 10px;">Banner</small>
+                                ${bannerUrl ? `<img src="${bannerUrl}" class="rounded border" style="width: 40px; height: 30px; object-fit: cover;">` : '<span class="text-muted fs-8">N/A</span>'}
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 10px;">Inner</small>
+                                ${innerUrl ? `<img src="${innerUrl}" class="rounded border" style="width: 40px; height: 30px; object-fit: cover;">` : '<span class="text-muted fs-8">N/A</span>'}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">${item.name}</div>
+                        <span class="badge bg-light text-secondary fs-8">${item.slug}</span>
+                    </td>
+                    <td>${item.city}${item.state ? ', ' + item.state : ''}</td>
+                    <td>
+                        <div class="fs-8">
+                            ${item.phone ? `<div><i class="bi bi-telephone me-1 text-muted"></i>${item.phone}</div>` : ''}
+                            ${item.email ? `<div><i class="bi bi-envelope me-1 text-muted"></i>${item.email}</div>` : ''}
+                            ${!item.phone && !item.email ? '<span class="text-muted">N/A</span>' : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${item.is_active ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} rounded-pill">
+                            ${item.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="text-end pe-3">
+                        <button onclick="openEditModal(${item.id})" class="btn btn-sm btn-light border me-1"><i class="bi bi-pencil-fill text-secondary"></i></button>
+                        <button onclick="deleteLocation(${item.id})" class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash-fill"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function openCreateModal() {
@@ -165,6 +200,11 @@
         document.getElementById('locationId').value = '';
         document.getElementById('locationModalTitle').innerText = 'Add New Location';
         document.getElementById('modalError').classList.add('d-none');
+        
+        // Hide image previews on create
+        document.getElementById('bannerPreviewContainer').classList.add('d-none');
+        document.getElementById('innerPreviewContainer').classList.add('d-none');
+        
         locationModal.show();
     }
 
@@ -184,6 +224,28 @@
                     document.getElementById('locationEmail').value = item.email || '';
                     document.getElementById('locationActive').checked = !!item.is_active;
 
+                    // Clear file inputs
+                    document.getElementById('bannerImage').value = '';
+                    document.getElementById('innerImage').value = '';
+
+                    // Display Banner Preview if available
+                    const bannerPreview = document.getElementById('bannerPreviewContainer');
+                    if (item.banner) {
+                        document.getElementById('currentBannerPreview').src = `{{ asset('storage') }}/${item.banner}`;
+                        bannerPreview.classList.remove('d-none');
+                    } else {
+                        bannerPreview.classList.add('d-none');
+                    }
+
+                    // Display Inner Page Image Preview if available
+                    const innerPreview = document.getElementById('innerPreviewContainer');
+                    if (item.inner_image) {
+                        document.getElementById('currentInnerPreview').src = `{{ asset('storage') }}/${item.inner_image}`;
+                        innerPreview.classList.remove('d-none');
+                    } else {
+                        innerPreview.classList.add('d-none');
+                    }
+
                     document.getElementById('locationModalTitle').innerText = 'Edit Location';
                     document.getElementById('modalError').classList.add('d-none');
                     locationModal.show();
@@ -194,21 +256,25 @@
     function handleFormSubmit(e) {
         e.preventDefault();
         const id = document.getElementById('locationId').value;
+        
+        // For updates with file uploads in Laravel, standard practice via POST is using _method: PUT
         const url = id ? `{{ url('admin/locations') }}/${id}` : `{{ route('admin.locations.store') }}`;
-        const method = id ? 'PUT' : 'POST';
 
         const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        data.is_active = document.getElementById('locationActive').checked ? 1 : 0;
+        if (id) {
+            formData.append('_method', 'PUT');
+        }
+        
+        // Handle checkbox boolean value
+        formData.set('is_active', document.getElementById('locationActive').checked ? 1 : 0);
 
         fetch(url, {
-            method: method,
+            method: 'POST', // Use POST with FormData (Laravel handles PUT via _method field)
             headers: {
-                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: formData
         })
         .then(async res => {
             const body = await res.json();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -103,5 +104,11 @@ class PageController extends Controller
             ->get();
 
         return view('pages.leadership', compact('executives', 'managementTeam'));
+    }
+    public function locationDetail($slug)
+    {
+        $location = Location::where('slug', $slug)->where('is_active', 1)->firstOrFail();
+
+        return view('pages.location-detail', compact('location'));
     }
 }
