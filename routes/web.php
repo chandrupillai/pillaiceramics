@@ -28,7 +28,7 @@ Route::get('/terms-and-conditions', [PageController::class, 'termsAndConditions'
 Route::get('/leadership', [PageController::class, 'leadership'])->name('leadership');
 Route::get('/staff/card/{id}', [StaffCustomerController::class, 'publicDigitalCard'])->name('staff.public.card');
 Route::get('/{slug}', [StaffCustomerController::class, 'digitalCard'])->name('staff.digital-card');
-Route::get('/locations/{slug}', [PageController::class, 'locationDetail'])->name('frontend.location.detail');
+Route::get('/shops/{slug}', [PageController::class, 'locationDetail'])->name('frontend.location.detail');
 /*
 |--------------------------------------------------------------------------
 | Public Admin Auth Routes (Guest Only)
