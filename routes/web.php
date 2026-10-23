@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{PageController, SitemapController};
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, ShopController, GodownController, DashboardController, TileCategoryController, TileTypeController};
 use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
-use App\Http\Controllers\Admin\{LocationController, DailyOfferController};
+use App\Http\Controllers\Admin\{LocationController, DailyOfferController, DailySaleController};
 use App\Http\Controllers\Api\{DealerEnquiryController};
 
 /*
@@ -120,6 +120,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
+
+    Route::get('/daily-sales', [DailySaleController::class, 'index'])->name('sales.index');
+    Route::get('/daily-sales/fetch', [DailySaleController::class, 'fetch'])->name('sales.fetch');
+    Route::post('/daily-sales', [DailySaleController::class, 'store'])->name('sales.store');
+    Route::delete('/daily-sales/{id}', [DailySaleController::class, 'destroy'])->name('sales.destroy');
+    Route::get('/daily-sales/search-products', [DailySaleController::class, 'searchProducts'])->name('sales.search-products');
 
     Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
