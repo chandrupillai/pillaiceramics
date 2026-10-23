@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         :root {
             --sidebar-width: 260px;
@@ -159,6 +159,13 @@
                         </li>
                     </ul>
                 </div>
+            </li>
+            <!-- Daily Sales Menu Item -->
+            <li class="nav-item">
+                <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.*') ? 'active' : '' }}">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <span>Daily Sales</span>
+                </a>
             </li>
 
             <!-- Quotations Submenu -->
