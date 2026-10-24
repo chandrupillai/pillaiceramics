@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{PageController, SitemapController};
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, ShopController, GodownController, DashboardController, TileCategoryController, TileTypeController};
 use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
-use App\Http\Controllers\Admin\{LocationController, DailyOfferController, DailySaleController};
+use App\Http\Controllers\Admin\{LocationController, DailyOfferController, DailySaleController,ProductTypeController};
 use App\Http\Controllers\Api\{DealerEnquiryController};
 
 /*
@@ -126,7 +126,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::post('/daily-sales', [DailySaleController::class, 'store'])->name('sales.store');
     Route::delete('/daily-sales/{id}', [DailySaleController::class, 'destroy'])->name('sales.destroy');
     Route::get('/daily-sales/search-products', [DailySaleController::class, 'searchProducts'])->name('sales.search-products');
-
+    Route::get('/product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'index'])->name('product-types.index');
+    Route::get('/product-types/fetch', [App\Http\Controllers\Admin\ProductTypeController::class, 'fetch'])->name('product-types.fetch');
+    Route::post('/product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'store'])->name('product-types.store');
+    Route::get('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'show'])->name('product-types.show');
+    Route::put('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'update'])->name('product-types.update');
+    Route::delete('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'destroy'])->name('product-types.destroy');
     Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
 

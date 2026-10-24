@@ -252,6 +252,12 @@
                     <span>Tile Sizes</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('admin.product-types.index') }}" class="nav-link {{ request()->routeIs('admin.product-types.*') ? 'active' : '' }}">
+                    <i class="bi bi-collection-fill"></i>
+                    <span>Product Types</span>
+                </a>
+            </li>
 
             <!-- Settings Section -->
             <div class="px-3 pt-3 pb-2">
@@ -318,6 +324,8 @@
                     <span>My Dealers</span>
                 </a>
             </li>
+
+            
 
             <!-- My Direct Customers -->
             <li class="nav-item">
