@@ -139,7 +139,7 @@ class DailySaleController extends Controller
             });
         }
 
-        $products = $productsQuery->limit(20)->get();
+        $products = $productsQuery->get();
 
         return response()->json([
             'status' => true,
