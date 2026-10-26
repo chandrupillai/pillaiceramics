@@ -122,7 +122,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
     Route::get('/daily-sales/fetch', [DailySaleController::class, 'fetch'])->name('sales.fetch');
     Route::get('/daily-sales/search-products', [DailySaleController::class, 'searchProducts'])->name('sales.search-products');
-    
+
     Route::post('/daily-sales', [DailySaleController::class, 'store'])->name('sales.store');
     Route::get('/daily-sales/{id}', [DailySaleController::class, 'show'])->name('sales.show');
     Route::get('/daily-sales/{id}/edit', [DailySaleController::class, 'edit'])->name('sales.edit');
@@ -136,6 +136,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::get('/daily-sales/reports', [DailySaleController::class, 'reports'])->name('sales.reports');
     Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
 
+    // Whole Sales Routes (Multi-Row Invoice Style)
+    Route::get('/whole-sales', [DailySaleController::class, 'wholeSalesIndex'])->name('whole-sales.index');
+    Route::get('/whole-sales/fetch', [DailySaleController::class, 'wholeSalesFetch'])->name('whole-sales.fetch');
+    Route::get('/whole-sales/create', [DailySaleController::class, 'wholeSalesCreate'])->name('whole-sales.create');
+    Route::post('/whole-sales', [DailySaleController::class, 'wholeSalesStore'])->name('whole-sales.store');
+    Route::delete('/whole-sales/{billShopName}', [DailySaleController::class, 'wholeSalesDestroyGroup'])->name('whole-sales.destroy-group');
+    Route::get('/whole-sales/{billShopName}/edit', [DailySaleController::class, 'wholeSalesEdit'])->name('whole-sales.edit');
+    Route::put('/whole-sales/{billShopName}', [DailySaleController::class, 'wholeSalesUpdate'])->name('whole-sales.update');
+    Route::get('/whole-sales/{billShopName}/show', [DailySaleController::class, 'wholeSalesShow'])->name('whole-sales.show');
     // Staff Portal Group
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dealers', [StaffCustomerController::class, 'index'])->name('dealers.index')->defaults('type', 'dealer');

@@ -184,6 +184,12 @@
                                 <span>Sales Reports</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.whole-sales.index') }}" class="nav-link {{ request()->routeIs('admin.whole-sales.*') ? 'active' : '' }}">
+                                <i class="bi bi-shop"></i>
+                                <span>Whole Sales</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>

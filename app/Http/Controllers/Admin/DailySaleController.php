@@ -201,4 +201,166 @@ class DailySaleController extends Controller
             'data'   => $sales,
         ]);
     }
+    public function wholeSalesIndex()
+    {
+        return view('admin.sales.wholesale-index');
+    }
+
+    public function wholeSalesFetch(Request $request)
+    {
+        // Group sales by bill_shop_name and sale_date for invoice-level summaries
+        $sales = DailySale::with(['salesPerson', 'productType', 'product'])
+            ->select('bill_shop_name', 'sale_date', 'user_id', \DB::raw('COUNT(*) as total_items'), \DB::raw('SUM(quantity) as total_quantity'), \DB::raw('MIN(id) as id'))
+            ->groupBy('bill_shop_name', 'sale_date', 'user_id')
+            ->latest('sale_date')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data'   => $sales,
+        ]);
+    }
+
+    public function wholeSalesCreate()
+    {
+        $staffMembers = User::whereIn('role', ['staff'])->get();
+        $productTypes = \App\Models\ProductType::where('is_active', true)->get();
+        return view('admin.sales.wholesale-create', compact('staffMembers', 'productTypes'));
+    }
+
+    public function wholeSalesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id'         => 'required|exists:users,id',
+            'sale_date'       => 'required|date',
+            'bill_shop_name'  => 'required|string|max:255',
+            'vehicle_info'    => 'nullable|string|max:255',
+            'items'           => 'required|array|min:1|max:25',
+            'items.*.product_type_id' => 'required|exists:product_types,id',
+            'items.*.product_id'      => 'required|exists:tile_products,id',
+            'items.*.quantity'        => 'required|numeric|min:0.01',
+        ]);
+
+        foreach ($validated['items'] as $item) {
+            $product = TileProduct::find($item['product_id']);
+
+            DailySale::create([
+                'user_id'         => $validated['user_id'],
+                'sale_date'       => $validated['sale_date'],
+                'bill_shop_name'  => $validated['bill_shop_name'],
+                'vehicle_info'    => $validated['vehicle_info'] ?? null,
+                'product_type_id' => $item['product_type_id'],
+                'product_id'      => $item['product_id'],
+                'quantity'        => $item['quantity'],
+                'tile_size_id'    => $product->tile_size_id ?? null,
+            ]);
+        }
+
+        return response()->json([
+            'status'   => true,
+            'message'  => 'Whole sales batch recorded successfully.',
+            'redirect' => route('admin.whole-sales.index'),
+        ], 201);
+    }
+
+    public function wholeSalesDestroyGroup(Request $request, $billShopName)
+    {
+        // Delete all rows matching this bill shop name and date
+        $date = $request->get('date');
+        $query = DailySale::where('bill_shop_name', $billShopName);
+        if ($date) {
+            $query->where('sale_date', $date);
+        }
+        $query->delete();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Whole sale invoice records deleted successfully.',
+        ]);
+    }
+
+    public function wholeSalesShow(Request $request, $billShopName)
+    {
+        $date = $request->get('date');
+        $sales = DailySale::with(['salesPerson', 'productType', 'product.size'])
+            ->where('bill_shop_name', $billShopName)
+            ->when($date, fn($q) => $q->where('sale_date', $date))
+            ->get();
+
+        if ($sales->isEmpty()) {
+            return response()->json(['status' => false, 'message' => 'Invoice not found.'], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data'   => [
+                'bill_shop_name' => $billShopName,
+                'sale_date'      => $sales->first()->sale_date,
+                'sales_person'   => $sales->first()->salesPerson->name ?? 'N/A',
+                'vehicle_info'   => $sales->first()->vehicle_info ?? 'N/A',
+                'items'          => $sales
+            ]
+        ]);
+    }
+
+    public function wholeSalesEdit(Request $request, $billShopName)
+    {
+        $date = $request->get('date');
+        $sales = DailySale::with(['product', 'productType'])
+            ->where('bill_shop_name', $billShopName)
+            ->when($date, fn($q) => $q->where('sale_date', $date))
+            ->get();
+
+        if ($sales->isEmpty()) {
+            abort(404, 'Invoice not found.');
+        }
+
+        $staffMembers = User::whereIn('role', ['staff'])->get();
+        $productTypes = \App\Models\ProductType::where('is_active', true)->get();
+
+        return view('admin.sales.wholesale-edit', compact('sales', 'billShopName', 'date', 'staffMembers', 'productTypes'));
+    }
+
+    public function wholeSalesUpdate(Request $request, $billShopName)
+    {
+        $oldDate = $request->get('old_date');
+
+        $validated = $request->validate([
+            'user_id'         => 'required|exists:users,id',
+            'sale_date'       => 'required|date',
+            'bill_shop_name'  => 'required|string|max:255',
+            'vehicle_info'    => 'nullable|string|max:255',
+            'items'           => 'required|array|min:1|max:25',
+            'items.*.product_type_id' => 'required|exists:product_types,id',
+            'items.*.product_id'      => 'required|exists:tile_products,id',
+            'items.*.quantity'        => 'required|numeric|min:0.01',
+        ]);
+
+        // 1. Delete existing records for this invoice group
+        DailySale::where('bill_shop_name', $billShopName)
+            ->when($oldDate, fn($q) => $q->where('sale_date', $oldDate))
+            ->delete();
+
+        // 2. Re-create the updated batch items
+        foreach ($validated['items'] as $item) {
+            $product = TileProduct::find($item['product_id']);
+
+            DailySale::create([
+                'user_id'         => $validated['user_id'],
+                'sale_date'       => $validated['sale_date'],
+                'bill_shop_name'  => $validated['bill_shop_name'],
+                'vehicle_info'    => $validated['vehicle_info'] ?? null,
+                'product_type_id' => $item['product_type_id'],
+                'product_id'      => $item['product_id'],
+                'quantity'        => $item['quantity'],
+                'tile_size_id'    => $product->tile_size_id ?? null,
+            ]);
+        }
+
+        return response()->json([
+            'status'   => true,
+            'message'  => 'Whole sale invoice updated successfully.',
+            'redirect' => route('admin.whole-sales.index'),
+        ]);
+    }
 }
