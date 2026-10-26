@@ -23,7 +23,12 @@ class TileProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = TileProduct::with(['category', 'type', 'size', 'location', 'godown']);
+            // Find the ProductType ID for 'Tiles' dynamically, or use its ID (e.g. 1)
+            $tileTypeId = \App\Models\ProductType::where('slug', 'tiles')->value('id');
+
+            // Filter base query to strictly show only tile products
+            $query = TileProduct::with(['category', 'type', 'size', 'location', 'godown'])
+                ->where('product_type_id', $tileTypeId);
 
             // Filters
             if ($request->filled('category_id')) {

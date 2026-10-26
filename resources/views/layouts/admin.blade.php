@@ -160,12 +160,32 @@
                     </ul>
                 </div>
             </li>
-            <!-- Daily Sales Menu Item -->
+
+            <!-- Daily Sales Submenu -->
             <li class="nav-item">
-                <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.*') ? 'active' : '' }}">
-                    <i class="bi bi-receipt-cutoff"></i>
-                    <span>Daily Sales</span>
+                <a href="#salesSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.sales.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.sales.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cart-check-fill"></i>
+                        <span>Daily Sales</span>
+                    </div>
+                    <i class="bi bi-chevron-down fs-8"></i>
                 </a>
+                <div class="collapse {{ request()->routeIs('admin.sales.*') ? 'show' : '' }}" id="salesSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-ul"></i>
+                                <span>Sales Records</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.sales.reports') }}" class="nav-link {{ request()->routeIs('admin.sales.reports') ? 'active' : '' }}">
+                                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                                <span>Sales Reports</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </li>
 
             <!-- Quotations Submenu -->
@@ -324,8 +344,6 @@
                     <span>My Dealers</span>
                 </a>
             </li>
-
-            
 
             <!-- My Direct Customers -->
             <li class="nav-item">

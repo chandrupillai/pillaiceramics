@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{PageController, SitemapController};
 use App\Http\Controllers\Admin\{AdminAuthController, StaffCustomerController, ShopController, GodownController, DashboardController, TileCategoryController, TileTypeController};
 use App\Http\Controllers\Admin\{UserController, ProductionCompanyController, AdminEnquiryController, QuotationController, TileSizeController, TileProductController, CompanyController};
-use App\Http\Controllers\Admin\{LocationController, DailyOfferController, DailySaleController,ProductTypeController};
+use App\Http\Controllers\Admin\{LocationController, DailyOfferController, DailySaleController, ProductTypeController};
 use App\Http\Controllers\Api\{DealerEnquiryController};
 
 /*
@@ -29,6 +29,7 @@ Route::get('/leadership', [PageController::class, 'leadership'])->name('leadersh
 Route::get('/staff/card/{id}', [StaffCustomerController::class, 'publicDigitalCard'])->name('staff.public.card');
 Route::get('/{slug}', [StaffCustomerController::class, 'digitalCard'])->name('staff.digital-card');
 Route::get('/shops/{slug}', [PageController::class, 'locationDetail'])->name('frontend.location.detail');
+
 /*
 |--------------------------------------------------------------------------
 | Public Admin Auth Routes (Guest Only)
@@ -38,7 +39,6 @@ Route::prefix('admin')->name('admin.')->middleware('guest')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +51,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
     Route::get('/staff/{user}/digital-card', [StaffCustomerController::class, 'showDigitalCard'])->name('staff.digital-card');
+
     // Quotation Routes
     Route::get('/quotations/quick-create-new', [QuotationController::class, 'quickCreate'])->name('quotations.quick-create');
     Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
@@ -58,39 +59,32 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
     Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
     Route::patch('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
-    // Locations Management (Accessible by Super Admin, Admin, Staff)
+    Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
+
+    // Locations Management
     Route::get('locations/fetch', [LocationController::class, 'fetch'])->name('locations.fetch');
     Route::resource('locations', LocationController::class);
+
     Route::post('/users/{id}/toggle-leadership', [StaffCustomerController::class, 'toggleLeadership'])->name('admin.staff.toggle-leadership');
+
+    // Dealer Enquiries & Offers
     Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
     Route::patch('/dealer-enquiries/{id}/status', [DealerEnquiryController::class, 'updateStatus'])->name('dealer-enquiries.updateStatus');
+    Route::patch('/dealer-enquiries/group-status', [DealerEnquiryController::class, 'updateStatusGroup'])->name('dealer-enquiries.updateStatusGroup');
+    Route::post('/dealer-enquiries/group-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.destroyGroup');
+    Route::post('/dealer-enquiries/bulk-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.bulkDestroy');
+    Route::post('/dealer-enquiries/{id}/delete', [DealerEnquiryController::class, 'destroy'])->name('dealer-enquiries.destroy');
+
     Route::get('/daily-offers', [DailyOfferController::class, 'index'])->name('daily-offers.index');
     Route::post('/daily-offers/store', [DailyOfferController::class, 'store'])->name('daily-offers.store');
     Route::post('/daily-offers/{id}/toggle', [DailyOfferController::class, 'toggleStatus'])->name('daily-offers.toggle');
     Route::delete('/daily-offers/{id}', [DailyOfferController::class, 'destroy'])->name('daily-offers.destroy');
 
+    // Staff & Dealer Modules
     Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
-
-    // Dealer Management Routes (Admin + Staff)
-    Route::get('/dealers', [UserController::class, 'indexDealers'])->name('dealers.index');
-    Route::patch('/dealer-enquiries/group-status', [DealerEnquiryController::class, 'updateStatusGroup'])->name('dealer-enquiries.updateStatusGroup');
-    Route::post('/dealer-enquiries/group-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.destroyGroup');
-    Route::post('/dealer-enquiries/bulk-destroy', [DealerEnquiryController::class, 'destroyGroup'])->name('dealer-enquiries.bulkDestroy');
-
-    // Single Item Delete Action using POST
-    Route::post('/dealer-enquiries/{id}/delete', [DealerEnquiryController::class, 'destroy'])->name('dealer-enquiries.destroy');
-
-    // Index Page
-    Route::get('/dealer-enquiries', [DealerEnquiryController::class, 'index'])->name('dealer-enquiries.index');
-    // -------------------------------------------------------------------------
-    // Staff Routes
-    // -------------------------------------------------------------------------
-    Route::get('/staff', [UserController::class, 'indexStaff'])->name('staff.index');
-    Route::post('/staff/store', [UserController::class, 'storeStaff'])->name('staff.store'); // <-- This defines admin.staff.store
+    Route::post('/staff/store', [UserController::class, 'storeStaff'])->name('staff.store');
     Route::post('/staff/{id}/update', [UserController::class, 'staffUpdate'])->name('admin.staff.update');
-    // -------------------------------------------------------------------------
-    // Dealer Routes
-    // -------------------------------------------------------------------------
+
     Route::get('/dealers', [UserController::class, 'indexDealers'])->name('dealers.index');
     Route::post('/dealers/store', [UserController::class, 'storeDealer'])->name('dealers.store');
 
@@ -99,56 +93,54 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
         Route::get('users/fetch', [UserController::class, 'fetch'])->name('users.fetch');
         Route::resource('users', UserController::class);
     });
-    Route::resource('shops', App\Http\Controllers\Admin\ShopController::class);
-    //Godown
-    // AJAX fetch route for table pagination & search filters
-    Route::get('godowns/fetch', [GodownController::class, 'fetch'])->name('godowns.fetch');
 
-    // RESTful CRUD routes (index, store, show, update, destroy)
+    Route::resource('shops', ShopController::class);
+
+    // Godown Routes
+    Route::get('godowns/fetch', [GodownController::class, 'fetch'])->name('godowns.fetch');
     Route::resource('godowns', GodownController::class);
 
     Route::resource('tile-categories', TileCategoryController::class)->except(['create', 'show']);
     Route::resource('tile-types', TileTypeController::class)->except(['create', 'show']);
-
     Route::resource('tile-sizes', TileSizeController::class)->except(['create', 'show']);
 
     Route::get('/tile-products/print-all', [TileProductController::class, 'printAll'])->name('tile-products.printAll');
     Route::patch('/tile-products/{product}/update-quantity', [TileProductController::class, 'updateQuantity'])->name('tile-products.update-quantity');
     Route::patch('/tile-products/{product}/toggle-display-front', [TileProductController::class, 'toggleDisplayFront'])->name('tile-products.toggle-display-front');
     Route::resource('tile-products', TileProductController::class);
+
     Route::resource('production-companies', ProductionCompanyController::class)->except(['create', 'edit', 'show']);
 
     Route::get('/company', [CompanyController::class, 'index'])->name('company.index');
     Route::post('/company', [CompanyController::class, 'store'])->name('company.store');
 
+    // -------------------------------------------------------------------------
+    // Daily Sales Routes (Complete: Index, Fetch, Search, Show, Edit, Update, Store, Delete)
+    // -------------------------------------------------------------------------
     Route::get('/daily-sales', [DailySaleController::class, 'index'])->name('sales.index');
+    Route::get('/daily-sales/reports', [DailySaleController::class, 'reports'])->name('sales.reports');
+    Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
     Route::get('/daily-sales/fetch', [DailySaleController::class, 'fetch'])->name('sales.fetch');
-    Route::post('/daily-sales', [DailySaleController::class, 'store'])->name('sales.store');
-    Route::delete('/daily-sales/{id}', [DailySaleController::class, 'destroy'])->name('sales.destroy');
     Route::get('/daily-sales/search-products', [DailySaleController::class, 'searchProducts'])->name('sales.search-products');
-    Route::get('/product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'index'])->name('product-types.index');
-    Route::get('/product-types/fetch', [App\Http\Controllers\Admin\ProductTypeController::class, 'fetch'])->name('product-types.fetch');
-    Route::post('/product-types', [App\Http\Controllers\Admin\ProductTypeController::class, 'store'])->name('product-types.store');
-    Route::get('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'show'])->name('product-types.show');
-    Route::put('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'update'])->name('product-types.update');
-    Route::delete('/product-types/{productType}', [App\Http\Controllers\Admin\ProductTypeController::class, 'destroy'])->name('product-types.destroy');
-    Route::post('/quotations/quick-store', [QuotationController::class, 'quickStore'])->name('quotations.quick-store');
+    
+    Route::post('/daily-sales', [DailySaleController::class, 'store'])->name('sales.store');
+    Route::get('/daily-sales/{id}', [DailySaleController::class, 'show'])->name('sales.show');
+    Route::get('/daily-sales/{id}/edit', [DailySaleController::class, 'edit'])->name('sales.edit');
+    Route::put('/daily-sales/{id}', [DailySaleController::class, 'update'])->name('sales.update');
+    Route::delete('/daily-sales/{id}', [DailySaleController::class, 'destroy'])->name('sales.destroy');
+
+    // Product Types Routes
+    Route::resource('product-types', ProductTypeController::class);
+    Route::get('/product-types/fetch', [ProductTypeController::class, 'fetch'])->name('product-types.fetch');
+    // Daily Sales Reports Routes
+    Route::get('/daily-sales/reports', [DailySaleController::class, 'reports'])->name('sales.reports');
+    Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
+
+    // Staff Portal Group
     Route::middleware(['role:staff,sales_person'])->prefix('staff')->name('staff.')->group(function () {
-
-        // My Dealers Route (explicitly passes type => 'dealer')
-        Route::get('/dealers', [StaffCustomerController::class, 'index'])
-            ->name('dealers.index')
-            ->defaults('type', 'dealer');
-
-        // My Customers Route (explicitly passes type => 'customer')
-        Route::get('/customers', [StaffCustomerController::class, 'index'])
-            ->name('customers.index')
-            ->defaults('type', 'customer');
-
-        // Store Route
-        Route::post('/users', [StaffCustomerController::class, 'store'])
-            ->name('users.store');
-
+        Route::get('/dealers', [StaffCustomerController::class, 'index'])->name('dealers.index')->defaults('type', 'dealer');
+        Route::get('/customers', [StaffCustomerController::class, 'index'])->name('customers.index')->defaults('type', 'customer');
+        Route::post('/users', [StaffCustomerController::class, 'store'])->name('users.store');
         Route::get('/users/{user}/edit', [StaffCustomerController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [StaffCustomerController::class, 'update'])->name('users.update');
         Route::get('/products/{id}', [TileProductController::class, 'show'])->name('admin.products.show');
