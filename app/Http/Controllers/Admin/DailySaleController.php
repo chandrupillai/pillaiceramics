@@ -334,7 +334,7 @@ class DailySaleController extends Controller
     {
         $search = $request->get('search');
 
-        $query = DailySale::with(['salesPerson', 'productType', 'product.size'])
+        $query = DailySale::with(['salesPerson', 'productType', 'product'])
             ->when($request->get('user_id'), function ($q, $userId) {
                 $q->where('user_id', $userId);
             })
@@ -342,25 +342,24 @@ class DailySaleController extends Controller
                 $dateParts = explode('-', $month);
                 if (count($dateParts) === 2) {
                     $q->whereYear('sale_date', $dateParts[0])
-                        ->whereMonth('sale_date', $dateParts[1]);
+                      ->whereMonth('sale_date', $dateParts[1]);
                 }
             })
             ->when($request->get('product_id'), function ($q, $productId) {
                 $q->where('product_id', $productId);
             })
-            ->when($search, function ($q, $s) {
-                $q->where(function ($sub) use ($s) {
+            ->when($search, function($q, $s) {
+                $q->where(function($sub) use ($s) {
                     $sub->where('bill_shop_name', 'LIKE', "%{$s}%")
                         ->orWhere('vehicle_info', 'LIKE', "%{$s}%");
                 });
             });
 
-        // Summary totals across filtered dataset
-        $totalQuantity = (clone $query)->sum('quantity');
-        $totalTransactions = (clone $query)->count();
+        // Use get() instead of paginate() so the response format matches the report view expectations
+        $sales = $query->latest('sale_date')->get();
 
-        // Paginated results for the reports table
-        $sales = $query->latest('sale_date')->paginate(15);
+        $totalQuantity = $sales->sum('quantity');
+        $totalTransactions = $sales->count();
 
         return response()->json([
             'status' => true,
