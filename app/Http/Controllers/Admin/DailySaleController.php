@@ -22,12 +22,12 @@ class DailySaleController extends Controller
         $search = $request->get('search');
 
         $query = DailySale::with(['salesPerson', 'productType', 'product'])
-            ->when($search, function($q, $s) {
+            ->when($search, function ($q, $s) {
                 $q->where('bill_shop_name', 'LIKE', "%{$s}%")
-                  ->orWhere('vehicle_info', 'LIKE', "%{$s}%")
-                  ->orWhereHas('product', function($sub) use ($s) {
-                      $sub->where('product_name', 'LIKE', "%{$s}%");
-                  });
+                    ->orWhere('vehicle_info', 'LIKE', "%{$s}%")
+                    ->orWhereHas('product', function ($sub) use ($s) {
+                        $sub->where('product_name', 'LIKE', "%{$s}%");
+                    });
             });
 
         // Paginate results so pagination links and metadata are generated
@@ -321,26 +321,54 @@ class DailySaleController extends Controller
         ]);
     }
 
-    public function exportPdf(Request $request)
+    public function reports()
     {
-        $query = DailySale::with(['salesPerson', 'productType', 'product'])
+        $staffMembers = User::whereIn('role', ['staff'])->get();
+        $products = TileProduct::select('id', 'product_name')->get();
+        $productTypes = \App\Models\ProductType::where('is_active', true)->get();
+
+        return view('admin.sales.reports', compact('staffMembers', 'products', 'productTypes'));
+    }
+
+    public function fetchReports(Request $request)
+    {
+        $search = $request->get('search');
+
+        $query = DailySale::with(['salesPerson', 'productType', 'product.size'])
             ->when($request->get('user_id'), function ($q, $userId) {
                 $q->where('user_id', $userId);
             })
             ->when($request->get('month'), function ($q, $month) {
-                $q->whereYear('sale_date', date('Y', strtotime($month)))
-                    ->whereMonth('sale_date', date('m', strtotime($month)));
+                $dateParts = explode('-', $month);
+                if (count($dateParts) === 2) {
+                    $q->whereYear('sale_date', $dateParts[0])
+                        ->whereMonth('sale_date', $dateParts[1]);
+                }
             })
             ->when($request->get('product_id'), function ($q, $productId) {
                 $q->where('product_id', $productId);
             })
-            ->latest('sale_date');
+            ->when($search, function ($q, $s) {
+                $q->where(function ($sub) use ($s) {
+                    $sub->where('bill_shop_name', 'LIKE', "%{$s}%")
+                        ->orWhere('vehicle_info', 'LIKE', "%{$s}%");
+                });
+            });
 
-        $sales = $query->get();
-        $totalQuantity = $sales->sum('quantity');
-        $totalTransactions = $sales->count();
+        // Summary totals across filtered dataset
+        $totalQuantity = (clone $query)->sum('quantity');
+        $totalTransactions = (clone $query)->count();
 
-        $pdf = \PDF::loadView('admin.sales.reports-pdf', compact('sales', 'totalQuantity', 'totalTransactions', 'request'));
-        return $pdf->download('sales-report-' . ($request->get('month') ?: date('Y-m')) . '.pdf');
+        // Paginated results for the reports table
+        $sales = $query->latest('sale_date')->paginate(15);
+
+        return response()->json([
+            'status' => true,
+            'summary' => [
+                'total_quantity'     => number_format($totalQuantity, 2),
+                'total_transactions' => $totalTransactions,
+            ],
+            'data'   => $sales,
+        ]);
     }
 }
