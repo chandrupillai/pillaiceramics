@@ -89,6 +89,7 @@ class UserController extends Controller
             'message' => 'User deleted successfully.'
         ]);
     }
+
     /**
      * Display a listing of staff members.
      */
@@ -123,7 +124,6 @@ class UserController extends Controller
         $query = User::whereIn('role', ['dealer', 'Dealer']);
 
         if ($isStaff) {
-            // Staff sees only dealers they created
             $query->where('created_by', $user->id);
         } elseif (!$isAdmin) {
             abort(403, 'Unauthorized access.');
@@ -133,41 +133,56 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.dealers.index', compact('dealers'));
+        // Fetch staff members to populate the assigned staff dropdown
+        $staffMembers = User::whereIn('role', ['staff', 'Staff'])->get();
+
+        return view('admin.dealers.index', compact('dealers', 'staffMembers'));
     }
+
     public function storeStaff(Request $request)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
-            'bio'   => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'phone'    => 'nullable|string|max:20',
+            'bio'      => 'nullable|string',
+            'photo'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'password' => 'required|string|min:6',
         ]);
 
-        // Create User
+        // 1. Generate initial slug from name
+        $slug = Str::slug($request->name);
+
+        // Ensure slug uniqueness check
+        $originalSlug = $slug;
+        $count = 1;
+        while (User::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        // 2. Create User with slug included
         $user = User::create([
             'name'       => $request->name,
             'email'      => $request->email,
             'phone'      => $request->phone,
+            'slug'       => $slug,
             'password'   => bcrypt($request->password),
             'role'       => 'staff',
             'created_by' => auth()->id(),
         ]);
 
-        // Handle Photo Upload
+        // 3. Handle Photo Upload
         $photoPath = null;
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('profiles', 'public');
         }
 
-        // Create or Update User Profile (Bio & Photo)
+        // 4. Create or Update User Profile (Bio & Photo)
         $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
             [
-                'bio'   => $request->bio,
-                'photo' => $photoPath,
+                'bio'    => $request->bio,
+                'avatar' => $photoPath,
             ]
         );
 
@@ -176,6 +191,47 @@ class UserController extends Controller
             'message' => 'Staff member created successfully!',
         ]);
     }
+
+    /**
+     * Store new dealer with optional assigned staff handler.
+     */
+    public function storeDealer(Request $request)
+    {
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email',
+            'phone'      => 'nullable|string|max:20',
+            'password'   => 'required|string|min:6',
+            'created_by' => 'nullable|exists:users,id',
+        ]);
+
+        // Generate unique slug
+        $slug = Str::slug($request->name);
+        $originalSlug = $slug;
+        $count = 1;
+        while (User::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+
+        // If staff handler is selected from dropdown, use it. Otherwise, fallback to auth id.
+        $createdBy = $request->filled('created_by') ? $request->created_by : auth()->id();
+
+        User::create([
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'slug'       => $slug,
+            'password'   => bcrypt($request->password),
+            'role'       => 'dealer',
+            'created_by' => $createdBy,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dealer created successfully!',
+        ]);
+    }
+
     public function edit($id)
     {
         $user = User::with('profile')->findOrFail($id);
@@ -185,6 +241,7 @@ class UserController extends Controller
             'data'    => $user
         ]);
     }
+
     public function staffUpdate(Request $request, $id)
     {
         $user = User::with('profile')->findOrFail($id);
@@ -216,9 +273,8 @@ class UserController extends Controller
 
         // Handle file upload (mapping form field 'photo' to database column 'avatar')
         if ($request->hasFile('photo')) {
-            // Delete old avatar file if it exists
             if ($user->profile && $user->profile->avatar) {
-                Storage::disk('public')->delete($user->profile->avatar);
+                \Storage::disk('public')->delete($user->profile->avatar);
             }
             $profileData['avatar'] = $request->file('photo')->store('profiles', 'public');
         }
@@ -232,6 +288,41 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Staff member and profile updated successfully!',
+        ]);
+    }
+    /**
+     * Update existing dealer details.
+     */
+    public function dealerUpdate(Request $request, $id)
+    {
+        $dealer = User::whereIn('role', ['dealer', 'Dealer'])->findOrFail($id);
+
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email,' . $id,
+            'phone'      => 'nullable|string|max:20',
+            'password'   => 'nullable|string|min:6',
+            'created_by' => 'nullable|exists:users,id',
+        ]);
+
+        $dealer->name = $request->name;
+        $dealer->email = $request->email;
+        $dealer->phone = $request->phone;
+        $dealer->slug = Str::slug($request->name);
+
+        if ($request->filled('created_by')) {
+            $dealer->created_by = $request->created_by;
+        }
+
+        if ($request->filled('password')) {
+            $dealer->password = bcrypt($request->password);
+        }
+
+        $dealer->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dealer updated successfully!',
         ]);
     }
 }

@@ -12,31 +12,22 @@ class TileProduct extends Model
     protected $fillable = [
         'product_name',
         'sku',
-        'slug',
+        'description',
         'tile_category_id',
         'tile_type_id',
         'tile_size_id',
-        'location_id',
-        'godown_id',
+        'product_type_id',
         'price',
         'stock_quantity',
         'box_coverage_sqft',
         'pieces_per_box',
-        'image',
-        'description',
-        'is_active',
         'production_company_id',
-        'display_front',
+        'godown_id',
+        'location_id',
+        'image',
+        'is_active',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-        'stock_quantity' => 'integer',
-        'pieces_per_box' => 'integer',
-        'is_active' => 'boolean',
-    ];
-
-    // Relationships
     public function category()
     {
         return $this->belongsTo(TileCategory::class, 'tile_category_id');
@@ -52,23 +43,23 @@ class TileProduct extends Model
         return $this->belongsTo(TileSize::class, 'tile_size_id');
     }
 
-    public function location()
+    public function productType()
     {
-        return $this->belongsTo(Location::class);
+        return $this->belongsTo(ProductType::class, 'product_type_id');
+    }
+
+    public function productionCompany()
+    {
+        return $this->belongsTo(ProductionCompany::class, 'production_company_id');
     }
 
     public function godown()
     {
-        return $this->belongsTo(Godown::class);
+        return $this->belongsTo(Godown::class, 'godown_id');
     }
-    public function godowns()
+
+    public function location()
     {
-        return $this->belongsToMany(Godown::class)
-            ->withPivot(['quantity', 'boxes'])
-            ->withTimestamps();
-    }
-    public function productionCompany()
-    {
-        return $this->belongsTo(ProductionCompany::class, 'production_company_id');
+        return $this->belongsTo(Location::class, 'location_id');
     }
 }

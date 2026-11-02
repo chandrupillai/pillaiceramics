@@ -87,6 +87,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
 
     Route::get('/dealers', [UserController::class, 'indexDealers'])->name('dealers.index');
     Route::post('/dealers/store', [UserController::class, 'storeDealer'])->name('dealers.store');
+    Route::post('/dealers/{id}/update', [UserController::class, 'dealerUpdate'])->name('dealers.update');
 
     // Restricted Access Routes (Super Admin & Admin Only)
     Route::middleware('role:super_admin,admin')->group(function () {
@@ -135,7 +136,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     // Daily Sales Reports Routes
     Route::get('/daily-sales/reports', [DailySaleController::class, 'reports'])->name('sales.reports');
     Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
-
+    Route::get('/daily-sales/reports/pdf', [DailySaleController::class, 'exportPdf'])->name('sales.reports.pdf');
     // Whole Sales Routes (Multi-Row Invoice Style)
     Route::get('/whole-sales', [DailySaleController::class, 'wholeSalesIndex'])->name('whole-sales.index');
     Route::get('/whole-sales/fetch', [DailySaleController::class, 'wholeSalesFetch'])->name('whole-sales.fetch');

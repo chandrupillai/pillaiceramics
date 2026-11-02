@@ -19,7 +19,19 @@ class DailySaleController extends Controller
 
     public function fetch(Request $request)
     {
-        $sales = DailySale::with(['salesPerson', 'productType', 'product'])->latest()->get();
+        $search = $request->get('search');
+
+        $query = DailySale::with(['salesPerson', 'productType', 'product'])
+            ->when($search, function($q, $s) {
+                $q->where('bill_shop_name', 'LIKE', "%{$s}%")
+                  ->orWhere('vehicle_info', 'LIKE', "%{$s}%")
+                  ->orWhereHas('product', function($sub) use ($s) {
+                      $sub->where('product_name', 'LIKE', "%{$s}%");
+                  });
+            });
+
+        // Paginate results so pagination links and metadata are generated
+        $sales = $query->latest('sale_date')->paginate(10);
 
         return response()->json([
             'status' => true,
@@ -39,7 +51,6 @@ class DailySaleController extends Controller
             'vehicle_info'    => 'nullable|string|max:255',
         ]);
 
-        // Automatically fetch and attach the tile_size_id from the selected product if available
         $product = TileProduct::find($validated['product_id']);
         if ($product && $product->tile_size_id) {
             $validated['tile_size_id'] = $product->tile_size_id;
@@ -147,60 +158,10 @@ class DailySaleController extends Controller
         ]);
     }
 
-    public function reports()
-    {
-        $staffMembers = User::whereIn('role', ['staff'])->get();
-        $products = TileProduct::select('id', 'product_name')->get();
-        $productTypes = \App\Models\ProductType::where('is_active', true)->get();
+    // ==========================================
+    // WHOLE SALES METHODS (Restored)
+    // ==========================================
 
-        return view('admin.sales.reports', compact('staffMembers', 'products', 'productTypes'));
-    }
-
-    public function fetchReports(Request $request)
-    {
-        $query = DailySale::with(['salesPerson', 'productType', 'product.size']);
-
-        // 1. Staff Wise Filter
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        // 2. Month / Date Range Filter (Format expected: YYYY-MM or YYYY-MM-DD)
-        if ($request->filled('month')) {
-            $dateParts = explode('-', $request->month); // e.g. [2026, 10]
-            if (count($dateParts) === 2) {
-                $query->whereYear('sale_date', $dateParts[0])
-                    ->whereMonth('sale_date', $dateParts[1]);
-            }
-        } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('sale_date', [$request->start_date, $request->end_date]);
-        }
-
-        // 3. Product Wise Filter
-        if ($request->filled('product_id')) {
-            $query->where('product_id', $request->product_id);
-        }
-
-        // 4. Product Type Filter (Secondary option)
-        if ($request->filled('product_type_id')) {
-            $query->where('product_type_id', $request->product_type_id);
-        }
-
-        $sales = $query->latest('sale_date')->get();
-
-        // Calculate summary metrics
-        $totalQuantity = $sales->sum('quantity');
-        $totalTransactions = $sales->count();
-
-        return response()->json([
-            'status' => true,
-            'summary' => [
-                'total_quantity' => number_format($totalQuantity, 2),
-                'total_transactions' => $totalTransactions,
-            ],
-            'data'   => $sales,
-        ]);
-    }
     public function wholeSalesIndex()
     {
         return view('admin.sales.wholesale-index');
@@ -208,7 +169,6 @@ class DailySaleController extends Controller
 
     public function wholeSalesFetch(Request $request)
     {
-        // Group sales by bill_shop_name and sale_date for invoice-level summaries
         $sales = DailySale::with(['salesPerson', 'productType', 'product'])
             ->select('bill_shop_name', 'sale_date', 'user_id', \DB::raw('COUNT(*) as total_items'), \DB::raw('SUM(quantity) as total_quantity'), \DB::raw('MIN(id) as id'))
             ->groupBy('bill_shop_name', 'sale_date', 'user_id')
@@ -265,7 +225,6 @@ class DailySaleController extends Controller
 
     public function wholeSalesDestroyGroup(Request $request, $billShopName)
     {
-        // Delete all rows matching this bill shop name and date
         $date = $request->get('date');
         $query = DailySale::where('bill_shop_name', $billShopName);
         if ($date) {
@@ -336,12 +295,10 @@ class DailySaleController extends Controller
             'items.*.quantity'        => 'required|numeric|min:0.01',
         ]);
 
-        // 1. Delete existing records for this invoice group
         DailySale::where('bill_shop_name', $billShopName)
             ->when($oldDate, fn($q) => $q->where('sale_date', $oldDate))
             ->delete();
 
-        // 2. Re-create the updated batch items
         foreach ($validated['items'] as $item) {
             $product = TileProduct::find($item['product_id']);
 
@@ -362,5 +319,28 @@ class DailySaleController extends Controller
             'message'  => 'Whole sale invoice updated successfully.',
             'redirect' => route('admin.whole-sales.index'),
         ]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = DailySale::with(['salesPerson', 'productType', 'product'])
+            ->when($request->get('user_id'), function ($q, $userId) {
+                $q->where('user_id', $userId);
+            })
+            ->when($request->get('month'), function ($q, $month) {
+                $q->whereYear('sale_date', date('Y', strtotime($month)))
+                    ->whereMonth('sale_date', date('m', strtotime($month)));
+            })
+            ->when($request->get('product_id'), function ($q, $productId) {
+                $q->where('product_id', $productId);
+            })
+            ->latest('sale_date');
+
+        $sales = $query->get();
+        $totalQuantity = $sales->sum('quantity');
+        $totalTransactions = $sales->count();
+
+        $pdf = \PDF::loadView('admin.sales.reports-pdf', compact('sales', 'totalQuantity', 'totalTransactions', 'request'));
+        return $pdf->download('sales-report-' . ($request->get('month') ?: date('Y-m')) . '.pdf');
     }
 }

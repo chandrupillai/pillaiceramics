@@ -57,58 +57,58 @@
                     </thead>
                     <tbody class="fs-7">
                         @forelse($dealers as $dealer)
-                            <tr id="row-{{ $dealer->id }}" class="dealer-row">
-                                <td class="ps-4 fw-bold text-secondary">#{{ $dealer->id }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="bg-success-subtle text-success fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
-                                            {{ strtoupper(substr($dealer->name, 0, 2)) }}
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark dealer-name">{{ $dealer->name }}</div>
-                                            <small class="text-muted fs-8">Account Type: Dealer</small>
-                                        </div>
+                        <tr id="row-{{ $dealer->id }}" class="dealer-row">
+                            <td class="ps-4 fw-bold text-secondary">#{{ $dealer->id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-success-subtle text-success fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 0.85rem;">
+                                        {{ strtoupper(substr($dealer->name, 0, 2)) }}
                                     </div>
-                                </td>
-                                <td>
-                                    <div class="text-dark dealer-email"><i class="bi bi-envelope text-muted me-1"></i>{{ $dealer->email }}</div>
-                                    <small class="text-muted dealer-phone"><i class="bi bi-telephone text-muted me-1"></i>{{ $dealer->phone ?? 'N/A' }}</small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 fs-8">
-                                        <i class="bi bi-person-check me-1"></i>{{ $dealer->creator?->name ?? 'Admin / Direct' }}
-                                    </span>
-                                </td>
-                                <td class="text-muted">
-                                    {{ $dealer->created_at ? $dealer->created_at->format('M d, Y') : 'N/A' }}
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm">
-                                        <button type="button" class="btn btn-outline-primary btn-edit" data-id="{{ $dealer->id }}" title="Edit Dealer">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-outline-danger btn-delete" data-id="{{ $dealer->id }}" title="Delete Dealer">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
+                                    <div>
+                                        <div class="fw-bold text-dark dealer-name">{{ $dealer->name }}</div>
+                                        <small class="text-muted fs-8">Account Type: Dealer</small>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-dark dealer-email"><i class="bi bi-envelope text-muted me-1"></i>{{ $dealer->email }}</div>
+                                <small class="text-muted dealer-phone"><i class="bi bi-telephone text-muted me-1"></i>{{ $dealer->phone ?? 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 fs-8">
+                                    <i class="bi bi-person-check me-1"></i>{{ $dealer->creator?->name ?? 'Admin / Direct' }}
+                                </span>
+                            </td>
+                            <td class="text-muted">
+                                {{ $dealer->created_at ? $dealer->created_at->format('M d, Y') : 'N/A' }}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary btn-edit" data-id="{{ $dealer->id }}" title="Edit Dealer">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-delete" data-id="{{ $dealer->id }}" title="Delete Dealer">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                         @empty
-                            <tr id="noDataRow">
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-shop-window fs-1 text-secondary d-block mb-2"></i>
-                                    <span>No dealers found.</span>
-                                </td>
-                            </tr>
+                        <tr id="noDataRow">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-shop-window fs-1 text-secondary d-block mb-2"></i>
+                                <span>No dealers found.</span>
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-        @if(method_exists($dealers, 'hasPages') &&$dealers->hasPages())
-            <div class="card-footer bg-white border-top py-3">
-                {{ $dealers->links('pagination::bootstrap-5') }}
-            </div>
+        @if(method_exists($dealers, 'hasPages') && $dealers->hasPages())
+        <div class="card-footer bg-white border-top py-3">
+            {{ $dealers->links('pagination::bootstrap-5') }}
+        </div>
         @endif
     </div>
 </div>
@@ -157,6 +157,21 @@
                         </div>
                     </div>
 
+                    <!-- Assigned Staff Handler Dropdown -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold fs-7 text-dark">Assigned Staff Handler</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
+                            <select class="form-select fs-7" id="created_by" name="created_by">
+                                <option value="">Select Staff Handler </option>
+                                @foreach($staffMembers as $staff)
+                                <option value="{{ $staff->id }}">{{ $staff->name }} (Staff)</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <small class="text-muted fs-8">Choose which staff member manages this dealer account.</small>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-semibold fs-7 text-dark">
                             Password <span id="pwdRequired" class="text-danger">*</span>
@@ -187,165 +202,173 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
-$(document).ready(function () {
+    $(document).ready(function() {
 
-    // Initialize Bootstrap Modal Instance
-    const dealerModalEl = document.getElementById('dealerModal');
-    const dealerModal = new bootstrap.Modal(dealerModalEl);
+        // Initialize Bootstrap Modal Instance
+        const dealerModalEl = document.getElementById('dealerModal');
+        const dealerModal = new bootstrap.Modal(dealerModalEl);
 
-    // Setup global CSRF header for jQuery AJAX
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // 1. Client-Side Live Search
-    // -------------------------------------------------------------------------
-    $('#dealerSearch').on('keyup', function () {
-        let value = $(this).val().toLowerCase().trim();
-        let visibleRows = 0;
-
-        $('.dealer-row').each(function () {
-            let name  = $(this).find('.dealer-name').text().toLowerCase();
-            let email = $(this).find('.dealer-email').text().toLowerCase();
-            let phone = $(this).find('.dealer-phone').text().toLowerCase();
-
-            if (name.includes(value) || email.includes(value) || phone.includes(value)) {
-                $(this).show();
-                visibleRows++;
-            } else {
-                $(this).hide();
+        // Setup global CSRF header for jQuery AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
 
-        if (visibleRows === 0 && value !== '') {
-            if ($('#searchEmptyRow').length === 0) {
-                $('#dealersTable tbody').append(`
+        // -------------------------------------------------------------------------
+        // 1. Client-Side Live Search
+        // -------------------------------------------------------------------------
+        $('#dealerSearch').on('keyup', function() {
+            let value = $(this).val().toLowerCase().trim();
+            let visibleRows = 0;
+
+            $('.dealer-row').each(function() {
+                let name = $(this).find('.dealer-name').text().toLowerCase();
+                let email = $(this).find('.dealer-email').text().toLowerCase();
+                let phone = $(this).find('.dealer-phone').text().toLowerCase();
+
+                if (name.includes(value) || email.includes(value) || phone.includes(value)) {
+                    $(this).show();
+                    visibleRows++;
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            if (visibleRows === 0 && value !== '') {
+                if ($('#searchEmptyRow').length === 0) {
+                    $('#dealersTable tbody').append(`
                     <tr id="searchEmptyRow">
                         <td colspan="6" class="text-center py-4 text-muted">No dealers matching "${value}".</td>
                     </tr>
                 `);
-            }
-        } else {
-            $('#searchEmptyRow').remove();
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // 2. Open Create Dealer Modal
-    // -------------------------------------------------------------------------
-    $('#btnCreateDealer').click(function () {
-        $('#dealerForm')[0].reset();
-        $('#dealer_id').val('');
-        $('#modalTitle').html('<i class="bi bi-shop me-2"></i>Add New Dealer');
-        $('#pwdRequired').removeClass('d-none');
-        $('#pwdHelp').text('(Min 6 characters)');
-        $('#errorBox').addClass('d-none').html('');
-        dealerModal.show();
-    });
-
-    // -------------------------------------------------------------------------
-    // 3. Open Edit Dealer Modal (Fetch record via AJAX)
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-edit', function () {
-        let id = $(this).data('id');$('#errorBox').addClass('d-none').html('');
-
-        $.ajax({
-            url: '/admin/users/' + id + '/edit',
-            type: 'GET',
-            success: function (res) {
-                if (res.success) {
-                    $('#dealer_id').val(res.data.id);
-                    $('#name').val(res.data.name);
-                    $('#email').val(res.data.email);
-                    $('#phone').val(res.data.phone);
-                    $('#password').val('');
-                    
-                    // Modify password requirements for editing mode
-                    $('#modalTitle').html('<i class="bi bi-pencil-square me-2"></i>Edit Dealer Account');
-                    $('#pwdRequired').addClass('d-none');
-                    $('#pwdHelp').text('(Leave blank to keep unchanged)');
-                    
-                    dealerModal.show();
                 }
-            },
-            error: function () {
-                alert('Failed to load dealer details. Please refresh the page.');
+            } else {
+                $('#searchEmptyRow').remove();
             }
         });
-    });
 
-    // -------------------------------------------------------------------------
-    // 4. Save/Update Dealer (Submit Form via AJAX)
-    // -------------------------------------------------------------------------
-    $('#dealerForm').submit(function (e) {
-        e.preventDefault();
-
-        let id = $('#dealer_id').val();
-        let url = id ? '/admin/users/' + id + '/update' : '{{ route("admin.dealers.store") }}';
-        
-        let $saveBtn =$('#saveBtn');
-        $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: $(this).serialize(),
-            success: function (res) {
-                $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
-                if (res.success) {
-                    dealerModal.hide();
-                    location.reload(); // Reload to refresh list & updated creator tags
-                }
-            },
-            error: function (xhr) {
-                $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorHtml = '<ul class="mb-0 ps-3">';
-                    $.each(errors, function (key, value) {
-                        errorHtml += '<li>' + value[0] + '</li>';
-                    });
-                    errorHtml += '</ul>';
-                    $('#errorBox').removeClass('d-none').html(errorHtml);
-                } else {
-                    alert('An error occurred. Please try again.');
-                }
-            }
+        // -------------------------------------------------------------------------
+        // 2. Open Create Dealer Modal
+        // -------------------------------------------------------------------------
+        $('#btnCreateDealer').click(function() {
+            $('#dealerForm')[0].reset();
+            $('#dealer_id').val('');
+            $('#modalTitle').html('<i class="bi bi-shop me-2"></i>Add New Dealer');
+            $('#pwdRequired').removeClass('d-none');
+            $('#pwdHelp').text('(Min 6 characters)');
+            $('#errorBox').addClass('d-none').html('');
+            dealerModal.show();
         });
-    });
 
-    // -------------------------------------------------------------------------
-    // 5. Delete Dealer Record via AJAX
-    // -------------------------------------------------------------------------
-    $(document).on('click', '.btn-delete', function () {
-        if (!confirm('Are you sure you want to delete this dealer? This action cannot be undone.')) {
-            return;
-        }
+        // -------------------------------------------------------------------------
+        // 3. Open Edit Dealer Modal (Fetch record via AJAX)
+        // -------------------------------------------------------------------------
+        $(document).on('click', '.btn-edit', function() {
+            let id = $(this).data('id');
+            $('#errorBox').addClass('d-none').html('');
 
-        let id = $(this).data('id');
-        let $row =$('#row-' + id);
+            $.ajax({
+                url: '/admin/users/' + id + '/edit',
+                type: 'GET',
+                success: function(res) {
+                    if (res.success) {
+                        $('#dealer_id').val(res.data.id);
+                        $('#name').val(res.data.name);
+                        $('#email').val(res.data.email);
+                        $('#phone').val(res.data.phone);
 
-        $.ajax({
-            url: '/admin/users/' + id + '/delete',
-            type: 'DELETE',
-            success: function (res) {
-                if (res.success) {
-                    $row.fadeOut(300, function () {$(this).remove(); 
-                        if ($('.dealer-row:visible').length === 0) {
-                            location.reload();
-                        }
-                    });
+                        // Populate assigned staff dropdown value if available
+                        $('#created_by').val(res.data.created_by || '');
+
+                        $('#password').val('');
+
+                        // Modify password requirements for editing mode
+                        $('#modalTitle').html('<i class="bi bi-pencil-square me-2"></i>Edit Dealer Account');
+                        $('#pwdRequired').addClass('d-none');
+                        $('#pwdHelp').text('(Leave blank to keep unchanged)');
+
+                        dealerModal.show();
+                    }
+                },
+                error: function() {
+                    alert('Failed to load dealer details. Please refresh the page.');
                 }
-            },
-            error: function () {
-                alert('Failed to delete dealer. Please try again.');
-            }
+            });
         });
-    });
 
-});
+        // -------------------------------------------------------------------------
+        // 4. Save/Update Dealer (Submit Form via AJAX)
+        // -------------------------------------------------------------------------
+
+
+        $('#dealerForm').submit(function(e) {
+            e.preventDefault();
+
+            let id = $('#dealer_id').val();
+            let url = id ? '/admin/dealers/' + id + '/update' : '{{ route("admin.dealers.store") }}';
+
+            let $saveBtn = $('#saveBtn');
+            $saveBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(res) {
+                    $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
+                    if (res.success) {
+                        dealerModal.hide();
+                        location.reload();
+                    }
+                },
+                error: function(xhr) {
+                    $saveBtn.prop('disabled', false).html('<i class="bi bi-check-circle-fill"></i> Save Changes');
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorHtml = '<ul class="mb-0 ps-3">';
+                        $.each(errors, function(key, value) {
+                            errorHtml += '<li>' + value[0] + '</li>';
+                        });
+                        errorHtml += '</ul>';
+                        $('#errorBox').removeClass('d-none').html(errorHtml);
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
+                }
+            });
+        });
+
+        // -------------------------------------------------------------------------
+        // 5. Delete Dealer Record via AJAX
+        // -------------------------------------------------------------------------
+        $(document).on('click', '.btn-delete', function() {
+            if (!confirm('Are you sure you want to delete this dealer? This action cannot be undone.')) {
+                return;
+            }
+
+            let id = $(this).data('id');
+            let $row = $('#row-' + id);
+
+            $.ajax({
+                url: '/admin/users/' + id + '/delete',
+                type: 'DELETE',
+                success: function(res) {
+                    if (res.success) {
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('.dealer-row:visible').length === 0) {
+                                location.reload();
+                            }
+                        });
+                    }
+                },
+                error: function() {
+                    alert('Failed to delete dealer. Please try again.');
+                }
+            });
+        });
+
+    });
 </script>
 @endpush

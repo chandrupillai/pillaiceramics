@@ -21,13 +21,27 @@
         <h4 class="fw-bold mb-1">Daily Sales Details</h4>
         <p class="text-muted fs-7 mb-0">Track product sales with product-type filtering, searchable Select2 product dropdowns, and transport data.</p>
     </div>
-    <button class="btn btn-primary fw-semibold px-3" onclick="openCreateModal()">
+    <button class="btn btn-primary fw-semibold px-3 w-100 w-md-auto" onclick="openCreateModal()">
         <i class="bi bi-plus-lg me-1"></i> Add New Sale
     </button>
 </div>
 
 <!-- Alert Container -->
 <div id="alertContainer"></div>
+
+<!-- Search & Filter Card -->
+<div class="card card-custom bg-white shadow-sm border-0 mb-4">
+    <div class="card-body p-3 p-md-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" id="tableSearch" class="form-control" placeholder="Search shop name, vehicle, etc..." onkeyup="loadSales(1)">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Data Table Card -->
 <div class="card card-custom bg-white shadow-sm border-0">
@@ -51,6 +65,15 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+    <!-- Pagination Footer -->
+    <div class="card-footer bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 border-top">
+        <span class="text-muted fs-7" id="paginationInfo">Showing 0 entries</span>
+        <nav>
+            <ul class="pagination pagination-sm mb-0" id="paginationLinks">
+                <!-- Pagination injected via JavaScript -->
+            </ul>
+        </nav>
     </div>
 </div>
 
@@ -160,9 +183,10 @@
 <script>
     const saleModal = new bootstrap.Modal(document.getElementById('saleModal'));
     const viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+    let currentPage = 1;
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadSales();
+        loadSales(1);
         document.getElementById('saleForm').addEventListener('submit', handleFormSubmit);
 
         $('#productId').select2({
@@ -220,30 +244,53 @@
             });
     }
 
-    function loadSales() {
-        fetch(`{{ route('admin.sales.fetch') }}`)
+    function loadSales(page = 1) {
+        currentPage = page;
+        const search = document.getElementById('tableSearch') ? document.getElementById('tableSearch').value : '';
+        
+        fetch(`{{ route('admin.sales.fetch') }}?page=${page}&search=${search}`)
             .then(res => res.json())
             .then(res => {
                 if (res.status) {
                     renderTable(res.data);
+                    renderPagination(res.data);
                 }
             });
     }
 
-    function renderTable(items) {
+    function renderTable(paginatedData) {
         const tbody = document.getElementById('salesTableBody');
+        const items = paginatedData.data || paginatedData;
+
+        // Handle case where endpoint returns regular array instead of paginator object
+        if (!paginatedData.data) {
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No sales records found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = items.map((item, index) => buildTableRow(item, index + 1)).join('');
+            return;
+        }
+
         if (items.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No sales records found.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = items.map((item, index) => `
+        tbody.innerHTML = items.map((item, index) => {
+            const rowNumber = (paginatedData.current_page - 1) * paginatedData.per_page + index + 1;
+            return buildTableRow(item, rowNumber);
+        }).join('');
+    }
+
+    function buildTableRow(item, rowNumber) {
+        return `
             <tr>
-                <td class="ps-3">${index + 1}</td>
+                <td class="ps-3">${rowNumber}</td>
                 <td><span class="fw-medium text-dark">${item.sale_date}</span></td>
                 <td><span class="badge bg-light text-dark border">${item.sales_person ? item.sales_person.name : 'N/A'}</span></td>
                 <td>
-                    <div class="fw-semibold text-dark">${item.product.product_name}</div>
+                    <div class="fw-semibold text-dark">${item.product ? item.product.product_name : (item.product_name || 'N/A')}</div>
                     <span class="badge bg-info-subtle text-info border border-info-subtle fs-8">${item.product_type ? item.product_type.name : 'General'}</span>
                 </td>
                 <td>${item.quantity}</td>
@@ -257,7 +304,37 @@
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `;
+    }
+
+    function renderPagination(paginatedData) {
+        const infoElem = document.getElementById('paginationInfo');
+        const paginationUL = document.getElementById('paginationLinks');
+
+        if (!paginatedData.links || !paginatedData.total) {
+            if (infoElem) infoElem.innerText = `Showing ${paginatedData.length || 0} entries`;
+            if (paginationUL) paginationUL.innerHTML = '';
+            return;
+        }
+
+        if (infoElem) {
+            infoElem.innerText = `Showing ${paginatedData.from || 0} to ${paginatedData.to || 0} of ${paginatedData.total} entries`;
+        }
+
+        let linksHtml = '';
+        paginatedData.links.forEach(link => {
+            let activeClass = link.active ? 'active' : '';
+            let disabledClass = !link.url ? 'disabled' : '';
+            let pageLabel = link.label.replace('&laquo;', '«').replace('&raquo;', '»');
+
+            linksHtml += `
+                <li class="page-item ${activeClass} ${disabledClass}">
+                    <a class="page-link" href="#" onclick="${link.url ? `loadSales(${new URL(link.url).searchParams.get('page')})` : 'return false;'}">${pageLabel}</a>
+                </li>
+            `;
+        });
+
+        if (paginationUL) paginationUL.innerHTML = linksHtml;
     }
 
     function openCreateModal() {
@@ -397,7 +474,7 @@
             .then(res => {
                 saleModal.hide();
                 showAlert(res.message, 'success');
-                loadSales();
+                loadSales(currentPage);
             })
             .catch(err => {
                 const errorDiv = document.getElementById('modalError');
@@ -423,7 +500,7 @@
             .then(res => res.json())
             .then(res => {
                 showAlert(res.message, res.status ? 'success' : 'danger');
-                if (res.status) loadSales();
+                if (res.status) loadSales(currentPage);
             });
     }
 
