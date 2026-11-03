@@ -11,7 +11,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1">New Whole Sale Invoice</h4>
-        <p class="text-muted fs-7 mb-0">Record multiple product sales under a single wholesale shop bill (up to 25 rows).</p>
+        <p class="text-muted fs-7 mb-0">Record multiple product sales under a single wholesale shop bill with manual pricing and row-level calculations.</p>
     </div>
     <a href="{{ route('admin.whole-sales.index') }}" class="btn btn-outline-secondary btn-sm fw-semibold">
         <i class="bi bi-arrow-left me-1"></i> Back to Whole Sales
@@ -65,10 +65,13 @@
                 <table class="table align-middle mb-0 fs-7">
                     <thead class="bg-light text-muted">
                         <tr>
-                            <th class="ps-3" style="width: 5%;">#</th>
-                            <th style="width: 25%;">Product Type <span class="text-danger">*</span></th>
-                            <th style="width: 45%;">Product Name / SKU <span class="text-danger">*</span></th>
-                            <th style="width: 20%;">Quantity <span class="text-danger">*</span></th>
+                            <th class="ps-3" style="width: 4%;">#</th>
+                            <th style="width: 20%;">Product Type <span class="text-danger">*</span></th>
+                            <th style="width: 32%;">Product Name / SKU <span class="text-danger">*</span></th>
+                            <th style="width: 11%;">Quantity <span class="text-danger">*</span></th>
+                            <th style="width: 11%;">Unit Price <span class="text-danger">*</span></th>
+                            <th style="width: 10%;">GST (Opt.)</th>
+                            <th style="width: 12%;">Total (₹)</th>
                             <th class="text-end pe-3" style="width: 5%;">Action</th>
                         </tr>
                     </thead>
@@ -126,7 +129,16 @@
                 </select>
             </td>
             <td>
-                <input type="number" step="0.01" name="items[${rowIndex}][quantity]" class="form-control form-control-sm" placeholder="Qty" required>
+                <input type="number" step="0.01" name="items[${rowIndex}][quantity]" id="qty_${rowIndex}" class="form-control form-control-sm" placeholder="Qty" required oninput="calculateRowTotal(${rowIndex})">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="items[${rowIndex}][unit_price]" id="price_${rowIndex}" class="form-control form-control-sm" placeholder="Price" required oninput="calculateRowTotal(${rowIndex})">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="items[${rowIndex}][gst_amount]" id="gst_${rowIndex}" class="form-control form-control-sm" placeholder="GST" oninput="calculateRowTotal(${rowIndex})">
+            </td>
+            <td>
+                <input type="number" step="0.01" name="items[${rowIndex}][total_amount]" id="total_${rowIndex}" class="form-control form-control-sm bg-light" placeholder="Total" readonly required>
             </td>
             <td class="text-end pe-3">
                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">
@@ -145,6 +157,15 @@
 
         rowIndex++;
         updateRowNumbers();
+    }
+
+    function calculateRowTotal(idx) {
+        const qty = parseFloat(document.getElementById(`qty_${idx}`).value) || 0;
+        const price = parseFloat(document.getElementById(`price_${idx}`).value) || 0;
+        const gst = parseFloat(document.getElementById(`gst_${idx}`).value) || 0;
+
+        const total = (qty * price) + gst;
+        document.getElementById(`total_${idx}`).value = total.toFixed(2);
     }
 
     function removeRow(btn) {
@@ -207,6 +228,9 @@
                 product_type_id: row.querySelector(`[name="items[${index}][product_type_id]"]`).value,
                 product_id: row.querySelector(`[name="items[${index}][product_id]"]`).value,
                 quantity: row.querySelector(`[name="items[${index}][quantity]"]`).value,
+                unit_price: row.querySelector(`[name="items[${index}][unit_price]"]`).value,
+                gst_amount: row.querySelector(`[name="items[${index}][gst_amount]"]`).value,
+                total_amount: row.querySelector(`[name="items[${index}][total_amount]"]`).value,
             });
         });
 

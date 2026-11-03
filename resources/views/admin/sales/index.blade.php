@@ -19,7 +19,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
         <h4 class="fw-bold mb-1">Daily Sales Details</h4>
-        <p class="text-muted fs-7 mb-0">Track product sales with product-type filtering, searchable Select2 product dropdowns, and transport data.</p>
+        <p class="text-muted fs-7 mb-0">Track product sales with pricing, optional GST calculation, automated stock subtraction, and transport data.</p>
     </div>
     <button class="btn btn-primary fw-semibold px-3 w-100 w-md-auto" onclick="openCreateModal()">
         <i class="bi bi-plus-lg me-1"></i> Add New Sale
@@ -53,9 +53,9 @@
                     <th>Date</th>
                     <th>Sales Person</th>
                     <th>Product & Type</th>
-                    <th>Quantity</th>
+                    <th>Quantity & Price</th>
+                    <th>Total Amount</th>
                     <th>Bill Shop Name</th>
-                    <th>Vehicle Info</th>
                     <th class="text-end pe-3">Actions</th>
                 </tr>
             </thead>
@@ -132,17 +132,34 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold fs-7">Quantity <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" name="quantity" id="quantity" class="form-control" placeholder="e.g. 150" required>
+                            <input type="number" step="0.01" name="quantity" id="quantity" class="form-control" placeholder="e.g. 150" required oninput="calculateTotal()">
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">Unit Price (₹) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="unit_price" id="unitPrice" class="form-control" placeholder="e.g. 450" required oninput="calculateTotal()">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">GST Amount (Optional)</label>
+                            <input type="number" step="0.01" name="gst_amount" id="gstAmount" class="form-control" placeholder="e.g. 50.00" oninput="calculateTotal()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">Total Amount (₹) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" name="total_amount" id="totalAmount" class="form-control bg-light" readonly required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold fs-7">Bill Shop Name <span class="text-danger">*</span></label>
                             <input type="text" name="bill_shop_name" id="billShopName" class="form-control" placeholder="e.g. Sri Murugan Traders" required>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold fs-7">Vehicle Information</label>
-                        <input type="text" name="vehicle_info" id="vehicleInfo" class="form-control" placeholder="e.g. TN 45 AB 1234 (Mini Truck)">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold fs-7">Vehicle Information</label>
+                            <input type="text" name="vehicle_info" id="vehicleInfo" class="form-control" placeholder="e.g. TN 45 AB 1234">
+                        </div>
                     </div>
 
                 </div>
@@ -166,12 +183,38 @@
             <div class="modal-body p-4 fs-7" id="viewModalBody">
                 <!-- Dynamically populated -->
             </div>
-            <div class="modal-footer bg-light">
+            <div class="modal-footer bg-light d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="printInvoice()">
+                    <i class="bi bi-printer me-1"></i> Print / Download Invoice
+                </button>
                 <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Print Styles for Modal Invoice -->
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #viewModalBody, #viewModalBody * {
+        visibility: visible;
+    }
+    #viewModalBody {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: #fff;
+    }
+    .modal-header, .modal-footer, .btn-close, .d-print-none {
+        display: none !important;
+    }
+}
+</style>
 @endsection
 
 @push('scripts')
@@ -204,6 +247,15 @@
             }
         });
     });
+
+    function calculateTotal() {
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('unitPrice').value) || 0;
+        const gst = parseFloat(document.getElementById('gstAmount').value) || 0;
+        
+        const total = (qty * price) + gst;
+        document.getElementById('totalAmount').value = total.toFixed(2);
+    }
 
     function onProductTypeChange(preselectProductId = null) {
         const typeId = document.getElementById('productTypeId').value;
@@ -262,7 +314,6 @@
         const tbody = document.getElementById('salesTableBody');
         const items = paginatedData.data || paginatedData;
 
-        // Handle case where endpoint returns regular array instead of paginator object
         if (!paginatedData.data) {
             if (items.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No sales records found.</td></tr>';
@@ -293,9 +344,9 @@
                     <div class="fw-semibold text-dark">${item.product ? item.product.product_name : (item.product_name || 'N/A')}</div>
                     <span class="badge bg-info-subtle text-info border border-info-subtle fs-8">${item.product_type ? item.product_type.name : 'General'}</span>
                 </td>
-                <td>${item.quantity}</td>
+                <td>${item.quantity} Qty @ ₹${item.unit_price}</td>
+                <td><span class="fw-bold text-success">₹${item.total_amount}</span></td>
                 <td>${item.bill_shop_name}</td>
-                <td>${item.vehicle_info ? `<span class="text-muted"><i class="bi bi-truck me-1"></i>${item.vehicle_info}</span>` : '<span class="text-muted">N/A</span>'}</td>
                 <td class="text-end pe-3">
                     <div class="btn-group btn-group-sm">
                         <button onclick="viewSale(${item.id})" class="btn btn-outline-primary" title="View Details"><i class="bi bi-eye-fill"></i></button>
@@ -356,18 +407,31 @@
                 if (res.status) {
                     const item = res.data;
                     document.getElementById('viewModalBody').innerHTML = `
-                        <p><strong>Sale Date:</strong> ${item.sale_date}</p>
-                        <p><strong>Sales Person:</strong> ${item.sales_person ? item.sales_person.name : 'N/A'}</p>
+                        <div class="text-center mb-3">
+                            <h4 class="fw-bold text-primary mb-1">Maharaja Tiles</h4>
+                            <p class="text-muted small mb-0">Daily Sales Receipt</p>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-6"><strong>Sale Date:</strong> ${item.sale_date}</div>
+                            <div class="col-6 text-end"><strong>Sales Person:</strong> ${item.sales_person ? item.sales_person.name : 'N/A'}</div>
+                            <div class="col-6 mt-2"><strong>Shop Name:</strong> ${item.bill_shop_name}</div>
+                            <div class="col-6 mt-2 text-end"><strong>Vehicle Info:</strong> ${item.vehicle_info || 'N/A'}</div>
+                        </div>
                         <p><strong>Product Type:</strong> ${item.product_type ? item.product_type.name : 'N/A'}</p>
-                        <p><strong>Product Name:</strong> ${item.product_name}</p>
+                        <p><strong>Product Name:</strong> ${item.product ? item.product.product_name : (item.product_name || 'N/A')}</p>
                         <p><strong>Quantity:</strong> ${item.quantity}</p>
-                        <p><strong>Bill Shop Name:</strong> ${item.bill_shop_name}</p>
-                        <p><strong>Vehicle Info:</strong> ${item.vehicle_info || 'N/A'}</p>
-                        <p><strong>Created At:</strong> ${item.created_at}</p>
+                        <p><strong>Unit Price:</strong> ₹${parseFloat(item.unit_price || 0).toFixed(2)}</p>
+                        <p><strong>GST Amount:</strong> ₹${parseFloat(item.gst_amount || 0).toFixed(2)}</p>
+                        <hr>
+                        <p class="fs-6 fw-bold text-success">Total Amount: ₹${parseFloat(item.total_amount || 0).toFixed(2)}</p>
                     `;
                     viewModal.show();
                 }
             });
+    }
+
+    function printInvoice() {
+        window.print();
     }
 
     async function editSale(id) {
@@ -387,6 +451,9 @@
                 document.getElementById('userId').value = item.user_id || '';
                 document.getElementById('saleDate').value = item.sale_date || '';
                 document.getElementById('quantity').value = item.quantity || '';
+                document.getElementById('unitPrice').value = item.unit_price || '';
+                document.getElementById('gstAmount').value = item.gst_amount || '';
+                document.getElementById('totalAmount').value = item.total_amount || '';
                 document.getElementById('billShopName').value = item.bill_shop_name || '';
                 document.getElementById('vehicleInfo').value = item.vehicle_info || '';
                 document.getElementById('productNameHidden').value = item.product_name || '';

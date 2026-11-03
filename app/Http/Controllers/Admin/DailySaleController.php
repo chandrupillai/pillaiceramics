@@ -49,20 +49,39 @@ class DailySaleController extends Controller
             'quantity'        => 'required|numeric|min:0.01',
             'bill_shop_name'  => 'required|string|max:255',
             'vehicle_info'    => 'nullable|string|max:255',
+            'unit_price'      => 'required|numeric|min:0',
+            'gst_amount'      => 'nullable|numeric|min:0',
+            'total_amount'    => 'required|numeric|min:0',
         ]);
 
-        $product = TileProduct::find($validated['product_id']);
-        if ($product && $product->tile_size_id) {
-            $validated['tile_size_id'] = $product->tile_size_id;
-        }
+        return DB::transaction(function () use ($validated) {
+            $product = TileProduct::lockForUpdate()->find($validated['product_id']);
+            if ($product && $product->tile_size_id) {
+                $validated['tile_size_id'] = $product->tile_size_id;
+            }
 
-        $sale = DailySale::create($validated);
+            if ($product) {
+                if ($product->stock_quantity < $validated['quantity']) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Insufficient stock available. Current stock: ' . $product->stock_quantity
+                    ], 422);
+                }
+                
+                // Directly decrement stock on database
+                DB::table('tile_products')
+                    ->where('id', $validated['product_id'])
+                    ->decrement('stock_quantity', $validated['quantity']);
+            }
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Daily sale recorded successfully.',
-            'data'    => $sale->load(['salesPerson', 'productType', 'product']),
-        ], 201);
+            $sale = DailySale::create($validated);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Daily sale recorded successfully and stock updated.',
+                'data'    => $sale->load(['salesPerson', 'productType', 'product']),
+            ], 201);
+        });
     }
 
     public function show($id)
@@ -97,31 +116,79 @@ class DailySaleController extends Controller
             'quantity'        => 'required|numeric|min:0.01',
             'bill_shop_name'  => 'required|string|max:255',
             'vehicle_info'    => 'nullable|string|max:255',
+            'unit_price'      => 'required|numeric|min:0',
+            'gst_amount'      => 'nullable|numeric|min:0',
+            'total_amount'    => 'required|numeric|min:0',
         ]);
 
-        $product = TileProduct::find($validated['product_id']);
-        if ($product && $product->tile_size_id) {
-            $validated['tile_size_id'] = $product->tile_size_id;
-        }
+        return DB::transaction(function () use ($request, $sale, $validated) {
+            $oldProductId = $sale->product_id;
+            $oldQuantity = $sale->quantity;
 
-        $sale->update($validated);
+            $product = TileProduct::lockForUpdate()->find($validated['product_id']);
+            if ($product && $product->tile_size_id) {
+                $validated['tile_size_id'] = $product->tile_size_id;
+            }
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Daily sale updated successfully.',
-            'data'    => $sale->load(['salesPerson', 'productType', 'product']),
-        ]);
+            // Revert old stock if product or quantity changed
+            if ($oldProductId == $validated['product_id']) {
+                $diff = $validated['quantity'] - $oldQuantity; // positive means more stock taken
+                if ($product->stock_quantity < $diff) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Insufficient stock available for update. Current stock: ' . $product->stock_quantity
+                    ], 422);
+                }
+                
+                DB::table('tile_products')
+                    ->where('id', $validated['product_id'])
+                    ->decrement('stock_quantity', $diff);
+            } else {
+                // Return stock to old product
+                DB::table('tile_products')
+                    ->where('id', $oldProductId)
+                    ->increment('stock_quantity', $oldQuantity);
+
+                // Deduct from new product
+                if ($product->stock_quantity < $validated['quantity']) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Insufficient stock available. Current stock: ' . $product->stock_quantity
+                    ], 422);
+                }
+                
+                DB::table('tile_products')
+                    ->where('id', $validated['product_id'])
+                    ->decrement('stock_quantity', $validated['quantity']);
+            }
+
+            $sale->update($validated);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Daily sale updated successfully and stock adjusted.',
+                'data'    => $sale->load(['salesPerson', 'productType', 'product']),
+            ]);
+        });
     }
 
     public function destroy($id)
     {
-        $sale = DailySale::findOrFail($id);
-        $sale->delete();
+        return DB::transaction(function () use ($id) {
+            $sale = DailySale::findOrFail($id);
+            
+            // Return stock back upon deletion using direct increment
+            DB::table('tile_products')
+                ->where('id', $sale->product_id)
+                ->increment('stock_quantity', $sale->quantity);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Sale record deleted successfully.',
-        ]);
+            $sale->delete();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Sale record deleted and stock restored successfully.',
+            ]);
+        });
     }
 
     public function searchProducts(Request $request)
@@ -159,7 +226,7 @@ class DailySaleController extends Controller
     }
 
     // ==========================================
-    // WHOLE SALES METHODS (Restored)
+    // WHOLE SALES METHODS (Restored & Updated)
     // ==========================================
 
     public function wholeSalesIndex()
@@ -170,7 +237,15 @@ class DailySaleController extends Controller
     public function wholeSalesFetch(Request $request)
     {
         $sales = DailySale::with(['salesPerson', 'productType', 'product'])
-            ->select('bill_shop_name', 'sale_date', 'user_id', \DB::raw('COUNT(*) as total_items'), \DB::raw('SUM(quantity) as total_quantity'), \DB::raw('MIN(id) as id'))
+            ->select(
+                'bill_shop_name', 
+                'sale_date', 
+                'user_id', 
+                \DB::raw('COUNT(*) as total_items'), 
+                \DB::raw('SUM(quantity) as total_quantity'), 
+                \DB::raw('SUM(total_amount) as total_invoice_amount'),
+                \DB::raw('MIN(id) as id')
+            )
             ->groupBy('bill_shop_name', 'sale_date', 'user_id')
             ->latest('sale_date')
             ->get();
@@ -199,43 +274,71 @@ class DailySaleController extends Controller
             'items.*.product_type_id' => 'required|exists:product_types,id',
             'items.*.product_id'      => 'required|exists:tile_products,id',
             'items.*.quantity'        => 'required|numeric|min:0.01',
+            'items.*.unit_price'      => 'required|numeric|min:0',
+            'items.*.gst_amount'      => 'nullable|numeric|min:0',
+            'items.*.total_amount'    => 'required|numeric|min:0',
         ]);
 
-        foreach ($validated['items'] as $item) {
-            $product = TileProduct::find($item['product_id']);
+        return DB::transaction(function () use ($validated) {
+            foreach ($validated['items'] as $item) {
+                $product = TileProduct::lockForUpdate()->find($item['product_id']);
 
-            DailySale::create([
-                'user_id'         => $validated['user_id'],
-                'sale_date'       => $validated['sale_date'],
-                'bill_shop_name'  => $validated['bill_shop_name'],
-                'vehicle_info'    => $validated['vehicle_info'] ?? null,
-                'product_type_id' => $item['product_type_id'],
-                'product_id'      => $item['product_id'],
-                'quantity'        => $item['quantity'],
-                'tile_size_id'    => $product->tile_size_id ?? null,
-            ]);
-        }
+                if ($product) {
+                    if ($product->stock_quantity < $item['quantity']) {
+                        throw new \Exception("Insufficient stock for product: {$product->product_name}. Available: {$product->stock_quantity}");
+                    }
+                    
+                    DB::table('tile_products')
+                        ->where('id', $item['product_id'])
+                        ->decrement('stock_quantity', $item['quantity']);
+                }
 
-        return response()->json([
-            'status'   => true,
-            'message'  => 'Whole sales batch recorded successfully.',
-            'redirect' => route('admin.whole-sales.index'),
-        ], 201);
+                DailySale::create([
+                    'user_id'         => $validated['user_id'],
+                    'sale_date'       => $validated['sale_date'],
+                    'bill_shop_name'  => $validated['bill_shop_name'],
+                    'vehicle_info'    => $validated['vehicle_info'] ?? null,
+                    'product_type_id' => $item['product_type_id'],
+                    'product_id'      => $item['product_id'],
+                    'quantity'        => $item['quantity'],
+                    'unit_price'      => $item['unit_price'],
+                    'gst_amount'      => $item['gst_amount'] ?? 0,
+                    'total_amount'    => $item['total_amount'],
+                    'tile_size_id'    => $product->tile_size_id ?? null,
+                ]);
+            }
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Whole sales batch recorded successfully and stock updated.',
+                'redirect' => route('admin.whole-sales.index'),
+            ], 201);
+        });
     }
 
     public function wholeSalesDestroyGroup(Request $request, $billShopName)
     {
-        $date = $request->get('date');
-        $query = DailySale::where('bill_shop_name', $billShopName);
-        if ($date) {
-            $query->where('sale_date', $date);
-        }
-        $query->delete();
+        return DB::transaction(function () use ($request, $billShopName) {
+            $date = $request->get('date');
+            $query = DailySale::where('bill_shop_name', $billShopName);
+            if ($date) {
+                $query->where('sale_date', $date);
+            }
+            $sales = $query->get();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Whole sale invoice records deleted successfully.',
-        ]);
+            foreach ($sales as $sale) {
+                DB::table('tile_products')
+                    ->where('id', $sale->product_id)
+                    ->increment('stock_quantity', $sale->quantity);
+
+                $sale->delete();
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Whole sale invoice records deleted and stock restored successfully.',
+            ]);
+        });
     }
 
     public function wholeSalesShow(Request $request, $billShopName)
@@ -293,32 +396,60 @@ class DailySaleController extends Controller
             'items.*.product_type_id' => 'required|exists:product_types,id',
             'items.*.product_id'      => 'required|exists:tile_products,id',
             'items.*.quantity'        => 'required|numeric|min:0.01',
+            'items.*.unit_price'      => 'required|numeric|min:0',
+            'items.*.gst_amount'      => 'nullable|numeric|min:0',
+            'items.*.total_amount'    => 'required|numeric|min:0',
         ]);
 
-        DailySale::where('bill_shop_name', $billShopName)
-            ->when($oldDate, fn($q) => $q->where('sale_date', $oldDate))
-            ->delete();
+        return DB::transaction(function () use ($request, $oldDate, $billShopName, $validated) {
+            $existingSales = DailySale::where('bill_shop_name', $billShopName)
+                ->when($oldDate, fn($q) => $q->where('sale_date', $oldDate))
+                ->get();
 
-        foreach ($validated['items'] as $item) {
-            $product = TileProduct::find($item['product_id']);
+            // Revert stock for existing items before updating
+            foreach ($existingSales as $sale) {
+                DB::table('tile_products')
+                    ->where('id', $sale->product_id)
+                    ->increment('stock_quantity', $sale->quantity);
 
-            DailySale::create([
-                'user_id'         => $validated['user_id'],
-                'sale_date'       => $validated['sale_date'],
-                'bill_shop_name'  => $validated['bill_shop_name'],
-                'vehicle_info'    => $validated['vehicle_info'] ?? null,
-                'product_type_id' => $item['product_type_id'],
-                'product_id'      => $item['product_id'],
-                'quantity'        => $item['quantity'],
-                'tile_size_id'    => $product->tile_size_id ?? null,
+                $sale->delete();
+            }
+
+            // Create new items and deduct stock
+            foreach ($validated['items'] as $item) {
+                $product = TileProduct::lockForUpdate()->find($item['product_id']);
+
+                if ($product) {
+                    if ($product->stock_quantity < $item['quantity']) {
+                        throw new \Exception("Insufficient stock for product: {$product->product_name}. Available: {$product->stock_quantity}");
+                    }
+                    
+                    DB::table('tile_products')
+                        ->where('id', $item['product_id'])
+                        ->decrement('stock_quantity', $item['quantity']);
+                }
+
+                DailySale::create([
+                    'user_id'         => $validated['user_id'],
+                    'sale_date'       => $validated['sale_date'],
+                    'bill_shop_name'  => $validated['bill_shop_name'],
+                    'vehicle_info'    => $validated['vehicle_info'] ?? null,
+                    'product_type_id' => $item['product_type_id'],
+                    'product_id'      => $item['product_id'],
+                    'quantity'        => $item['quantity'],
+                    'unit_price'      => $item['unit_price'],
+                    'gst_amount'      => $item['gst_amount'] ?? 0,
+                    'total_amount'    => $item['total_amount'],
+                    'tile_size_id'    => $product->tile_size_id ?? null,
+                ]);
+            }
+
+            return response()->json([
+                'status'   => true,
+                'message'  => 'Whole sale invoice updated successfully and stock adjusted.',
+                'redirect' => route('admin.whole-sales.index'),
             ]);
-        }
-
-        return response()->json([
-            'status'   => true,
-            'message'  => 'Whole sale invoice updated successfully.',
-            'redirect' => route('admin.whole-sales.index'),
-        ]);
+        });
     }
 
     public function reports()
@@ -342,14 +473,14 @@ class DailySaleController extends Controller
                 $dateParts = explode('-', $month);
                 if (count($dateParts) === 2) {
                     $q->whereYear('sale_date', $dateParts[0])
-                      ->whereMonth('sale_date', $dateParts[1]);
+                        ->whereMonth('sale_date', $dateParts[1]);
                 }
             })
             ->when($request->get('product_id'), function ($q, $productId) {
                 $q->where('product_id', $productId);
             })
-            ->when($search, function($q, $s) {
-                $q->where(function($sub) use ($s) {
+            ->when($search, function ($q, $s) {
+                $q->where(function ($sub) use ($s) {
                     $sub->where('bill_shop_name', 'LIKE', "%{$s}%")
                         ->orWhere('vehicle_info', 'LIKE', "%{$s}%");
                 });

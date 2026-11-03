@@ -19,7 +19,10 @@ class DailySale extends Model
         'bill_shop_name',
         'vehicle_info',
         'product_id',
-        'product_type_id'
+        'product_type_id',
+        'unit_price',
+        'total_amount',
+        'gst_amount'
     ];
 
     // Relationship to Sales Person (User)

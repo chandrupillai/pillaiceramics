@@ -16,13 +16,36 @@ use Illuminate\Support\Facades\Storage;
 
 class TileProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location'])
-            ->latest()
-            ->paginate(15);
+        $query = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location']);
 
-        return view('admin.tile_products.index', compact('products'));
+        // Handle Search Filter (Product Name or SKU)
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('product_name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        // Handle Category Filter
+        if ($request->filled('category_id')) {
+            $query->where('tile_category_id', $request->input('category_id'));
+        }
+
+        // Handle Type Filter
+        if ($request->filled('type_id')) {
+            $query->where('tile_type_id', $request->input('type_id'));
+        }
+
+        $products = $query->latest()->paginate(15);
+
+        // Fetch dropdown lists for filter form
+        $categories = TileCategory::where('is_active', true)->get();
+        $types      = TileType::where('is_active', true)->get();
+
+        return view('admin.tile_products.index', compact('products', 'categories', 'types'));
     }
 
     public function create()
@@ -36,7 +59,13 @@ class TileProductController extends Controller
         $locations           = Location::all();
 
         return view('admin.tile_products.create', compact(
-            'categories', 'types', 'sizes', 'productTypes', 'productionCompanies', 'godowns', 'locations'
+            'categories',
+            'types',
+            'sizes',
+            'productTypes',
+            'productionCompanies',
+            'godowns',
+            'locations'
         ));
     }
 
@@ -75,7 +104,7 @@ class TileProductController extends Controller
     public function show($id)
     {
         $product = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location'])->findOrFail($id);
-        
+
         return view('admin.tile_products.show', compact('product'));
     }
 
@@ -91,7 +120,14 @@ class TileProductController extends Controller
         $locations           = Location::all();
 
         return view('admin.tile_products.edit', compact(
-            'product', 'categories', 'types', 'sizes', 'productTypes', 'productionCompanies', 'godowns', 'locations'
+            'product',
+            'categories',
+            'types',
+            'sizes',
+            'productTypes',
+            'productionCompanies',
+            'godowns',
+            'locations'
         ));
     }
 
@@ -135,7 +171,7 @@ class TileProductController extends Controller
     public function destroy($id)
     {
         $product = TileProduct::findOrFail($id);
-        
+
         if ($product->image && Storage::disk('public')->exists($product->image)) {
             Storage::disk('public')->delete($product->image);
         }
@@ -151,5 +187,20 @@ class TileProductController extends Controller
             ->get();
 
         return view('admin.tile_products.print-all', compact('products'));
+    }
+    public function updateQuantity(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'stock_quantity' => 'required|integer|min:0',
+        ]);
+
+        $product = TileProduct::findOrFail($id);
+        $product->stock_quantity = $validated['stock_quantity'];
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Stock quantity updated successfully.'
+        ]);
     }
 }

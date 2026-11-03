@@ -6,7 +6,7 @@
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
         <h4 class="fw-bold mb-1">Whole Sales Invoices</h4>
-        <p class="text-muted fs-7 mb-0">Manage multi-product wholesale bills and transport orders.</p>
+        <p class="text-muted fs-7 mb-0">Manage multi-product wholesale bills, total pricing, and transport orders.</p>
     </div>
     <a href="{{ route('admin.whole-sales.create') }}" class="btn btn-primary fw-semibold px-3">
         <i class="bi bi-plus-lg me-1"></i> Add Whole Sale
@@ -26,17 +26,19 @@
                     <th>Sales Person</th>
                     <th>Total Items</th>
                     <th>Total Qty</th>
+                    <th>Total Amount</th>
                     <th class="text-end pe-3">Actions</th>
                 </tr>
             </thead>
             <tbody id="wholeSalesTableBody">
                 <tr>
-                    <td colspan="7" class="text-center py-4">Loading whole sales records...</td>
+                    <td colspan="8" class="text-center py-4">Loading whole sales records...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
+
 <!-- View Whole Sale Invoice Modal -->
 <div class="modal fade" id="viewWholeSaleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -48,12 +50,38 @@
             <div class="modal-body p-4 fs-7" id="viewModalBody">
                 Loading...
             </div>
-            <div class="modal-footer bg-light">
+            <div class="modal-footer bg-light d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary btn-sm px-3" onclick="printInvoice()">
+                    <i class="bi bi-printer me-1"></i> Print / Download Invoice
+                </button>
                 <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Printable Invoice Styles -->
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #viewModalBody, #viewModalBody * {
+        visibility: visible;
+    }
+    #viewModalBody {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: #fff;
+    }
+    .modal-header, .modal-footer, .btn-close, .d-print-none {
+        display: none !important;
+    }
+}
+</style>
 @endsection
 
 @push('scripts')
@@ -75,26 +103,27 @@
     function renderTable(items) {
         const tbody = document.getElementById('wholeSalesTableBody');
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No whole sales invoices found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No whole sales invoices found.</td></tr>';
             return;
         }
 
         tbody.innerHTML = items.map((item, index) => `
             <tr>
-            <td class="ps-3">${index + 1}</td>
-            <td><span class="fw-medium text-dark">${item.sale_date}</span></td>
-            <td><span class="fw-bold text-primary">${item.bill_shop_name}</span></td>
-            <td><span class="badge bg-light text-dark border">${item.sales_person ? item.sales_person.name : 'N/A'}</span></td>
-            <td><span class="badge bg-info-subtle text-info border border-info-subtle">${item.total_items} Items</span></td>
-            <td class="fw-bold">${item.total_quantity}</td>
-            <td class="text-end pe-3">
-                <div class="btn-group btn-group-sm">
-                    <button onclick="viewWholeSale('${encodeURIComponent(item.bill_shop_name)}', '${item.sale_date}')" class="btn btn-outline-primary" title="View Invoice"><i class="bi bi-eye-fill"></i></button>
-                    <a href="{{ url('admin/whole-sales') }}/${encodeURIComponent(item.bill_shop_name)}/edit?date=${item.sale_date}" class="btn btn-outline-secondary" title="Edit Invoice"><i class="bi bi-pencil-fill"></i></a>
-                    <button onclick="deleteWholeSale('${item.bill_shop_name}', '${item.sale_date}')" class="btn btn-outline-danger" title="Delete Invoice"><i class="bi bi-trash-fill"></i></button>
-                </div>
-            </td>
-        </tr>
+                <td class="ps-3">${index + 1}</td>
+                <td><span class="fw-medium text-dark">${item.sale_date}</span></td>
+                <td><span class="fw-bold text-primary">${item.bill_shop_name}</span></td>
+                <td><span class="badge bg-light text-dark border">${item.sales_person ? item.sales_person.name : 'N/A'}</span></td>
+                <td><span class="badge bg-info-subtle text-info border border-info-subtle">${item.total_items} Items</span></td>
+                <td class="fw-bold">${item.total_quantity}</td>
+                <td class="fw-bold text-success">₹${parseFloat(item.total_invoice_amount || 0).toFixed(2)}</td>
+                <td class="text-end pe-3">
+                    <div class="btn-group btn-group-sm">
+                        <button onclick="viewWholeSale('${encodeURIComponent(item.bill_shop_name)}', '${item.sale_date}')" class="btn btn-outline-primary" title="View Invoice"><i class="bi bi-eye-fill"></i></button>
+                        <a href="{{ url('admin/whole-sales') }}/${encodeURIComponent(item.bill_shop_name)}/edit?date=${item.sale_date}" class="btn btn-outline-secondary" title="Edit Invoice"><i class="bi bi-pencil-fill"></i></a>
+                        <button onclick="deleteWholeSale('${item.bill_shop_name}', '${item.sale_date}')" class="btn btn-outline-danger" title="Delete Invoice"><i class="bi bi-trash-fill"></i></button>
+                    </div>
+                </td>
+            </tr>
         `).join('');
     }
 
@@ -123,6 +152,7 @@
             </div>
         `;
     }
+
     const viewModal = new bootstrap.Modal(document.getElementById('viewWholeSaleModal'));
 
     function viewWholeSale(encodedShopName, date) {
@@ -131,14 +161,34 @@
             .then(res => {
                 if (res.status) {
                     const data = res.data;
+                    let grandTotal = 0;
+
+                    let itemsHtml = data.items.map((item, idx) => {
+                        grandTotal += parseFloat(item.total_amount || 0);
+                        return `
+                            <tr>
+                                <td>${idx + 1}</td>
+                                <td>${item.product_type ? item.product_type.name : 'N/A'}</td>
+                                <td>${item.product ? item.product.product_name : 'N/A'}</td>
+                                <td>${item.quantity}</td>
+                                <td>₹${parseFloat(item.unit_price || 0).toFixed(2)}</td>
+                                <td>₹${parseFloat(item.gst_amount || 0).toFixed(2)}</td>
+                                <td class="fw-bold text-success">₹${parseFloat(item.total_amount || 0).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    }).join('');
+
                     document.getElementById('viewModalBody').innerHTML = `
-                        <div class="row mb-3">
-                            <div class="col-md-6"><strong>Bill Shop Name:</strong> ${data.bill_shop_name}</div>
-                            <div class="col-md-6"><strong>Sale Date:</strong> ${data.sale_date}</div>
-                            <div class="col-md-6 mt-2"><strong>Sales Person:</strong> ${data.sales_person}</div>
-                            <div class="col-md-6 mt-2"><strong>Vehicle Info:</strong> ${data.vehicle_info}</div>
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-primary mb-1">Maharaja Tiles</h4>
+                            <p class="text-muted small mb-0">Whole Sale Tax Invoice</p>
                         </div>
-                        <hr>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-md-6"><strong>Bill Shop Name:</strong> ${data.bill_shop_name}</div>
+                            <div class="col-md-6 text-md-end"><strong>Sale Date:</strong> ${data.sale_date}</div>
+                            <div class="col-md-6 mt-2"><strong>Sales Person:</strong> ${data.sales_person}</div>
+                            <div class="col-md-6 mt-2 text-md-end"><strong>Vehicle Info:</strong> ${data.vehicle_info}</div>
+                        </div>
                         <h6 class="fw-bold mb-2">Purchased Items</h6>
                         <table class="table table-bordered table-sm">
                             <thead class="bg-light">
@@ -146,24 +196,30 @@
                                     <th>#</th>
                                     <th>Product Type</th>
                                     <th>Product Name</th>
-                                    <th>Quantity</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>GST</th>
+                                    <th>Total (₹)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${data.items.map((item, idx) => `
-                                    <tr>
-                                        <td>${idx + 1}</td>
-                                        <td>${item.product_type ? item.product_type.name : 'N/A'}</td>
-                                        <td>${item.product ? item.product.product_name : 'N/A'}</td>
-                                        <td><span class="fw-bold text-primary">${item.quantity}</span></td>
-                                    </tr>
-                                `).join('')}
+                                ${itemsHtml}
                             </tbody>
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan="6" class="text-end fw-bold">Grand Total:</td>
+                                    <td class="fw-bold text-success">₹${grandTotal.toFixed(2)}</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     `;
                     viewModal.show();
                 }
             });
+    }
+
+    function printInvoice() {
+        window.print();
     }
 </script>
 @endpush
