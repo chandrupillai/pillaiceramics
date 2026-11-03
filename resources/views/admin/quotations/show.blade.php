@@ -33,15 +33,20 @@
         <div class="card-body p-4 p-md-5">
             
             <!-- Brand Header -->
+            <!-- Brand Header -->
             <div class="row align-items-center mb-4">
                 <div class="col-7">
                     <div class="d-flex align-items-center gap-3">
-                        @if($company && $company->logo)
-                            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="company-logo">
+                        @if($company && !empty($company->logo))
+                            <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->company_name ?? 'Logo' }}" class="company-logo">
                         @else
                             <div class="brand-text">
-                                <h1 class="fw-bold mb-0 text-primary-dark">PILLAI</h1>
-                                <h4 class="fw-semibold tracking-wider text-dark mb-0">CERAMICS</h4>
+                                <h1 class="fw-bold mb-0 text-primary-dark">
+                                    {{ strtoupper(Str::before($company->company_name ?? 'Pillai Ceramics', ' ')) }}
+                                </h1>
+                                <h4 class="fw-semibold tracking-wider text-dark mb-0">
+                                    {{ strtoupper(Str::after($company->company_name ?? 'Pillai Ceramics', ' ')) }}
+                                </h4>
                                 <small class="text-muted border-top border-secondary pt-1 d-inline-block">TILES FOR A BETTER TOMORROW</small>
                             </div>
                         @endif

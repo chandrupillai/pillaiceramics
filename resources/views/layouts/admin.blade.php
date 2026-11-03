@@ -109,11 +109,18 @@
 
     <!-- Sidebar Navigation -->
     <aside id="sidebar">
+        @php
+            $layoutCompany = \App\Models\Company::first();
+        @endphp
         <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-25">
-            <a href="{{ route('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center gap-2">
-                <span class="fs-4 fw-bold text-white">Pillai<span class="text-info">Ceramics</span></span>
+            <a href="{{ route('admin.dashboard') }}" class="text-decoration-none d-flex align-items-center justify-content-center w-100 py-1">
+                @if($layoutCompany && !empty($layoutCompany->logo))
+                    <img src="{{ asset('storage/' . $layoutCompany->logo) }}" alt="{{ $layoutCompany->company_name ?? 'Logo' }}" style="max-height: 65px; width: auto; object-fit: contain;">
+                @else
+                    <span class="fs-4 fw-bold text-white">{{ $layoutCompany->company_name ?? 'Pillai Ceramics' }}</span>
+                @endif
             </a>
-            <button class="btn btn-sm text-white d-lg-none" id="sidebarClose"><i class="bi bi-x-lg"></i></button>
+            <button class="btn btn-sm text-white d-lg-none position-absolute end-0 me-3" id="sidebarClose"><i class="bi bi-x-lg"></i></button>
         </div>
 
         <div class="px-3 pt-3 pb-2">
@@ -338,28 +345,72 @@
                     <span>Products & Stock</span>
                 </a>
             </li>
-            <div class="collapse {{ request()->routeIs('admin.sales.*') ? 'show' : '' }}" id="salesSubmenu">
-                <ul class="nav flex-column ps-2">
-                    <li class="nav-item">
-                        <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.index') ? 'active' : '' }}">
-                            <i class="bi bi-list-ul"></i>
-                            <span>Sales Records</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.sales.reports') }}" class="nav-link {{ request()->routeIs('admin.sales.reports') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                            <span>Sales Reports</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('admin.whole-sales.index') }}" class="nav-link {{ request()->routeIs('admin.whole-sales.*') ? 'active' : '' }}">
-                            <i class="bi bi-shop"></i>
-                            <span>Whole Sales</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+
+            <!-- Daily Sales Submenu for Staff -->
+            <li class="nav-item">
+                <a href="#staffSalesSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.sales.*') || request()->routeIs('admin.whole-sales.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.sales.*') || request()->routeIs('admin.whole-sales.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cart-check-fill"></i>
+                        <span>Daily Sales</span>
+                    </div>
+                    <i class="bi bi-chevron-down fs-8"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.sales.*') || request()->routeIs('admin.whole-sales.*') ? 'show' : '' }}" id="staffSalesSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-ul"></i>
+                                <span>Sales Records</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.sales.reports') }}" class="nav-link {{ request()->routeIs('admin.sales.reports') ? 'active' : '' }}">
+                                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                                <span>Sales Reports</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.whole-sales.index') }}" class="nav-link {{ request()->routeIs('admin.whole-sales.*') ? 'active' : '' }}">
+                                <i class="bi bi-shop"></i>
+                                <span>Whole Sales</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            <!-- Quotations Submenu for Staff -->
+            <li class="nav-item">
+                <a href="#staffQuotationsSubmenu" data-bs-toggle="collapse" class="nav-link d-flex justify-content-between align-items-center {{ request()->routeIs('admin.quotations.*') ? 'active' : '' }}" aria-expanded="{{ request()->routeIs('admin.quotations.*') ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        <span>Quotations</span>
+                    </div>
+                    <i class="bi bi-chevron-down fs-8"></i>
+                </a>
+                <div class="collapse {{ request()->routeIs('admin.quotations.*') ? 'show' : '' }}" id="staffQuotationsSubmenu">
+                    <ul class="nav flex-column ps-2">
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->routeIs('admin.quotations.index') ? 'active' : '' }}">
+                                <i class="bi bi-list-stars"></i>
+                                <span>All Quotations</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.create') }}" class="nav-link {{ request()->routeIs('admin.quotations.create') ? 'active' : '' }}">
+                                <i class="bi bi-file-earmark-plus-fill"></i>
+                                <span>Create Quotation</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.quotations.quick-create') }}" class="nav-link {{ request()->routeIs('admin.quotations.quick-create') ? 'active' : '' }}">
+                                <i class="bi bi-pencil-square"></i>
+                                <span>Quick / Manual Quotation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
 
             <div class="px-3 pt-3 pb-2">
                 <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">My Accounts</span>
@@ -437,7 +488,7 @@
 
         <!-- Footer -->
         <footer class="bg-white border-top py-3 px-4 text-center text-muted fs-7">
-            &copy; {{ date('Y') }} Pillai Ceramics. All Rights Reserved.
+            &copy; {{ date('Y' )}} Pillai Ceramics. All Rights Reserved.
         </footer>
     </div>
 
