@@ -69,7 +69,7 @@ class TileProductController extends Controller
 
         TileProduct::create($validated);
 
-        return redirect()->route('admin.tile_products.index')->with('success', 'Tile product created successfully.');
+        return redirect()->route('admin.tile-products.index')->with('success', 'Tile product created successfully.');
     }
 
     public function show($id)
@@ -129,7 +129,7 @@ class TileProductController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('admin.tile_products.index')->with('success', 'Tile product updated successfully.');
+        return redirect()->route('admin.tile-products.index')->with('success', 'Tile product updated successfully.');
     }
 
     public function destroy($id)
@@ -142,6 +142,14 @@ class TileProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('admin.tile_products.index')->with('success', 'Tile product deleted successfully.');
+        return redirect()->route('admin.tile-products.index')->with('success', 'Tile product deleted successfully.');
+    }
+    public function printAll()
+    {
+        $products = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location'])
+            ->latest()
+            ->get();
+
+        return view('admin.tile_products.print-all', compact('products'));
     }
 }

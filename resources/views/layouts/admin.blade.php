@@ -338,6 +338,28 @@
                     <span>Products & Stock</span>
                 </a>
             </li>
+            <div class="collapse {{ request()->routeIs('admin.sales.*') ? 'show' : '' }}" id="salesSubmenu">
+                <ul class="nav flex-column ps-2">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.sales.index') }}" class="nav-link {{ request()->routeIs('admin.sales.index') ? 'active' : '' }}">
+                            <i class="bi bi-list-ul"></i>
+                            <span>Sales Records</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.sales.reports') }}" class="nav-link {{ request()->routeIs('admin.sales.reports') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                            <span>Sales Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.whole-sales.index') }}" class="nav-link {{ request()->routeIs('admin.whole-sales.*') ? 'active' : '' }}">
+                            <i class="bi bi-shop"></i>
+                            <span>Whole Sales</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
             <div class="px-3 pt-3 pb-2">
                 <span class="text-uppercase text-secondary fw-semibold fs-7 px-3">My Accounts</span>

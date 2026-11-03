@@ -26,7 +26,7 @@ class DashboardController extends Controller
             'total_users'      => User::count(),
 
             
-            'total_4x2_stock'  => TileProduct::where('tile_size_id', 7)->sum('stock_quantity'),
+            'total_4x2_stock'  => TileProduct::sum('stock_quantity'),
         ];
 
         // Godowns grouped by Location

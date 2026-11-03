@@ -115,7 +115,7 @@
                                 <select class="form-select" id="tile_category_id" name="tile_category_id">
                                     <option value="">Select Category</option>
                                     @foreach($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        <option value="{{ $category->id }}" {{ old('tile_category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -125,7 +125,7 @@
                                 <select class="form-select" id="tile_type_id" name="tile_type_id">
                                     <option value="">Select Type</option>
                                     @foreach($types as $type)
-                                        <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                        <option value="{{ $type->id }}" {{ old('tile_type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -135,7 +135,7 @@
                                 <select class="form-select" id="tile_size_id" name="tile_size_id">
                                     <option value="">Select Size</option>
                                     @foreach($sizes as $size)
-                                        <option value="{{ $size->id }}">{{ $size->name }}</option>
+                                        <option value="{{ $size->id }}" {{ old('tile_size_id') == $size->id ? 'selected' : '' }}>{{ $size->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -147,10 +147,10 @@
                                 <label for="weightage" class="form-label fw-semibold fs-7">Weightage / Packaging <span class="text-danger">*</span></label>
                                 <select class="form-select" id="weightage" name="weightage">
                                     <option value="">Select Weightage</option>
-                                    <option value="20kg">20 KG</option>
-                                    <option value="30kg">30 KG</option>
-                                    <option value="40kg">40 KG</option>
-                                    <option value="50kg">50 KG</option>
+                                    <option value="20kg" {{ old('weightage') == '20kg' ? 'selected' : '' }}>20 KG</option>
+                                    <option value="30kg" {{ old('weightage') == '30kg' ? 'selected' : '' }}>30 KG</option>
+                                    <option value="40kg" {{ old('weightage') == '40kg' ? 'selected' : '' }}>40 KG</option>
+                                    <option value="50kg" {{ old('weightage') == '50kg' ? 'selected' : '' }}>50 KG</option>
                                 </select>
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                         <div id="sanitarywareFieldsContainer" class="row g-3 mt-2 d-none">
                             <div class="col-12 col-md-6">
                                 <label for="finish_type" class="form-label fw-semibold fs-7">Finish / Material</label>
-                                <input type="text" class="form-control" id="finish_type" name="finish_type" placeholder="e.g. Glossy Ceramic, Stainless Steel">
+                                <input type="text" class="form-control" id="finish_type" name="finish_type" value="{{ old('finish_type') }}" placeholder="e.g. Glossy Ceramic, Stainless Steel">
                             </div>
                         </div>
                     </div>
@@ -176,13 +176,37 @@
                                 <label for="price" class="form-label fw-semibold fs-7">Price <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">₹</span>
-                                    <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ old('price') }}" required>
+                                    <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price') }}" required>
                                 </div>
+                                @error('price')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="col-12 col-sm-6">
                                 <label for="stock_quantity" class="form-label fw-semibold fs-7">Stock Quantity <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', 0) }}" min="0" required>
+                                <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror" id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', 0) }}" min="0" required>
+                                @error('stock_quantity')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Added Box Coverage -->
+                            <div class="col-12 col-sm-6">
+                                <label for="box_coverage_sqft" class="form-label fw-semibold fs-7">Box Coverage (Sq. Ft.)</label>
+                                <input type="text" class="form-control @error('box_coverage_sqft') is-invalid @enderror" id="box_coverage_sqft" name="box_coverage_sqft" value="{{ old('box_coverage_sqft') }}" placeholder="e.g. 15.5">
+                                @error('box_coverage_sqft')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Added Pieces Per Box -->
+                            <div class="col-12 col-sm-6">
+                                <label for="pieces_per_box" class="form-label fw-semibold fs-7">Pieces Per Box</label>
+                                <input type="number" class="form-control @error('pieces_per_box') is-invalid @enderror" id="pieces_per_box" name="pieces_per_box" value="{{ old('pieces_per_box') }}" min="1" placeholder="e.g. 4">
+                                @error('pieces_per_box')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -201,7 +225,7 @@
                             <select class="form-select" id="production_company_id" name="production_company_id">
                                 <option value="">Select Company</option>
                                 @foreach($productionCompanies as $company)
-                                    <option value="{{ $company->id }}">{{ $company->name }}</option>
+                                    <option value="{{ $company->id }}" {{ old('production_company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -210,18 +234,59 @@
                             <select class="form-select" id="godown_id" name="godown_id">
                                 <option value="">None / Unassigned</option>
                                 @foreach($godowns as $godown)
-                                    <option value="{{ $godown->id }}">{{ $godown->name }}</option>
+                                    <option value="{{ $godown->id }}" {{ old('godown_id') == $godown->id ? 'selected' : '' }}>{{ $godown->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-0">
+                            <label for="location_id" class="form-label fw-semibold fs-7">Rack / Location</label>
+                            <select class="form-select" id="location_id" name="location_id">
+                                <option value="">None / Unassigned</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location->id }}" {{ old('location_id') == $location->id ? 'selected' : '' }}>{{ $location->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
 
+                <!-- Status Card -->
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <h6 class="fw-bold mb-0 text-dark fs-6"><i class="bi bi-toggle-on me-2 text-primary"></i>Status</h6>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="form-check form-switch p-0 d-flex justify-content-between align-items-center">
+                            <label class="form-check-label fw-semibold fs-7 m-0" for="is_active">
+                                Active Product
+                            </label>
+                            <input class="form-check-input ms-0" type="checkbox" role="switch" id="is_active" name="is_active" value="1" style="width: 2.5em; height: 1.25em;" {{ old('is_active', true) ? 'checked' : '' }}>
+                        </div>
+                        <small class="text-muted d-block mt-2 fs-8">Inactive products won't show up in search or sales.</small>
+                    </div>
+                </div>
+
                 <div class="d-none d-lg-grid gap-2">
                     <button type="submit" class="btn btn-primary py-2 fw-semibold"><i class="bi bi-check-lg me-1"></i> Save Product</button>
+                    <a href="{{ route('admin.tile-products.index') }}" class="btn btn-light py-2 fw-semibold text-muted text-center">Cancel</a>
                 </div>
             </div>
         </div>
+
+        <!-- Sticky Floating Save Bar (Mobile & Tablet Only) -->
+        <div class="d-lg-none fixed-bottom bg-white border-top p-2 p-sm-3 shadow-lg" style="z-index: 1020;">
+            <div class="container-fluid d-flex gap-2">
+                <a href="{{ route('admin.tile-products.index') }}" class="btn btn-light btn-lg flex-fill fs-6 fw-semibold text-muted py-2 text-center">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg flex-fill fs-6 fw-semibold py-2">
+                    <i class="bi bi-check-lg me-1"></i> Save Product
+                </button>
+            </div>
+        </div>
+        
+        <!-- Bottom spacing buffer for mobile fixed bar -->
+        <div class="d-lg-none pb-5 mb-4"></div>
     </form>
 </div>
 @endsection
@@ -230,7 +295,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const productTypeSelect = document.getElementById('product_type_id');
-        if (productTypeSelect.value) {
+        if (productTypeSelect && productTypeSelect.value) {
             handleProductTypeChange(productTypeSelect);
         }
     });
@@ -279,7 +344,9 @@
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.classList.remove('d-none');
-                placeholder.classList.add('d-none');
+                if (placeholder) {
+                    placeholder.classList.add('d-none');
+                }
             }
             reader.readAsDataURL(input.files[0]);
         }

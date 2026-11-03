@@ -130,9 +130,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:super_admin,ad
     Route::put('/daily-sales/{id}', [DailySaleController::class, 'update'])->name('sales.update');
     Route::delete('/daily-sales/{id}', [DailySaleController::class, 'destroy'])->name('sales.destroy');
 
+    Route::get('/product-types/fetch', [ProductTypeController::class, 'fetch'])->name('product-types.fetch');
     // Product Types Routes
     Route::resource('product-types', ProductTypeController::class);
-    Route::get('/product-types/fetch', [ProductTypeController::class, 'fetch'])->name('product-types.fetch');
+    
     // Daily Sales Reports Routes
     Route::get('/daily-sales/reports', [DailySaleController::class, 'reports'])->name('sales.reports');
     Route::get('/daily-sales/reports/fetch', [DailySaleController::class, 'fetchReports'])->name('sales.reports.fetch');
