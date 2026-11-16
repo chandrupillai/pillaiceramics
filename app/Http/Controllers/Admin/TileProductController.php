@@ -205,14 +205,7 @@ class TileProductController extends Controller
         return redirect()->route('admin.tile-products.index')->with('success', 'Tile product deleted successfully.');
     }
 
-    public function printAll()
-    {
-        $products = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location'])
-            ->latest()
-            ->get();
-
-        return view('admin.tile_products.print-all', compact('products'));
-    }
+    
 
     public function updateQuantity(Request $request, $id)
     {
@@ -227,6 +220,53 @@ class TileProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Stock quantity updated successfully.'
+        ]);
+    }
+
+    public function printAll(Request $request)
+    {
+
+        $query = TileProduct::with(['godown']);
+
+        // Apply filters if any were active on the index screen
+        if ($request->filled('search')) {
+            $query->where('product_name', 'like', '%' . $request->search . '%')
+                ->orWhere('sku', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('type_id')) {
+            $query->where('type_id', $request->type_id);
+        }
+
+        $products = $query->latest()->get(); // Fetch ALL matching records without pagination
+
+        return view('admin.tile_products.print-all', compact('products'));
+    }
+    
+
+    public function toggleDisplayFront(Request $request, TileProduct $product)
+    {
+        $displayFront = $request->boolean('display_front') ? 1 : 0;
+
+        if ($displayFront) {
+            $activeFrontCount = TileProduct::where('display_front', 1)->count();
+            if ($activeFrontCount >= 5) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Maximum of 5 products can be displayed on the front home page.'
+                ], 422);
+            }
+        }
+
+        $product->update(['display_front' => $displayFront]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Display status updated successfully.'
         ]);
     }
 }
