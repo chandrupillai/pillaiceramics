@@ -211,7 +211,7 @@
                 </a>
 
                 {{-- Play Store Download Button --}}
-                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" 
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.dealers" 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    title="Download Pillai Ceramics App on Google Play"
@@ -244,7 +244,7 @@
             
             <div class="pt-2 space-y-2">
                 <a href="{{ route('contact') }}" class="block w-full text-center bg-sky-600 text-white font-semibold py-2.5 rounded-lg">Enquire Now</a>
-                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg">
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.dealers" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg">
                     <svg class="w-5 h-5 fill-current text-sky-400" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M3.609 1.814L13.792 12 3.61 22.186a1.51 1.51 0 0 1-.61-1.21V3.024c0-.495.22-.962.609-1.21zm11.192 11.193l2.802 2.802-9.593 5.545 6.791-8.347zM17.6 15.007l3.39-1.958c.84-.485.84-1.609 0-2.094l-3.39-1.958-2.803 2.803 2.803 3.207zm-2.803-3.81l-9.593-5.545 6.791 8.347 2.802-2.802z"/>
                     </svg>
@@ -270,7 +270,7 @@
                 </p>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.app" 
+                <a href="https://play.google.com/store/apps/details?id=com.pillaiceramics.dealers" 
                    target="_blank" 
                    rel="noopener noreferrer"
                    class="bg-black hover:bg-slate-950 text-white border border-slate-700 hover:border-sky-400/50 px-6 py-3.5 rounded-2xl flex items-center gap-3 transition-all shadow-xl hover:shadow-sky-500/10 active:scale-95 group">

@@ -17,6 +17,8 @@ class Location extends Model
         'phone',
         'email',
         'is_active',
+        'banner',
+        'inner_image'
     ];
 
     public function godowns()

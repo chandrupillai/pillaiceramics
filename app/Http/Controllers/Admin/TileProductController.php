@@ -13,6 +13,7 @@ use App\Models\Godown;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TileProductController extends Controller
 {
@@ -75,9 +76,9 @@ class TileProductController extends Controller
             'product_name'          => 'required|string|max:255',
             'sku'                   => 'required|string|unique:tile_products,sku',
             'description'           => 'nullable|string',
-            'tile_category_id'      => 'required|exists:tile_categories,id',
-            'tile_type_id'          => 'required|exists:tile_types,id',
-            'tile_size_id'          => 'required|exists:tile_sizes,id',
+            'tile_category_id'      => 'nullable|exists:tile_categories,id',
+            'tile_type_id'          => 'nullable|exists:tile_types,id',
+            'tile_size_id'          => 'nullable|exists:tile_sizes,id',
             'product_type_id'       => 'required|exists:product_types,id',
             'price'                 => 'required|numeric|min:0',
             'stock_quantity'        => 'required|integer|min:0',
@@ -90,7 +91,20 @@ class TileProductController extends Controller
             'is_active'             => 'nullable|boolean',
         ]);
 
+        // Conditionally enforce tile fields only if the selected product type is "Tiles"
+        $productType = ProductType::find($request->product_type_id);
+        if ($productType && strtolower($productType->name) === 'tiles') {
+            $request->validate([
+                'tile_category_id' => 'required|exists:tile_categories,id',
+                'tile_type_id'     => 'required|exists:tile_types,id',
+                'tile_size_id'     => 'required|exists:tile_sizes,id',
+            ]);
+        }
+
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        
+        // Automatically generate unique slug to prevent database insertion error
+        $validated['slug'] = Str::slug($validated['product_name']) . '-' . uniqid();
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('tile_products', 'public');
@@ -139,9 +153,9 @@ class TileProductController extends Controller
             'product_name'          => 'required|string|max:255',
             'sku'                   => 'required|string|unique:tile_products,sku,' . $id,
             'description'           => 'nullable|string',
-            'tile_category_id'      => 'required|exists:tile_categories,id',
-            'tile_type_id'          => 'required|exists:tile_types,id',
-            'tile_size_id'          => 'required|exists:tile_sizes,id',
+            'tile_category_id'      => 'nullable|exists:tile_categories,id',
+            'tile_type_id'          => 'nullable|exists:tile_types,id',
+            'tile_size_id'          => 'nullable|exists:tile_sizes,id',
             'product_type_id'       => 'required|exists:product_types,id',
             'price'                 => 'required|numeric|min:0',
             'stock_quantity'        => 'required|integer|min:0',
@@ -153,6 +167,16 @@ class TileProductController extends Controller
             'image'                 => 'nullable|image|max:2048',
             'is_active'             => 'nullable|boolean',
         ]);
+
+        // Conditionally enforce tile fields on update if selected product type is "Tiles"
+        $productType = ProductType::find($request->product_type_id);
+        if ($productType && strtolower($productType->name) === 'tiles') {
+            $request->validate([
+                'tile_category_id' => 'required|exists:tile_categories,id',
+                'tile_type_id'     => 'required|exists:tile_types,id',
+                'tile_size_id'     => 'required|exists:tile_sizes,id',
+            ]);
+        }
 
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
 
@@ -180,6 +204,7 @@ class TileProductController extends Controller
 
         return redirect()->route('admin.tile-products.index')->with('success', 'Tile product deleted successfully.');
     }
+
     public function printAll()
     {
         $products = TileProduct::with(['category', 'type', 'size', 'productType', 'productionCompany', 'godown', 'location'])
@@ -188,6 +213,7 @@ class TileProductController extends Controller
 
         return view('admin.tile_products.print-all', compact('products'));
     }
+
     public function updateQuantity(Request $request, $id)
     {
         $validated = $request->validate([

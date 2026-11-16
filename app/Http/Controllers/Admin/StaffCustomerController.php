@@ -67,6 +67,7 @@ class StaffCustomerController extends Controller
             'password'      => bcrypt('12345678'),
             'shop_name'     => $request->shop_name,
             'gst_number'    => $request->gst_number,
+            'slug' => trim($request->name)
         ]);
 
         return response()->json([

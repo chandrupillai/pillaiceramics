@@ -30,7 +30,8 @@ class User extends Authenticatable
         'location_id',
         'shop_name',
         'address',
-        'gst_number'
+        'gst_number',
+        'slug'
     ];
     /**
      * The attributes that should be hidden for serialization.
